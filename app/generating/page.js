@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
-import { Suspense } from 'react'
 
 function GeneratingContent() {
   const router = useRouter()
@@ -23,7 +22,6 @@ function GeneratingContent() {
 
   const generateProfile = async (formData) => {
     try {
-      // Step 1 — Save birth data
       setStatus('Saving your details...')
       const { data: birthData, error: birthError } = await supabase
         .from('birth_data')
@@ -32,7 +30,6 @@ function GeneratingContent() {
 
       if (birthError) throw birthError
 
-      // Step 2 — Calculate profile
       setStatus('Calculating your profile...')
       const calcResponse = await fetch('/api/calculate', {
         method: 'POST',
@@ -46,7 +43,6 @@ function GeneratingContent() {
       const calcData = await calcResponse.json()
       if (!calcData.success) throw new Error('Calculation failed')
 
-      // Step 3 — Interpret profile
       setStatus('Generating your alignment profile... (this takes 20-30 seconds)')
       const interpretResponse = await fetch('/api/interpret', {
         method: 'POST',
@@ -60,7 +56,7 @@ function GeneratingContent() {
       const interpretData = await interpretResponse.json()
       if (!interpretData.success) throw new Error('Interpretation failed')
 
-      // Step 4 — Redirect to profile
+      // Save profile to sessionStorage
       const profilePayload = {
         full_name: formData.full_name,
         sections: interpretData.sections,
@@ -68,7 +64,9 @@ function GeneratingContent() {
         alignment_plan: interpretData.alignment_plan
       }
 
-      router.push('/profile?data=' + encodeURIComponent(JSON.stringify(profilePayload)))
+      sessionStorage.setItem('profile', JSON.stringify(profilePayload))
+
+      router.push('/profile')
 
     } catch (err) {
       console.error(err)
@@ -77,24 +75,27 @@ function GeneratingContent() {
   }
 
   return (
-    <main style={{ maxWidth: '480px', margin: '120px auto', padding: '0 20px', textAlign: 'center' }}>
-      <div style={{ fontSize: '48px', marginBottom: '24px' }}>⟳</div>
-      <h1 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px' }}>
-        Building Your Profile
-      </h1>
-      <p style={{ color: '#666', fontSize: '16px', lineHeight: '1.6' }}>
-        {status}
-      </p>
-      <p style={{ color: '#999', fontSize: '14px', marginTop: '24px' }}>
-        Please don't close this window.
-      </p>
-    </main>
+    <>
+      <div className="cosmic-bg" />
+      <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
+        <div style={{ fontSize:'48px', marginBottom:'24px' }}>✦</div>
+        <h1 style={{ fontSize:'24px', fontWeight:'600', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif' }}>
+          Building Your Profile
+        </h1>
+        <p style={{ color:'var(--text-muted)', fontSize:'16px', lineHeight:'1.6' }}>
+          {status}
+        </p>
+        <p style={{ color:'var(--text-light)', fontSize:'14px', marginTop:'24px' }}>
+          Please don't close this window.
+        </p>
+      </main>
+    </>
   )
 }
 
 export default function GeneratingPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign: 'center', padding: '80px' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ textAlign:'center', padding:'80px' }}>Loading...</div>}>
       <GeneratingContent />
     </Suspense>
   )
