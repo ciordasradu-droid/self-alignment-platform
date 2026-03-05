@@ -6,10 +6,99 @@ import AlignmentScore from './components/AlignmentScore'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 
-function ShadowAlert({ score, streak }) {
-  const showAlert = score > 0 && score < 40
+function RecalibrationMode({ onComplete }) {
+  const [checkinDone, setCheckinDone] = useState(false)
+  const [score, setScore] = useState(0)
 
-  if (!showAlert) return null
+  return (
+    <>
+      <div className="cosmic-bg" />
+      <main style={r.wrap}>
+
+        <div style={r.header}>
+          <span className="tag" style={{background:'rgba(232,130,74,0.15)', color:'var(--orange)', marginBottom:'16px', display:'inline-block'}}>
+            Recalibration Mode
+          </span>
+          <h1 style={r.title}>Let's come back to basics.</h1>
+          <p style={r.subtitle}>
+            Your alignment has been low. That's okay — it happens to everyone.
+            This is not a setback. This is the system working exactly as it should.
+            Simplify. Slow down. Return to what matters.
+          </p>
+        </div>
+
+        <div style={r.focusCard}>
+          <p style={r.focusLabel}>Your only focus right now</p>
+          <p style={r.focusText}>Complete today's check-in honestly. One small act of alignment is enough to reset the momentum.</p>
+        </div>
+
+        <div style={r.threeThings}>
+          <p style={r.thingsLabel}>Three things to return to today</p>
+          {[
+            { icon:'◎', text:'Your morning ritual — even 5 minutes counts' },
+            { icon:'✦', text:'One non-negotiable from your personal agreements' },
+            { icon:'◦', text:'10 minutes of silence — no phone, no input' }
+          ].map((item, i) => (
+            <div key={i} style={r.thingItem}>
+              <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>{item.icon}</span>
+              <p style={r.thingText}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <DailyCheckin
+          onComplete={(s) => {
+            setCheckinDone(true)
+            setScore(s)
+            if (s >= 40) {
+              setTimeout(() => onComplete(s), 1500)
+            }
+          }}
+          checkinDone={checkinDone}
+        />
+
+        {checkinDone && score < 40 && (
+          <div style={r.stillLow}>
+            <p style={r.stillLowText}>
+              Your score is still low — and that's okay. Come back tomorrow.
+              Every check-in is a step forward, even the hard ones.
+            </p>
+          </div>
+        )}
+
+        {checkinDone && score >= 40 && (
+          <div style={r.unlocked}>
+            <p style={r.unlockedText}>
+              ✦ Your alignment is returning. Dashboard unlocked.
+            </p>
+          </div>
+        )}
+
+      </main>
+    </>
+  )
+}
+
+const r = {
+  wrap: { maxWidth:'560px', margin:'0 auto', padding:'60px 24px 80px' },
+  header: { marginBottom:'32px' },
+  title: { fontSize:'36px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px' },
+  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.8' },
+  focusCard: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px' },
+  focusLabel: { fontSize:'11px', fontWeight:'700', color:'var(--orange)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'10px' },
+  focusText: { fontSize:'16px', color:'rgba(255,255,255,0.85)', lineHeight:'1.7' },
+  threeThings: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'24px', marginBottom:'24px' },
+  thingsLabel: { fontSize:'12px', fontWeight:'700', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'16px' },
+  thingItem: { display:'flex', alignItems:'flex-start', padding:'10px 0', borderBottom:'1px solid var(--border)' },
+  thingText: { fontSize:'14px', color:'var(--text)', lineHeight:'1.6' },
+  stillLow: { background:'var(--orange-light)', borderRadius:'var(--radius)', padding:'20px', marginTop:'16px' },
+  stillLowText: { fontSize:'14px', color:'var(--orange)', lineHeight:'1.7', textAlign:'center' },
+  unlocked: { background:'var(--green-light)', borderRadius:'var(--radius)', padding:'20px', marginTop:'16px' },
+  unlockedText: { fontSize:'15px', color:'var(--green)', lineHeight:'1.7', textAlign:'center', fontWeight:'500' }
+}
+
+function ShadowAlert({ score }) {
+  if (score === 0 || score >= 40) return null
 
   const messages = [
     "Your alignment has been low lately. This is not failure — it's a signal. You know what needs to change.",
@@ -21,40 +110,36 @@ function ShadowAlert({ score, streak }) {
   const message = messages[Math.floor(Math.random() * messages.length)]
 
   return (
-    <div style={a.card}>
-      <div style={a.header}>
-        <span style={a.icon}>◦</span>
-        <p style={a.title}>Pattern Detected</p>
+    <div style={al.card}>
+      <div style={al.header}>
+        <span style={{color:'var(--orange)'}}>◦</span>
+        <p style={al.title}>Pattern Detected</p>
       </div>
-      <p style={a.message}>{message}</p>
-      <div style={a.actions}>
-        <p style={a.actionLabel}>One thing to do right now:</p>
-        <div style={a.actionItems}>
-          {[
-            'Return to your morning ritual',
-            'Do one non-negotiable from your profile',
-            'Take 10 minutes of silence — no phone'
-          ].map((action, i) => (
-            <div key={i} style={a.actionItem}>
-              <span style={{color:'var(--orange)', marginRight:'8px'}}>→</span>
-              {action}
-            </div>
-          ))}
-        </div>
+      <p style={al.message}>{message}</p>
+      <div style={al.actions}>
+        <p style={al.actionLabel}>One thing to do right now:</p>
+        {[
+          'Return to your morning ritual',
+          'Do one non-negotiable from your profile',
+          'Take 10 minutes of silence — no phone'
+        ].map((action, i) => (
+          <div key={i} style={al.actionItem}>
+            <span style={{color:'var(--orange)', marginRight:'8px'}}>→</span>
+            {action}
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-const a = {
+const al = {
   card: { background:'linear-gradient(135deg, #2d1b00 0%, #3d2400 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'24px', border:'1px solid rgba(232,130,74,0.3)' },
   header: { display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' },
-  icon: { fontSize:'20px', color:'var(--orange)' },
   title: { fontSize:'14px', fontWeight:'700', color:'var(--orange)', textTransform:'uppercase', letterSpacing:'0.5px' },
   message: { fontSize:'15px', color:'rgba(255,255,255,0.85)', lineHeight:'1.7', marginBottom:'20px' },
   actions: { background:'rgba(255,255,255,0.05)', borderRadius:'10px', padding:'16px' },
   actionLabel: { fontSize:'12px', fontWeight:'600', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'12px' },
-  actionItems: {},
   actionItem: { fontSize:'14px', color:'rgba(255,255,255,0.75)', padding:'6px 0', display:'flex', alignItems:'flex-start' }
 }
 
@@ -62,6 +147,28 @@ function DashboardContent() {
   const [checkinDone, setCheckinDone] = useState(false)
   const [alignmentScore, setAlignmentScore] = useState(0)
   const [streak, setStreak] = useState(0)
+  const [recalibrating, setRecalibrating] = useState(false)
+
+  const handleCheckinComplete = (score) => {
+    setCheckinDone(true)
+    setAlignmentScore(score)
+    setStreak(prev => prev + 1)
+    if (score < 40) {
+      setRecalibrating(true)
+    }
+  }
+
+  if (recalibrating) {
+    return (
+      <RecalibrationMode
+        onComplete={(score) => {
+          setAlignmentScore(score)
+          setRecalibrating(false)
+          setCheckinDone(true)
+        }}
+      />
+    )
+  }
 
   return (
     <>
@@ -96,14 +203,10 @@ function DashboardContent() {
           </div>
         </div>
 
-        <ShadowAlert score={alignmentScore} streak={streak} />
+        <ShadowAlert score={alignmentScore} />
 
         <DailyCheckin
-          onComplete={(score) => {
-            setCheckinDone(true)
-            setAlignmentScore(score)
-            setStreak(prev => prev + 1)
-          }}
+          onComplete={handleCheckinComplete}
           checkinDone={checkinDone}
         />
 
