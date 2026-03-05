@@ -16,7 +16,6 @@ async function callClaude(prompt) {
     messages: [{ role: 'user', content: prompt }]
   })
 
-  // Handle all content block types safely
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) {
     throw new Error('No text response from Claude')
@@ -29,7 +28,7 @@ async function callClaude(prompt) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { calculated_profile_id, full_name, calculated_data } = body
+    const { calculated_profile_id, full_name, calculated_data, user_id } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name)
     const sections = await callClaude(profilePrompt)
@@ -44,6 +43,7 @@ export async function POST(request) {
       .from('interpreted_profiles')
       .insert([{
         calculated_profile_id: calculated_profile_id || null,
+        user_id: user_id || null,
         sections,
         swot,
         alignment_plan: alignmentPlan,

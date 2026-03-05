@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { getUserId } from '../../lib/userId'
 
 function GeneratingContent() {
   const router = useRouter()
@@ -28,6 +29,8 @@ function GeneratingContent() {
 
   const generateProfile = async (formData) => {
     try {
+      const userId = getUserId()
+
       setStatus('Calculating your profile...')
 
       const calcResponse = await fetch('/api/calculate', {
@@ -35,7 +38,8 @@ function GeneratingContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           full_name: formData.full_name,
-          date_of_birth: formData.date_of_birth
+          date_of_birth: formData.date_of_birth,
+          user_id: userId
         })
       })
 
@@ -53,7 +57,8 @@ function GeneratingContent() {
         body: JSON.stringify({
           full_name: formData.full_name,
           calculated_profile_id: calcData.calculated_profile_id,
-          calculated_data: calcData.data
+          calculated_data: calcData.data,
+          user_id: userId
         })
       })
 
@@ -63,13 +68,16 @@ function GeneratingContent() {
         return
       }
 
-      localStorage.setItem('profile', JSON.stringify({
+      const profilePayload = {
         full_name: formData.full_name,
         sections: interpretData.sections,
         swot: interpretData.swot,
         alignment_plan: interpretData.alignment_plan,
-        personal_year: calcData.data.numerology.personal_year
-      }))
+        personal_year: calcData.data.numerology.personal_year,
+        interpreted_profile_id: interpretData.interpreted_profile_id
+      }
+
+      localStorage.setItem('profile', JSON.stringify(profilePayload))
 
       router.push('/profile')
 

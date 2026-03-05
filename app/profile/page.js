@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
+import { getUserId } from '../../lib/userId'
 
 function CommitmentGate({ commitments, onAccept }) {
   const [checked, setChecked] = useState([false, false, false])
@@ -74,7 +75,7 @@ function CommitmentGate({ commitments, onAccept }) {
 
 const g = {
   wrap: { maxWidth:'560px', margin:'0 auto', padding:'60px 24px 80px' },
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'40px', boxShadow:'var(--shadow-lg)' },
+  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'40px', boxShadow:'var(--shadow)' },
   title: { fontSize:'32px', fontWeight:'600', color:'var(--text)', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.7', marginBottom:'32px' },
   commitments: { marginBottom:'32px' },
@@ -94,12 +95,35 @@ function ProfileContent() {
     const stored = localStorage.getItem('profile')
     if (stored) {
       setProfile(JSON.parse(stored))
+      setLoading(false)
+      return
     }
-    setLoading(false)
+
+    const userId = getUserId()
+    fetch(`/api/profile?user_id=${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const profilePayload = {
+            sections: data.sections,
+            swot: data.swot,
+            alignment_plan: data.alignment_plan
+          }
+          localStorage.setItem('profile', JSON.stringify(profilePayload))
+          setProfile(profilePayload)
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
   if (loading) return <div style={s.center}>Loading your profile...</div>
-  if (!profile) return <div style={s.center}>No profile data found.</div>
+  if (!profile) return (
+    <div style={s.center}>
+      <p style={{marginBottom:'20px'}}>No profile found.</p>
+      <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
+    </div>
+  )
 
   if (!committed) {
     return (
