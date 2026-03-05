@@ -5,10 +5,10 @@ import DailyCheckin from './components/DailyCheckin'
 import AlignmentScore from './components/AlignmentScore'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
+import { getUserId } from '../../lib/userId'
 
 function PersonalYearBanner({ personalYear }) {
   if (!personalYear) return null
-
   return (
     <div style={py.banner}>
       <div style={py.left}>
@@ -48,7 +48,6 @@ function RecalibrationMode({ onComplete, personalYear }) {
     <>
       <div className="cosmic-bg" />
       <main style={rec.wrap}>
-
         <div style={rec.header}>
           <span className="tag" style={{background:'rgba(232,130,74,0.15)', color:'var(--orange)', marginBottom:'16px', display:'inline-block'}}>
             Recalibration Mode
@@ -86,9 +85,7 @@ function RecalibrationMode({ onComplete, personalYear }) {
           onComplete={(s) => {
             setCheckinDone(true)
             setScore(s)
-            if (s >= 40) {
-              setTimeout(() => onComplete(s), 1500)
-            }
+            if (s >= 40) setTimeout(() => onComplete(s), 1500)
           }}
           checkinDone={checkinDone}
         />
@@ -104,12 +101,9 @@ function RecalibrationMode({ onComplete, personalYear }) {
 
         {checkinDone && score >= 40 && (
           <div style={rec.unlocked}>
-            <p style={rec.unlockedText}>
-              ✦ Your alignment is returning. Dashboard unlocked.
-            </p>
+            <p style={rec.unlockedText}>✦ Your alignment is returning. Dashboard unlocked.</p>
           </div>
         )}
-
       </main>
     </>
   )
@@ -135,16 +129,13 @@ const rec = {
 
 function ShadowAlert({ score }) {
   if (score === 0 || score >= 40) return null
-
   const messages = [
     "Your alignment has been low lately. This is not failure — it's a signal. You know what needs to change.",
     "A pattern is showing up. Not to judge you, but to remind you: small consistent actions beat big bursts of motivation.",
     "Low alignment days are part of the journey. The question is not why it happened — it's what one thing you can do right now to reset.",
     "Your system is telling you something. Slow down, simplify, and come back to your non-negotiables today."
   ]
-
   const message = messages[Math.floor(Math.random() * messages.length)]
-
   return (
     <div style={al.card}>
       <div style={al.header}>
@@ -183,27 +174,59 @@ function DashboardContent() {
   const [checkinDone, setCheckinDone] = useState(false)
   const [alignmentScore, setAlignmentScore] = useState(0)
   const [streak, setStreak] = useState(0)
+  const [longestStreak, setLongestStreak] = useState(0)
   const [recalibrating, setRecalibrating] = useState(false)
   const [personalYear, setPersonalYear] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const stored = localStorage.getItem('profile')
     if (stored) {
       const profile = JSON.parse(stored)
-      if (profile.personal_year) {
-        setPersonalYear(profile.personal_year)
-      }
+      if (profile.personal_year) setPersonalYear(profile.personal_year)
     }
+
+    const userId = getUserId()
+    fetch(`/api/dashboard?user_id=${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setStreak(data.streak.current_streak || 0)
+          setLongestStreak(data.streak.longest_streak || 0)
+          setAlignmentScore(data.lastScore || 0)
+          setCheckinDone(data.checkedInToday || false)
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
-  const handleCheckinComplete = (score) => {
+  const handleCheckinComplete = async (score, answers) => {
+    const userId = getUserId()
+
+    const res = await fetch('/api/dashboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, score, answers })
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      setStreak(data.streak)
+      setLongestStreak(data.longest_streak)
+    }
+
     setCheckinDone(true)
     setAlignmentScore(score)
-    setStreak(prev => prev + 1)
-    if (score < 40) {
-      setRecalibrating(true)
-    }
+    if (score < 40) setRecalibrating(true)
   }
+
+  if (loading) return (
+    <div style={{textAlign:'center', padding:'80px', fontSize:'18px', color:'var(--text-muted)'}}>
+      Loading your dashboard...
+    </div>
+  )
 
   if (recalibrating) {
     return (
@@ -243,7 +266,7 @@ function DashboardContent() {
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--green)'}}>
             <p style={s.statLabel}>Current Streak</p>
-            <p style={{...s.statValue, color:'var(--green)'}}>{streak} <span style={s.statUnit}>days</span></p>
+            <p style={{...s.statValue, color:'var(--green)'}}>{streak}<span style={s.statUnit}> days</span></p>
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--orange)'}}>
             <p style={s.statLabel}>Today</p>
@@ -262,7 +285,7 @@ function DashboardContent() {
 
         <AlignmentScore score={alignmentScore} />
 
-        <StreakTracker streak={streak} longestStreak={streak} />
+        <StreakTracker streak={streak} longestStreak={longestStreak} />
 
         <WeeklyReview />
 
