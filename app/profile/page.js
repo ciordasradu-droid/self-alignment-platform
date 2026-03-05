@@ -3,9 +3,92 @@
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
 
+function CommitmentGate({ commitments, onAccept }) {
+  const [checked, setChecked] = useState([false, false, false])
+
+  const allChecked = checked.every(c => c)
+
+  const toggle = (i) => {
+    const updated = [...checked]
+    updated[i] = !updated[i]
+    setChecked(updated)
+  }
+
+  return (
+    <>
+      <div className="cosmic-bg" />
+      <main style={g.wrap}>
+        <div style={g.card}>
+          <span className="tag tag-purple" style={{marginBottom:'20px', display:'inline-block'}}>
+            Before You Begin
+          </span>
+          <h1 style={g.title}>Your Personal Agreements</h1>
+          <p style={g.subtitle}>
+            These are not rules imposed on you. They are what your best self already knows.
+            Read each one, check it when it feels true, and step into your profile.
+          </p>
+
+          <div style={g.commitments}>
+            {commitments?.map((item, i) => (
+              <div
+                key={i}
+                onClick={() => toggle(i)}
+                style={{
+                  ...g.commitmentItem,
+                  background: checked[i] ? 'var(--purple-light)' : 'var(--bg)',
+                  borderColor: checked[i] ? 'var(--purple)' : 'var(--border)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{
+                  ...g.checkbox,
+                  background: checked[i] ? 'var(--purple)' : 'transparent',
+                  borderColor: checked[i] ? 'var(--purple)' : 'var(--border)'
+                }}>
+                  {checked[i] && <span style={g.checkmark}>✓</span>}
+                </div>
+                <p style={{...g.commitmentText, color: checked[i] ? 'var(--purple)' : 'var(--text)'}}>
+                  {item}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={onAccept}
+            disabled={!allChecked}
+            style={{
+              ...g.btn,
+              background: allChecked ? 'var(--purple)' : '#ccc',
+              cursor: allChecked ? 'pointer' : 'not-allowed',
+              boxShadow: allChecked ? '0 4px 20px rgba(124,92,191,0.3)' : 'none'
+            }}
+          >
+            {allChecked ? 'I am ready. Show me my profile →' : 'Check all agreements to continue'}
+          </button>
+        </div>
+      </main>
+    </>
+  )
+}
+
+const g = {
+  wrap: { maxWidth:'560px', margin:'0 auto', padding:'60px 24px 80px' },
+  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'40px', boxShadow:'var(--shadow-lg)' },
+  title: { fontSize:'32px', fontWeight:'600', color:'var(--text)', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif' },
+  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.7', marginBottom:'32px' },
+  commitments: { marginBottom:'32px' },
+  commitmentItem: { display:'flex', alignItems:'flex-start', gap:'14px', padding:'16px', borderRadius:'10px', border:'1.5px solid', marginBottom:'12px', transition:'all 0.2s' },
+  checkbox: { width:'22px', height:'22px', borderRadius:'6px', border:'2px solid', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', marginTop:'1px' },
+  checkmark: { color:'#fff', fontSize:'13px', fontWeight:'700' },
+  commitmentText: { fontSize:'15px', lineHeight:'1.6', transition:'color 0.2s' },
+  btn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', transition:'all 0.2s' }
+}
+
 function ProfileContent() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [committed, setCommitted] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('profile')
@@ -18,6 +101,15 @@ function ProfileContent() {
   if (loading) return <div style={s.center}>Loading your profile...</div>
   if (!profile) return <div style={s.center}>No profile data found.</div>
 
+  if (!committed) {
+    return (
+      <CommitmentGate
+        commitments={profile.sections?.commitments}
+        onAccept={() => setCommitted(true)}
+      />
+    )
+  }
+
   const { sections, swot, alignment_plan, full_name, personal_year } = profile
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
@@ -27,7 +119,6 @@ function ProfileContent() {
       <div className="cosmic-bg" />
       <main style={s.wrap}>
 
-        {/* Header */}
         <div style={s.header}>
           <div>
             <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>Your Profile</span>
@@ -39,7 +130,6 @@ function ProfileContent() {
           </button>
         </div>
 
-        {/* Personal Year Card */}
         {personal_year && (
           <div style={s.personalYearCard}>
             <div style={s.personalYearLeft}>
@@ -59,7 +149,6 @@ function ProfileContent() {
           </div>
         )}
 
-        {/* Blueprint */}
         <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
           <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ Core Energetic Blueprint</div>
           <p style={s.bodyText}>{sections?.blueprint}</p>
@@ -134,7 +223,6 @@ function ProfileContent() {
           </div>
         </div>
 
-        {/* Self Perspective */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>🪞 Self Perspective</div>
           <div style={s.swotGrid}>
@@ -158,7 +246,6 @@ function ProfileContent() {
           </div>
         </div>
 
-        {/* Alignment Plan */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>🧭 Alignment Plan</div>
 
@@ -254,7 +341,6 @@ function ProfileContent() {
           </div>
         </div>
 
-        {/* CTA */}
         <div style={s.ctaBox}>
           <h2 style={s.ctaTitle}>Ready to stay aligned?</h2>
           <p style={s.ctaText}>Daily check-ins, alignment score, and streak tracking — $15/month.</p>
