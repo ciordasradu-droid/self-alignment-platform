@@ -67,7 +67,8 @@ function GeneratingContent() {
         full_name: formData.full_name,
         sections: interpretData.sections,
         swot: interpretData.swot,
-        alignment_plan: interpretData.alignment_plan
+        alignment_plan: interpretData.alignment_plan,
+        personal_year: calcData.data.numerology.personal_year
       }))
 
       router.push('/profile')

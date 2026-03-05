@@ -18,7 +18,7 @@ function ProfileContent() {
   if (loading) return <div style={s.center}>Loading your profile...</div>
   if (!profile) return <div style={s.center}>No profile data found.</div>
 
-  const { sections, swot, alignment_plan, full_name } = profile
+  const { sections, swot, alignment_plan, full_name, personal_year } = profile
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
 
@@ -27,6 +27,7 @@ function ProfileContent() {
       <div className="cosmic-bg" />
       <main style={s.wrap}>
 
+        {/* Header */}
         <div style={s.header}>
           <div>
             <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>Your Profile</span>
@@ -38,6 +39,27 @@ function ProfileContent() {
           </button>
         </div>
 
+        {/* Personal Year Card */}
+        {personal_year && (
+          <div style={s.personalYearCard}>
+            <div style={s.personalYearLeft}>
+              <span style={s.personalYearNum}>{personal_year.personal_year}</span>
+              <div>
+                <p style={s.personalYearLabel}>Your Current Phase</p>
+                <p style={s.personalYearTheme}>{personal_year.theme}</p>
+              </div>
+            </div>
+            <div style={s.personalYearRight}>
+              <p style={s.personalYearFocus}>{personal_year.focus}</p>
+              <div style={s.personalYearWarning}>
+                <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
+                <span>{personal_year.warning}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Blueprint */}
         <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
           <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ Core Energetic Blueprint</div>
           <p style={s.bodyText}>{sections?.blueprint}</p>
@@ -112,6 +134,7 @@ function ProfileContent() {
           </div>
         </div>
 
+        {/* Self Perspective */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>🪞 Self Perspective</div>
           <div style={s.swotGrid}>
@@ -135,6 +158,7 @@ function ProfileContent() {
           </div>
         </div>
 
+        {/* Alignment Plan */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>🧭 Alignment Plan</div>
 
@@ -207,17 +231,17 @@ function ProfileContent() {
                 </ul>
               </div>
               <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--orange)'}}>Compassionate Rules</p>
+                <p style={{...s.planLabel, color:'var(--orange)'}}>Forbidden Behaviors</p>
                 <ul style={s.list}>
-                  {alignment_plan?.behavioral_anchors?.anti_sabotage_rules?.map((item, i) => (
+                  {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
                     <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}
+                      <span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}
                     </li>
                   ))}
                 </ul>
               </div>
               <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--green)'}}>Non-Negotiables</p>
+                <p style={{...s.planLabel, color:'var(--green)'}}>My Agreements</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
                     <li key={i} style={s.listItem}>
@@ -230,6 +254,7 @@ function ProfileContent() {
           </div>
         </div>
 
+        {/* CTA */}
         <div style={s.ctaBox}>
           <h2 style={s.ctaTitle}>Ready to stay aligned?</h2>
           <p style={s.ctaText}>Daily check-ins, alignment score, and streak tracking — $15/month.</p>
@@ -248,6 +273,14 @@ const s = {
   title: { fontSize:'42px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
   dlBtn: { padding:'10px 20px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', fontWeight:'500', cursor:'pointer', color:'var(--text)' },
+  personalYearCard: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px', display:'flex', gap:'32px', alignItems:'flex-start', flexWrap:'wrap' },
+  personalYearLeft: { display:'flex', alignItems:'center', gap:'16px', flexShrink:0 },
+  personalYearNum: { fontSize:'64px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
+  personalYearLabel: { fontSize:'11px', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'4px' },
+  personalYearTheme: { fontSize:'18px', fontWeight:'600', color:'#fff' },
+  personalYearRight: { flex:1 },
+  personalYearFocus: { fontSize:'14px', color:'rgba(255,255,255,0.8)', lineHeight:'1.7', marginBottom:'12px' },
+  personalYearWarning: { display:'flex', alignItems:'flex-start', fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:'1.6' },
   card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'28px', marginBottom:'20px', boxShadow:'var(--shadow)' },
   cardLabel: (bg, color) => ({ display:'inline-block', padding:'6px 14px', background:bg, color:color, borderRadius:'20px', fontSize:'13px', fontWeight:'600', marginBottom:'16px', letterSpacing:'0.3px' }),
   grid2: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px', marginBottom:'20px' },
