@@ -1,47 +1,83 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import DailyCheckin from './components/DailyCheckin'
 import AlignmentScore from './components/AlignmentScore'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 
-function RecalibrationMode({ onComplete }) {
+function PersonalYearBanner({ personalYear }) {
+  if (!personalYear) return null
+
+  return (
+    <div style={py.banner}>
+      <div style={py.left}>
+        <span style={py.num}>{personalYear.personal_year}</span>
+        <div>
+          <p style={py.label}>Your Current Phase</p>
+          <p style={py.theme}>{personalYear.theme}</p>
+        </div>
+      </div>
+      <div style={py.right}>
+        <p style={py.focus}>{personalYear.focus}</p>
+        <p style={py.warning}>
+          <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
+          {personalYear.warning}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+const py = {
+  banner: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'20px 28px', marginBottom:'28px', display:'flex', gap:'24px', alignItems:'center', flexWrap:'wrap' },
+  left: { display:'flex', alignItems:'center', gap:'14px', flexShrink:0 },
+  num: { fontSize:'48px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
+  label: { fontSize:'10px', color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'2px' },
+  theme: { fontSize:'16px', fontWeight:'600', color:'#fff' },
+  right: { flex:1 },
+  focus: { fontSize:'13px', color:'rgba(255,255,255,0.75)', lineHeight:'1.6', marginBottom:'6px' },
+  warning: { fontSize:'12px', color:'rgba(255,255,255,0.5)', lineHeight:'1.5', display:'flex', alignItems:'flex-start' }
+}
+
+function RecalibrationMode({ onComplete, personalYear }) {
   const [checkinDone, setCheckinDone] = useState(false)
   const [score, setScore] = useState(0)
 
   return (
     <>
       <div className="cosmic-bg" />
-      <main style={r.wrap}>
+      <main style={rec.wrap}>
 
-        <div style={r.header}>
+        <div style={rec.header}>
           <span className="tag" style={{background:'rgba(232,130,74,0.15)', color:'var(--orange)', marginBottom:'16px', display:'inline-block'}}>
             Recalibration Mode
           </span>
-          <h1 style={r.title}>Let's come back to basics.</h1>
-          <p style={r.subtitle}>
+          <h1 style={rec.title}>Let's come back to basics.</h1>
+          <p style={rec.subtitle}>
             Your alignment has been low. That's okay — it happens to everyone.
             This is not a setback. This is the system working exactly as it should.
             Simplify. Slow down. Return to what matters.
           </p>
         </div>
 
-        <div style={r.focusCard}>
-          <p style={r.focusLabel}>Your only focus right now</p>
-          <p style={r.focusText}>Complete today's check-in honestly. One small act of alignment is enough to reset the momentum.</p>
+        <PersonalYearBanner personalYear={personalYear} />
+
+        <div style={rec.focusCard}>
+          <p style={rec.focusLabel}>Your only focus right now</p>
+          <p style={rec.focusText}>Complete today's check-in honestly. One small act of alignment is enough to reset the momentum.</p>
         </div>
 
-        <div style={r.threeThings}>
-          <p style={r.thingsLabel}>Three things to return to today</p>
+        <div style={rec.threeThings}>
+          <p style={rec.thingsLabel}>Three things to return to today</p>
           {[
             { icon:'◎', text:'Your morning ritual — even 5 minutes counts' },
             { icon:'✦', text:'One non-negotiable from your personal agreements' },
             { icon:'◦', text:'10 minutes of silence — no phone, no input' }
           ].map((item, i) => (
-            <div key={i} style={r.thingItem}>
+            <div key={i} style={rec.thingItem}>
               <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>{item.icon}</span>
-              <p style={r.thingText}>{item.text}</p>
+              <p style={rec.thingText}>{item.text}</p>
             </div>
           ))}
         </div>
@@ -58,8 +94,8 @@ function RecalibrationMode({ onComplete }) {
         />
 
         {checkinDone && score < 40 && (
-          <div style={r.stillLow}>
-            <p style={r.stillLowText}>
+          <div style={rec.stillLow}>
+            <p style={rec.stillLowText}>
               Your score is still low — and that's okay. Come back tomorrow.
               Every check-in is a step forward, even the hard ones.
             </p>
@@ -67,8 +103,8 @@ function RecalibrationMode({ onComplete }) {
         )}
 
         {checkinDone && score >= 40 && (
-          <div style={r.unlocked}>
-            <p style={r.unlockedText}>
+          <div style={rec.unlocked}>
+            <p style={rec.unlockedText}>
               ✦ Your alignment is returning. Dashboard unlocked.
             </p>
           </div>
@@ -79,7 +115,7 @@ function RecalibrationMode({ onComplete }) {
   )
 }
 
-const r = {
+const rec = {
   wrap: { maxWidth:'560px', margin:'0 auto', padding:'60px 24px 80px' },
   header: { marginBottom:'32px' },
   title: { fontSize:'36px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px' },
@@ -148,6 +184,17 @@ function DashboardContent() {
   const [alignmentScore, setAlignmentScore] = useState(0)
   const [streak, setStreak] = useState(0)
   const [recalibrating, setRecalibrating] = useState(false)
+  const [personalYear, setPersonalYear] = useState(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem('profile')
+    if (stored) {
+      const profile = JSON.parse(stored)
+      if (profile.personal_year) {
+        setPersonalYear(profile.personal_year)
+      }
+    }
+  }, [])
 
   const handleCheckinComplete = (score) => {
     setCheckinDone(true)
@@ -161,6 +208,7 @@ function DashboardContent() {
   if (recalibrating) {
     return (
       <RecalibrationMode
+        personalYear={personalYear}
         onComplete={(score) => {
           setAlignmentScore(score)
           setRecalibrating(false)
@@ -185,6 +233,8 @@ function DashboardContent() {
           </div>
           <a href="/" style={s.homeLink}>← Home</a>
         </div>
+
+        <PersonalYearBanner personalYear={personalYear} />
 
         <div style={s.statsRow}>
           <div style={{...s.statCard, borderTop:'3px solid var(--purple)'}}>
