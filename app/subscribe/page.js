@@ -30,7 +30,8 @@ export default function SubscribePage() {
     }
   }
 
-  const handleTryFree = () => {
+  const handleTryFree = async () => {
+    await fetch('/api/try-free', { method: 'POST' })
     window.location.href = '/dashboard'
   }
 
@@ -39,12 +40,10 @@ export default function SubscribePage() {
       <div className="cosmic-bg" />
       <main style={s.wrap}>
 
-        {/* Header */}
         <div style={s.header}>
           <Link href="/" style={s.back}>← Back</Link>
         </div>
 
-        {/* Hero */}
         <div style={s.hero}>
           <span className="tag tag-orange" style={{marginBottom:'16px', display:'inline-block'}}>
             Accountability System
@@ -59,7 +58,6 @@ export default function SubscribePage() {
           </p>
         </div>
 
-        {/* First 1000 banner */}
         {spotsLeft !== null && spotsLeft > 0 && (
           <div style={s.spotsBanner}>
             <div style={s.spotsLeft}>
@@ -72,7 +70,6 @@ export default function SubscribePage() {
           </div>
         )}
 
-        {/* Plan toggle */}
         <div style={s.toggle}>
           <button
             onClick={() => setPlan('monthly')}
@@ -96,7 +93,6 @@ export default function SubscribePage() {
           </button>
         </div>
 
-        {/* Pricing card */}
         <div style={s.pricingCard}>
           <div style={s.priceRow}>
             <span style={s.price}>
@@ -144,7 +140,6 @@ export default function SubscribePage() {
           </p>
         </div>
 
-        {/* What you need first */}
         <div style={s.profileNote}>
           <p style={s.profileNoteText}>
             Don't have your free profile yet?
@@ -154,7 +149,6 @@ export default function SubscribePage() {
           </Link>
         </div>
 
-        {/* Guarantee section */}
         <div style={s.guaranteeSection}>
           <h2 style={s.guaranteeTitle}>Our promise to you</h2>
           <div style={s.guaranteeGrid}>
