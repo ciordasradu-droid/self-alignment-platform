@@ -40,6 +40,84 @@ const py = {
   warning: { fontSize:'12px', color:'rgba(255,255,255,0.5)', lineHeight:'1.5', display:'flex', alignItems:'flex-start' }
 }
 
+function InviteSection({ userId }) {
+  const [copied, setCopied] = useState(false)
+  const [referrals, setReferrals] = useState(0)
+
+  const inviteLink = `${window.location.origin}/invite/${userId}`
+
+  useEffect(() => {
+    fetch(`/api/invite?user_id=${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setReferrals(data.referrals)
+      })
+  }, [userId])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(inviteLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div style={inv.card}>
+      <div style={inv.header}>
+        <div>
+          <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>Invite Friends</span>
+          <h3 style={inv.title}>Bring a friend. Get a free month.</h3>
+          <p style={inv.subtitle}>
+            For every friend who subscribes to the Accountability System,
+            you get <strong>1 month free</strong>. Share your unique link below.
+          </p>
+        </div>
+      </div>
+
+      <div style={inv.linkBox}>
+        <p style={inv.linkText}>{inviteLink}</p>
+        <button onClick={handleCopy} style={inv.copyBtn}>
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+      </div>
+
+      <div style={inv.stats}>
+        <div style={inv.stat}>
+          <span style={inv.statNum}>{referrals}</span>
+          <span style={inv.statLabel}>Friends invited</span>
+        </div>
+        <div style={inv.stat}>
+          <span style={{...inv.statNum, color:'var(--green)'}}>
+            {referrals > 0 ? referrals : 0}
+          </span>
+          <span style={inv.statLabel}>Free months earned</span>
+        </div>
+      </div>
+
+      <div style={inv.bonus}>
+        <p style={inv.bonusText}>
+          ✦ Invite a friend and both get a <strong>free Compatibility Profile</strong> — see how your energies align.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+const inv = {
+  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'28px', marginBottom:'24px', boxShadow:'var(--shadow)' },
+  header: { marginBottom:'20px' },
+  title: { fontSize:'20px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px' },
+  subtitle: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6' },
+  linkBox: { display:'flex', gap:'10px', background:'var(--bg)', borderRadius:'10px', border:'1px solid var(--border)', padding:'12px 16px', marginBottom:'20px', alignItems:'center' },
+  linkText: { flex:1, fontSize:'13px', color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' },
+  copyBtn: { padding:'8px 16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'500', cursor:'pointer', flexShrink:0 },
+  stats: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' },
+  stat: { background:'var(--bg)', borderRadius:'10px', padding:'16px', textAlign:'center' },
+  statNum: { display:'block', fontSize:'28px', fontWeight:'700', color:'var(--purple)', fontFamily:'Cormorant Garamond, serif', marginBottom:'4px' },
+  statLabel: { fontSize:'12px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px' },
+  bonus: { background:'var(--green-light)', borderRadius:'10px', padding:'14px 16px' },
+  bonusText: { fontSize:'13px', color:'var(--green)', lineHeight:'1.6' }
+}
+
 function RecalibrationMode({ onComplete, personalYear }) {
   const [checkinDone, setCheckinDone] = useState(false)
   const [score, setScore] = useState(0)
@@ -178,16 +256,19 @@ function DashboardContent() {
   const [recalibrating, setRecalibrating] = useState(false)
   const [personalYear, setPersonalYear] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState(null)
 
   useEffect(() => {
+    const id = getUserId()
+    setUserId(id)
+
     const stored = localStorage.getItem('profile')
     if (stored) {
       const profile = JSON.parse(stored)
       if (profile.personal_year) setPersonalYear(profile.personal_year)
     }
 
-    const userId = getUserId()
-    fetch(`/api/dashboard?user_id=${userId}`)
+    fetch(`/api/dashboard?user_id=${id}`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
@@ -202,21 +283,17 @@ function DashboardContent() {
   }, [])
 
   const handleCheckinComplete = async (score, answers) => {
-    const userId = getUserId()
-
+    const id = getUserId()
     const res = await fetch('/api/dashboard', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, score, answers })
+      body: JSON.stringify({ user_id: id, score, answers })
     })
-
     const data = await res.json()
-
     if (data.success) {
       setStreak(data.streak)
       setLongestStreak(data.longest_streak)
     }
-
     setCheckinDone(true)
     setAlignmentScore(score)
     if (score < 40) setRecalibrating(true)
@@ -288,6 +365,8 @@ function DashboardContent() {
         <StreakTracker streak={streak} longestStreak={longestStreak} />
 
         <WeeklyReview />
+
+        {userId && <InviteSection userId={userId} />}
 
       </main>
     </>
