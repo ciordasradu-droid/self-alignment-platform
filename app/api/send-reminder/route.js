@@ -1,34 +1,31 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { checkinReminderEmail, weeklyReviewEmail } from '../../../lib/emails/checkinReminder'
+import { dailyReminderEmail, weeklyReviewEmail } from '../../../lib/emails/checkinReminder'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { email, userName, type } = body
+    const { type, email, name } = body
 
     const template = type === 'weekly'
-      ? weeklyReviewEmail(userName)
-      : checkinReminderEmail(userName)
+      ? weeklyReviewEmail(name)
+      : dailyReminderEmail(name)
 
     const { data, error } = await resend.emails.send({
-      from: 'Self Alignment Platform <onboarding@resend.dev>',
+      from: 'Alignment <onboarding@resend.dev>',
       to: email,
       subject: template.subject,
       html: template.html
     })
 
-    if (error) {
-      console.error(error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
+    if (error) throw error
 
     return NextResponse.json({ success: true, id: data.id })
 
   } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
+    console.error('Email error:', err.message)
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

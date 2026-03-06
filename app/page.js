@@ -5,7 +5,6 @@ export default function Home() {
     <>
       <div className="cosmic-bg" />
 
-      {/* Nav */}
       <nav style={s.nav}>
         <div style={s.navInner}>
           <p style={s.logo}>✦ Alignment</p>
@@ -19,32 +18,26 @@ export default function Home() {
 
       <main style={s.wrap}>
 
-        {/* HERO */}
         <section style={s.hero}>
           <div style={s.heroEyebrow}>
             <span className="tag tag-purple">Know Yourself. Align. Thrive.</span>
           </div>
-
           <h1 style={s.heroTitle}>
             Life is not about<br />
             manifesting.<br />
             <span style={s.heroGradient}>It's about aligning with yourself.</span>
           </h1>
-
           <p style={s.heroSub}>
             When you align with yourself — everything else follows.
             <br />
             Your free personal blueprint starts here.
           </p>
-
           <Link href="/onboarding" style={s.heroCta}>
             Discover Your Blueprint — Free →
           </Link>
-
           <p style={s.heroMicro}>
             No account needed. No payment. Just clarity.
           </p>
-
           <div style={s.proofBar}>
             <div style={s.proofItem}>
               <span style={s.proofNum}>3</span>
@@ -63,7 +56,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* WHAT YOU GET */}
         <section style={s.section} id="profile">
           <div style={s.sectionLabel}>
             <span className="tag tag-green">What you get — Free</span>
@@ -76,7 +68,6 @@ export default function Home() {
             structured, AI-powered profile. Warm, honest, and actionable.
             No mysticism. No vague predictions. Just you — clearly seen.
           </p>
-
           <div style={s.featuresGrid}>
             {[
               { icon:'◎', color:'var(--purple)', bg:'var(--purple-light)', title:'Core Energetic Blueprint', text:'A synthesized summary of how you operate, what drives you, and what energizes you most.' },
@@ -93,14 +84,12 @@ export default function Home() {
               </div>
             ))}
           </div>
-
           <div style={s.profileCta}>
             <Link href="/onboarding" style={s.heroCta}>Get Your Free Profile →</Link>
             <p style={s.heroMicro}>Takes 30 seconds. No account needed.</p>
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
         <section style={s.section}>
           <div style={s.sectionLabel}>
             <span className="tag tag-purple">The process</span>
@@ -108,7 +97,6 @@ export default function Home() {
           <h2 style={s.sectionTitle}>
             Three steps.<br />Total time: 2 minutes.
           </h2>
-
           <div style={s.stepsRow}>
             {[
               { n:'01', color:'var(--purple)', title:'Enter your birth data', text:'Name, date, time, and city. This is how the three systems calculate your unique chart.' },
@@ -124,7 +112,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SYSTEMS */}
         <section style={s.systemsSection}>
           <h2 style={s.systemsTitle}>Three systems. One synthesis.</h2>
           <div style={s.systemsGrid}>
@@ -143,7 +130,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ACCOUNTABILITY SECTION */}
         <section style={s.accountabilitySection} id="accountability">
           <div style={s.accountabilityInner}>
             <div style={s.sectionLabel}>
@@ -159,7 +145,6 @@ export default function Home() {
               The Accountability System changes that.
               It's time to take action. For yourself.
             </p>
-
             <div style={s.accountabilityFeatures}>
               {[
                 { icon:'◎', title:'Daily Check-in', text:'3 questions. 2 minutes. Every day.' },
@@ -174,17 +159,15 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
             <div style={s.accountabilityCta}>
               <Link href="/subscribe" style={s.accountabilityBtn}>
-                Take Action — $15/month →
+                Take Action — €8/month →
               </Link>
               <p style={s.accountabilityMicro}>Cancel anytime. No lock-in.</p>
             </div>
           </div>
         </section>
 
-        {/* FINAL CTA */}
         <section style={s.ctaSection}>
           <h2 style={s.ctaTitle}>
             Your most aligned life<br />starts with knowing yourself.
@@ -195,10 +178,9 @@ export default function Home() {
           <Link href="/onboarding" style={s.ctaBtn}>
             Get Your Free Profile →
           </Link>
-          <p style={s.ctaMicro}>Then explore our accountability system — $15/month</p>
+          <p style={s.ctaMicro}>Then explore our accountability system — €8/month</p>
         </section>
 
-        {/* Footer */}
         <footer style={s.footer}>
           <p style={s.footerLogo}>✦ Alignment</p>
           <p style={s.footerTagline}>Know yourself. Align your energy. Fulfill your potential.</p>

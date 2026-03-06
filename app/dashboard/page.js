@@ -5,6 +5,7 @@ import DailyCheckin from './components/DailyCheckin'
 import AlignmentScore from './components/AlignmentScore'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
+import EmailCapture from './components/EmailCapture'
 import { getUserId } from '../../lib/userId'
 
 function PersonalYearBanner({ personalYear }) {
@@ -365,6 +366,8 @@ function DashboardContent() {
         <StreakTracker streak={streak} longestStreak={longestStreak} />
 
         <WeeklyReview />
+
+        <EmailCapture />
 
         {userId && <InviteSection userId={userId} />}
 
