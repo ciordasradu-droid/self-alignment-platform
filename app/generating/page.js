@@ -39,6 +39,9 @@ function GeneratingContent() {
         body: JSON.stringify({
           full_name: formData.full_name,
           date_of_birth: formData.date_of_birth,
+          time_of_birth: formData.time_of_birth,
+          lat: formData.lat,
+          lng: formData.lng,
           user_id: userId
         })
       })

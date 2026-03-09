@@ -138,34 +138,40 @@ export default function Onboarding() {
             <div style={s.field}>
               <label style={s.label}>Date of Birth</label>
               <div style={s.dateRow}>
-                <input
-                  type="number"
-                  placeholder="Day"
-                  value={day}
-                  onChange={e => setDay(e.target.value)}
-                  min="1"
-                  max="31"
-                  style={{...s.input, textAlign:'center'}}
-                />
-                <select
-                  value={month}
-                  onChange={e => setMonth(e.target.value)}
-                  style={{...s.input, flex:2}}
-                >
-                  <option value="">Month</option>
-                  {months.map((m, i) => (
-                    <option key={i} value={String(i + 1)}>{m}</option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  placeholder="Year"
-                  value={year}
-                  onChange={e => setYear(e.target.value)}
-                  min="1900"
-                  max="2010"
-                  style={{...s.input, flex:1.5, textAlign:'center'}}
-                />
+                <div style={{width:'70px', flexShrink:0}}>
+                  <input
+                    type="number"
+                    placeholder="DD"
+                    value={day}
+                    onChange={e => setDay(e.target.value)}
+                    min="1"
+                    max="31"
+                    style={{...s.input, textAlign:'center', width:'100%'}}
+                  />
+                </div>
+                <div style={{flex:2}}>
+                  <select
+                    value={month}
+                    onChange={e => setMonth(e.target.value)}
+                    style={{...s.input, width:'100%'}}
+                  >
+                    <option value="">Month</option>
+                    {months.map((m, i) => (
+                      <option key={i} value={String(i + 1)}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{width:'90px', flexShrink:0}}>
+                  <input
+                    type="number"
+                    placeholder="YYYY"
+                    value={year}
+                    onChange={e => setYear(e.target.value)}
+                    min="1900"
+                    max="2010"
+                    style={{...s.input, textAlign:'center', width:'100%'}}
+                  />
+                </div>
               </div>
             </div>
 
@@ -248,12 +254,12 @@ const s = {
   tags: { display:'flex', gap:'8px', flexWrap:'wrap' },
   form: { padding:'36px' },
   field: { marginBottom:'20px' },
-  dateRow: { display:'flex', gap:'10px' },
+  dateRow: { display:'flex', gap:'10px', alignItems:'center' },
   label: { display:'block', fontSize:'13px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.5px' },
-  input: { width:'100%', padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', outline:'none', boxSizing:'border-box' },
+  input: { padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', outline:'none', boxSizing:'border-box' },
   hint: { fontSize:'12px', color:'var(--text-light)', marginTop:'6px' },
   suggestions: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'200px', overflowY:'auto' },
-  suggestion: { display:'flex', alignItems:'flex-start', gap:'10px', padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)', transition:'background 0.15s' },
+  suggestion: { display:'flex', alignItems:'flex-start', gap:'10px', padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)' },
   suggestionIcon: { color:'var(--purple)', flexShrink:0, marginTop:'2px' },
   suggestionText: { fontSize:'13px', color:'var(--text)', lineHeight:'1.5' },
   freeNote: { display:'flex', alignItems:'center', gap:'10px', padding:'16px', background:'var(--purple-light)', borderRadius:'10px', marginBottom:'20px' },

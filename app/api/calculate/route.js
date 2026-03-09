@@ -7,9 +7,15 @@ import { calculateFullProfile } from '../../../lib/calculations/index'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { full_name, date_of_birth, user_id } = body
+    const { full_name, date_of_birth, time_of_birth, lat, lng, user_id } = body
 
-    const calculatedData = calculateFullProfile(full_name, date_of_birth)
+    const calculatedData = calculateFullProfile(
+      full_name,
+      date_of_birth,
+      time_of_birth,
+      lat,
+      lng
+    )
 
     const { data, error } = await supabase
       .from('calculated_profiles')
@@ -34,6 +40,6 @@ export async function POST(request) {
 
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: 'Calculation failed' }, { status: 500 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
