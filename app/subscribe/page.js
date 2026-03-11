@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { getUserId } from '../../lib/userId'
 
 export default function SubscribePage() {
   const [plan, setPlan] = useState('monthly')
@@ -17,10 +18,11 @@ export default function SubscribePage() {
 
   const handleSubscribe = async () => {
     setLoading(true)
+    const userId = getUserId()
     const res = await fetch('/api/stripe/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan, user_id: userId })
     })
     const data = await res.json()
     if (data.url) {
@@ -109,12 +111,15 @@ export default function SubscribePage() {
           <div style={s.features}>
             {[
               { icon:'◎', text:'Daily alignment check-in — 2 minutes' },
+              { icon:'✦', text:'Daily personalized insight — generated from your profile' },
+              { icon:'◎', text:'Weekly reset — every Monday morning' },
               { icon:'⚡', text:'Personal alignment score — updated daily' },
               { icon:'⟳', text:'Streak tracking — build real consistency' },
               { icon:'🪞', text:'Weekly review — reflect and reset' },
               { icon:'◦', text:'Shadow alerts — pattern detection' },
               { icon:'🧭', text:'Recalibration mode — when you drift' },
               { icon:'✦', text:'Personal year phase — always in context' },
+              { icon:'🌍', text:'Available in 10 languages' },
             ].map((f, i) => (
               <div key={i} style={s.feature}>
                 <span style={{color:'var(--purple)', marginRight:'10px', fontSize:'16px'}}>{f.icon}</span>

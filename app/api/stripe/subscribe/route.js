@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getUserId } from '../../../../lib/userId'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { plan } = body
+    const { plan, user_id } = body
 
     const priceId = plan === 'annual'
       ? process.env.STRIPE_ANNUAL_PRICE_ID
@@ -18,7 +19,11 @@ export async function POST(request) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscribed=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscribe`,
-      currency: 'eur'
+      currency: 'eur',
+      metadata: {
+        user_id: user_id || '',
+        plan: plan || 'monthly'
+      }
     })
 
     return NextResponse.json({ url: session.url })
