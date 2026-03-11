@@ -7,6 +7,7 @@ import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 import EmailCapture from './components/EmailCapture'
 import DailyInsight from './components/DailyInsight'
+import WeeklyReset from './components/WeeklyReset'
 import { getUserId } from '../../lib/userId'
 
 function PersonalYearBanner({ personalYear }) {
@@ -321,6 +322,8 @@ function DashboardContent() {
         </div>
 
         <PersonalYearBanner personalYear={personalYear} />
+
+        <WeeklyReset />
 
         <DailyInsight />
 
