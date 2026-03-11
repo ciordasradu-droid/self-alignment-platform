@@ -43,6 +43,26 @@ const py = {
   warning: { fontSize:'12px', color:'rgba(255,255,255,0.5)', lineHeight:'1.5', display:'flex', alignItems:'flex-start' }
 }
 
+function UpgradeBanner() {
+  return (
+    <div style={up.banner}>
+      <div style={up.left}>
+        <p style={up.title}>You are in free trial mode.</p>
+        <p style={up.text}>Unlock daily insights, weekly resets, streak tracking and more.</p>
+      </div>
+      <a href="/subscribe" style={up.btn}>Upgrade — €8/month →</a>
+    </div>
+  )
+}
+
+const up = {
+  banner: { background:'linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'28px', display:'flex', gap:'20px', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap' },
+  left: { flex:1 },
+  title: { fontSize:'16px', fontWeight:'600', color:'#fff', marginBottom:'4px' },
+  text: { fontSize:'13px', color:'rgba(255,255,255,0.7)' },
+  btn: { padding:'10px 20px', background:'#fff', color:'var(--purple-dark)', borderRadius:'8px', fontSize:'14px', fontWeight:'600', flexShrink:0 }
+}
+
 function InviteSection({ userId }) {
   const [copied, setCopied] = useState(false)
   const [referrals, setReferrals] = useState(0)
@@ -244,6 +264,7 @@ function DashboardContent() {
   const [personalYear, setPersonalYear] = useState(null)
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState(null)
+  const [subscribed, setSubscribed] = useState(false)
 
   useEffect(() => {
     const id = getUserId()
@@ -255,18 +276,19 @@ function DashboardContent() {
       if (profile.personal_year) setPersonalYear(profile.personal_year)
     }
 
-    fetch(`/api/dashboard?user_id=${id}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          setStreak(data.streak.current_streak || 0)
-          setLongestStreak(data.streak.longest_streak || 0)
-          setAlignmentScore(data.lastScore || 0)
-          setCheckinDone(data.checkedInToday || false)
-        }
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch(`/api/dashboard?user_id=${id}`).then(r => r.json()),
+      fetch(`/api/subscription?user_id=${id}`).then(r => r.json())
+    ]).then(([dashData, subData]) => {
+      if (dashData.success) {
+        setStreak(dashData.streak.current_streak || 0)
+        setLongestStreak(dashData.streak.longest_streak || 0)
+        setAlignmentScore(dashData.lastScore || 0)
+        setCheckinDone(dashData.checkedInToday || false)
+      }
+      setSubscribed(subData.subscribed || false)
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   const handleCheckinComplete = async (score, answers) => {
@@ -322,6 +344,8 @@ function DashboardContent() {
         </div>
 
         <PersonalYearBanner personalYear={personalYear} />
+
+        {!subscribed && <UpgradeBanner />}
 
         <WeeklyReset />
 
