@@ -6,6 +6,7 @@ import AlignmentScore from './components/AlignmentScore'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 import EmailCapture from './components/EmailCapture'
+import DailyInsight from './components/DailyInsight'
 import { getUserId } from '../../lib/userId'
 
 function PersonalYearBanner({ personalYear }) {
@@ -44,15 +45,12 @@ const py = {
 function InviteSection({ userId }) {
   const [copied, setCopied] = useState(false)
   const [referrals, setReferrals] = useState(0)
-
   const inviteLink = `${window.location.origin}/invite/${userId}`
 
   useEffect(() => {
     fetch(`/api/invite?user_id=${userId}`)
       .then(r => r.json())
-      .then(data => {
-        if (data.success) setReferrals(data.referrals)
-      })
+      .then(data => { if (data.success) setReferrals(data.referrals) })
   }, [userId])
 
   const handleCopy = () => {
@@ -64,36 +62,29 @@ function InviteSection({ userId }) {
   return (
     <div style={inv.card}>
       <div style={inv.header}>
-        <div>
-          <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>Invite Friends</span>
-          <h3 style={inv.title}>Bring a friend. Get a free month.</h3>
-          <p style={inv.subtitle}>
-            For every friend who subscribes to the Accountability System,
-            you get <strong>1 month free</strong>. Share your unique link below.
-          </p>
-        </div>
+        <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>Invite Friends</span>
+        <h3 style={inv.title}>Bring a friend. Get a free month.</h3>
+        <p style={inv.subtitle}>
+          For every friend who subscribes to the Accountability System,
+          you get <strong>1 month free</strong>. Share your unique link below.
+        </p>
       </div>
-
       <div style={inv.linkBox}>
         <p style={inv.linkText}>{inviteLink}</p>
         <button onClick={handleCopy} style={inv.copyBtn}>
           {copied ? '✓ Copied' : 'Copy'}
         </button>
       </div>
-
       <div style={inv.stats}>
         <div style={inv.stat}>
           <span style={inv.statNum}>{referrals}</span>
           <span style={inv.statLabel}>Friends invited</span>
         </div>
         <div style={inv.stat}>
-          <span style={{...inv.statNum, color:'var(--green)'}}>
-            {referrals > 0 ? referrals : 0}
-          </span>
+          <span style={{...inv.statNum, color:'var(--green)'}}>{referrals}</span>
           <span style={inv.statLabel}>Free months earned</span>
         </div>
       </div>
-
       <div style={inv.bonus}>
         <p style={inv.bonusText}>
           ✦ Invite a friend and both get a <strong>free Compatibility Profile</strong> — see how your energies align.
@@ -138,14 +129,11 @@ function RecalibrationMode({ onComplete, personalYear }) {
             Simplify. Slow down. Return to what matters.
           </p>
         </div>
-
         <PersonalYearBanner personalYear={personalYear} />
-
         <div style={rec.focusCard}>
           <p style={rec.focusLabel}>Your only focus right now</p>
           <p style={rec.focusText}>Complete today's check-in honestly. One small act of alignment is enough to reset the momentum.</p>
         </div>
-
         <div style={rec.threeThings}>
           <p style={rec.thingsLabel}>Three things to return to today</p>
           {[
@@ -159,7 +147,6 @@ function RecalibrationMode({ onComplete, personalYear }) {
             </div>
           ))}
         </div>
-
         <DailyCheckin
           onComplete={(s) => {
             setCheckinDone(true)
@@ -168,7 +155,6 @@ function RecalibrationMode({ onComplete, personalYear }) {
           }}
           checkinDone={checkinDone}
         />
-
         {checkinDone && score < 40 && (
           <div style={rec.stillLow}>
             <p style={rec.stillLowText}>
@@ -177,7 +163,6 @@ function RecalibrationMode({ onComplete, personalYear }) {
             </p>
           </div>
         )}
-
         {checkinDone && score >= 40 && (
           <div style={rec.unlocked}>
             <p style={rec.unlockedText}>✦ Your alignment is returning. Dashboard unlocked.</p>
@@ -336,6 +321,8 @@ function DashboardContent() {
         </div>
 
         <PersonalYearBanner personalYear={personalYear} />
+
+        <DailyInsight />
 
         <div style={s.statsRow}>
           <div style={{...s.statCard, borderTop:'3px solid var(--purple)'}}>
