@@ -61,7 +61,8 @@ function GeneratingContent() {
           full_name: formData.full_name,
           calculated_profile_id: calcData.calculated_profile_id,
           calculated_data: calcData.data,
-          user_id: userId
+          user_id: userId,
+          language: formData.language || 'en'
         })
       })
 
@@ -77,7 +78,8 @@ function GeneratingContent() {
         swot: interpretData.swot,
         alignment_plan: interpretData.alignment_plan,
         personal_year: calcData.data.numerology.personal_year,
-        interpreted_profile_id: interpretData.interpreted_profile_id
+        interpreted_profile_id: interpretData.interpreted_profile_id,
+        language: formData.language || 'en'
       }
 
       localStorage.setItem('profile', JSON.stringify(profilePayload))

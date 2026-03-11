@@ -3,6 +3,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'ro', label: 'Română' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'pt', label: 'Português' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'pl', label: 'Polski' },
+  { code: 'hu', label: 'Magyar' },
+]
+
 export default function Onboarding() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -12,7 +25,8 @@ export default function Onboarding() {
     time_of_birth: '',
     city: '',
     lat: '',
-    lng: ''
+    lng: '',
+    language: 'en'
   })
 
   const [day, setDay] = useState('')
@@ -37,11 +51,7 @@ export default function Onboarding() {
     setFormData(prev => ({ ...prev, city: '', lat: '', lng: '' }))
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
-
-    if (value.length < 2) {
-      setCitySuggestions([])
-      return
-    }
+    if (value.length < 2) { setCitySuggestions([]); return }
 
     debounceRef.current = setTimeout(async () => {
       try {
@@ -61,19 +71,13 @@ export default function Onboarding() {
   const handleCitySelect = (place) => {
     const cityName = place.display_name
     setCityValue(cityName)
-    setFormData(prev => ({
-      ...prev,
-      city: cityName,
-      lat: place.lat,
-      lng: place.lon
-    }))
+    setFormData(prev => ({ ...prev, city: cityName, lat: place.lat, lng: place.lon }))
     setCitySuggestions([])
     setShowSuggestions(false)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
     if (!day || !month || !year || year.length !== 4) {
       alert('Please enter a valid date of birth.')
       return
@@ -86,7 +90,6 @@ export default function Onboarding() {
       alert('Please select a city from the dropdown suggestions.')
       return
     }
-
     setLoading(true)
     const encoded = encodeURIComponent(JSON.stringify(formData))
     router.push(`/generating?data=${encoded}`)
@@ -198,7 +201,6 @@ export default function Onboarding() {
                 autoComplete="off"
               />
               <p style={s.hint}>Select from the dropdown for accurate coordinates.</p>
-
               {showSuggestions && citySuggestions.length > 0 && (
                 <div style={s.suggestions}>
                   {citySuggestions.map((place, i) => (
@@ -213,6 +215,20 @@ export default function Onboarding() {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div style={s.field}>
+              <label style={s.label}>Profile Language</label>
+              <select
+                value={formData.language}
+                onChange={e => setFormData(prev => ({ ...prev, language: e.target.value }))}
+                style={s.input}
+              >
+                {LANGUAGES.map(lang => (
+                  <option key={lang.code} value={lang.code}>{lang.label}</option>
+                ))}
+              </select>
+              <p style={s.hint}>Your profile, daily insights and weekly resets will be in this language.</p>
             </div>
 
             <div style={s.freeNote}>
@@ -256,7 +272,7 @@ const s = {
   field: { marginBottom:'20px' },
   dateRow: { display:'flex', gap:'10px', alignItems:'center' },
   label: { display:'block', fontSize:'13px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.5px' },
-  input: { padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', outline:'none', boxSizing:'border-box' },
+  input: { width:'100%', padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', outline:'none', boxSizing:'border-box' },
   hint: { fontSize:'12px', color:'var(--text-light)', marginTop:'6px' },
   suggestions: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'200px', overflowY:'auto' },
   suggestion: { display:'flex', alignItems:'flex-start', gap:'10px', padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)' },

@@ -6,14 +6,26 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
 
+const LANGUAGE_NAMES = {
+  en: 'English',
+  ro: 'Romanian',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+  nl: 'Dutch',
+  pl: 'Polish',
+  hu: 'Hungarian'
+}
+
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { user_id, profile, personal_year } = body
+    const { user_id, profile, personal_year, language = 'en' } = body
 
     const today = new Date().toISOString().split('T')[0]
 
-    // Check if insight already generated today
     const { data: existing } = await supabase
       .from('daily_insights')
       .select('*')
@@ -26,6 +38,10 @@ export async function POST(request) {
     }
 
     const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+    const languageName = LANGUAGE_NAMES[language] || 'English'
+    const languageInstruction = language !== 'en'
+      ? `\n\nIMPORTANT: Write your entire response in ${languageName}.`
+      : ''
 
     const prompt = `You are a warm, honest personal alignment guide.
 
@@ -55,7 +71,7 @@ Return ONLY a JSON object, no markdown:
   "title": "short title for today's insight (5 words max)",
   "body": "3-4 sentence insight",
   "question": "one powerful self-reflection question"
-}`
+}${languageInstruction}`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -66,14 +82,9 @@ Return ONLY a JSON object, no markdown:
     const text = message.content[0].text.replace(/```json|```/g, '').trim()
     const insight = JSON.parse(text)
 
-    // Save to database
     await supabase
       .from('daily_insights')
-      .insert([{
-        user_id,
-        date: today,
-        insight
-      }])
+      .insert([{ user_id, date: today, insight, language }])
 
     return NextResponse.json({ success: true, insight })
 

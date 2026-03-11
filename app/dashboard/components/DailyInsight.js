@@ -31,7 +31,8 @@ export default function DailyInsight() {
       body: JSON.stringify({
         user_id: userId,
         profile: profileData,
-        personal_year: profile.personal_year
+        personal_year: profile.personal_year,
+        language: profile.language || 'en'
       })
     })
       .then(r => r.json())

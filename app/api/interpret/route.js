@@ -9,11 +9,29 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
 
-async function callClaude(prompt) {
+const LANGUAGE_NAMES = {
+  en: 'English',
+  ro: 'Romanian',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+  nl: 'Dutch',
+  pl: 'Polish',
+  hu: 'Hungarian'
+}
+
+async function callClaude(prompt, language = 'en') {
+  const languageName = LANGUAGE_NAMES[language] || 'English'
+  const languageInstruction = language !== 'en'
+    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
+    : ''
+
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 2000,
-    messages: [{ role: 'user', content: prompt }]
+    messages: [{ role: 'user', content: prompt + languageInstruction }]
   })
 
   const textBlock = message.content.find(block => block.type === 'text')
@@ -28,16 +46,16 @@ async function callClaude(prompt) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { calculated_profile_id, full_name, calculated_data, user_id } = body
+    const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaude(profilePrompt)
+    const sections = await callClaude(profilePrompt, language)
 
     const swotPrompt = buildSWOTPrompt(calculated_data, sections)
-    const swot = await callClaude(swotPrompt)
+    const swot = await callClaude(swotPrompt, language)
 
     const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
-    const alignmentPlan = await callClaude(planPrompt)
+    const alignmentPlan = await callClaude(planPrompt, language)
 
     const { data, error } = await supabase
       .from('interpreted_profiles')
@@ -47,7 +65,8 @@ export async function POST(request) {
         sections,
         swot,
         alignment_plan: alignmentPlan,
-        prompt_version: 'v1'
+        prompt_version: 'v1',
+        language
       }])
       .select()
 
