@@ -8,6 +8,16 @@ function GeneratingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState('Starting...')
+  const [step, setStep] = useState(0)
+
+  const steps = [
+    'Calculating your astrology chart...',
+    'Mapping your numerology...',
+    'Reading your Human Design...',
+    'Synthesizing your profile...',
+    'Writing your alignment plan...',
+    'Almost ready...'
+  ]
 
   useEffect(() => {
     const data = searchParams.get('data')
@@ -24,14 +34,19 @@ function GeneratingContent() {
       return
     }
 
-    generateProfile(formData)
+    // Cycle through status messages while generating
+    let stepIndex = 0
+    const interval = setInterval(() => {
+      stepIndex = (stepIndex + 1) % steps.length
+      setStep(stepIndex)
+    }, 8000)
+
+    generateProfile(formData).finally(() => clearInterval(interval))
   }, [])
 
   const generateProfile = async (formData) => {
     try {
       const userId = getUserId()
-
-      setStatus('Calculating your profile...')
 
       const calcResponse = await fetch('/api/calculate', {
         method: 'POST',
@@ -51,8 +66,6 @@ function GeneratingContent() {
         setStatus('Calculation failed: ' + (calcData.error || 'unknown error'))
         return
       }
-
-      setStatus('Generating your alignment profile... (20-30 seconds)')
 
       const interpretResponse = await fetch('/api/interpret', {
         method: 'POST',
@@ -83,7 +96,6 @@ function GeneratingContent() {
       }
 
       localStorage.setItem('profile', JSON.stringify(profilePayload))
-
       router.push('/profile')
 
     } catch (err) {
@@ -99,12 +111,22 @@ function GeneratingContent() {
         <h1 style={{ fontSize:'24px', fontWeight:'600', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif' }}>
           Building Your Profile
         </h1>
-        <p style={{ color:'var(--text-muted)', fontSize:'16px', lineHeight:'1.6' }}>
-          {status}
+        <p style={{ color:'var(--text-muted)', fontSize:'16px', lineHeight:'1.6', marginBottom:'8px' }}>
+          {steps[step]}
         </p>
-        <p style={{ color:'var(--text-light)', fontSize:'14px', marginTop:'24px' }}>
-          Please don't close this window.
+        <p style={{ color:'var(--text-light)', fontSize:'13px', marginTop:'24px', lineHeight:'1.6' }}>
+          We are combining three systems into one personalised profile.<br/>
+          This takes 2-3 minutes — please don't close this window.
         </p>
+        <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'6px' }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{
+              width:'8px', height:'8px', borderRadius:'50%',
+              background: i === step ? 'var(--purple)' : 'var(--border)',
+              transition:'background 0.3s'
+            }} />
+          ))}
+        </div>
       </main>
     </>
   )
