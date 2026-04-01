@@ -9,15 +9,16 @@ import EmailCapture from './components/EmailCapture'
 import DailyInsight from './components/DailyInsight'
 import WeeklyReset from './components/WeeklyReset'
 import { getUserId } from '../../lib/userId'
+import { t } from '../../lib/translations'
 
-function PersonalYearBanner({ personalYear }) {
+function PersonalYearBanner({ personalYear, lang }) {
   if (!personalYear) return null
   return (
     <div style={py.banner}>
       <div style={py.left}>
         <span style={py.num}>{personalYear.personal_year}</span>
         <div>
-          <p style={py.label}>Your Current Phase</p>
+          <p style={py.label}>{t(lang, 'current_phase')}</p>
           <p style={py.theme}>{personalYear.theme}</p>
         </div>
       </div>
@@ -43,14 +44,14 @@ const py = {
   warning: { fontSize:'12px', color:'rgba(255,255,255,0.5)', lineHeight:'1.5', display:'flex', alignItems:'flex-start' }
 }
 
-function UpgradeBanner() {
+function UpgradeBanner({ lang }) {
   return (
     <div style={up.banner}>
       <div style={up.left}>
-        <p style={up.title}>You are in free trial mode.</p>
-        <p style={up.text}>Unlock daily insights, weekly resets, streak tracking and more.</p>
+        <p style={up.title}>{t(lang, 'free_trial')}</p>
+        <p style={up.text}>{t(lang, 'free_trial_text')}</p>
       </div>
-      <a href="/subscribe" style={up.btn}>Upgrade — €8/month →</a>
+      <a href="/subscribe" style={up.btn}>{t(lang, 'upgrade_btn')}</a>
     </div>
   )
 }
@@ -63,7 +64,7 @@ const up = {
   btn: { padding:'10px 20px', background:'#fff', color:'var(--purple-dark)', borderRadius:'8px', fontSize:'14px', fontWeight:'600', flexShrink:0 }
 }
 
-function InviteSection({ userId }) {
+function InviteSection({ userId, lang }) {
   const [copied, setCopied] = useState(false)
   const [referrals, setReferrals] = useState(0)
   const inviteLink = `${window.location.origin}/invite/${userId}`
@@ -83,33 +84,28 @@ function InviteSection({ userId }) {
   return (
     <div style={inv.card}>
       <div style={inv.header}>
-        <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>Invite Friends</span>
-        <h3 style={inv.title}>Bring a friend. Get a free month.</h3>
-        <p style={inv.subtitle}>
-          For every friend who subscribes to the Accountability System,
-          you get <strong>1 month free</strong>. Share your unique link below.
-        </p>
+        <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>{t(lang, 'invite_tag')}</span>
+        <h3 style={inv.title}>{t(lang, 'invite_title')}</h3>
+        <p style={inv.subtitle}>{t(lang, 'invite_subtitle')}</p>
       </div>
       <div style={inv.linkBox}>
         <p style={inv.linkText}>{inviteLink}</p>
         <button onClick={handleCopy} style={inv.copyBtn}>
-          {copied ? '✓ Copied' : 'Copy'}
+          {copied ? t(lang, 'copied') : t(lang, 'copy')}
         </button>
       </div>
       <div style={inv.stats}>
         <div style={inv.stat}>
           <span style={inv.statNum}>{referrals}</span>
-          <span style={inv.statLabel}>Friends invited</span>
+          <span style={inv.statLabel}>{t(lang, 'friends_invited')}</span>
         </div>
         <div style={inv.stat}>
           <span style={{...inv.statNum, color:'var(--green)'}}>{referrals}</span>
-          <span style={inv.statLabel}>Free months earned</span>
+          <span style={inv.statLabel}>{t(lang, 'free_months')}</span>
         </div>
       </div>
       <div style={inv.bonus}>
-        <p style={inv.bonusText}>
-          ✦ Invite a friend and both get a <strong>free Compatibility Profile</strong> — see how your energies align.
-        </p>
+        <p style={inv.bonusText}>✦ {t(lang, 'invite_bonus')}</p>
       </div>
     </div>
   )
@@ -131,7 +127,7 @@ const inv = {
   bonusText: { fontSize:'13px', color:'var(--green)', lineHeight:'1.6' }
 }
 
-function RecalibrationMode({ onComplete, personalYear }) {
+function RecalibrationMode({ onComplete, personalYear, lang }) {
   const [checkinDone, setCheckinDone] = useState(false)
   const [score, setScore] = useState(0)
 
@@ -141,30 +137,22 @@ function RecalibrationMode({ onComplete, personalYear }) {
       <main style={rec.wrap}>
         <div style={rec.header}>
           <span className="tag" style={{background:'rgba(232,130,74,0.15)', color:'var(--orange)', marginBottom:'16px', display:'inline-block'}}>
-            Recalibration Mode
+            {t(lang, 'recalibration_tag')}
           </span>
-          <h1 style={rec.title}>Let's come back to basics.</h1>
-          <p style={rec.subtitle}>
-            Your alignment has been low. That's okay — it happens to everyone.
-            This is not a setback. This is the system working exactly as it should.
-            Simplify. Slow down. Return to what matters.
-          </p>
+          <h1 style={rec.title}>{t(lang, 'recalibration_title')}</h1>
+          <p style={rec.subtitle}>{t(lang, 'recalibration_subtitle')}</p>
         </div>
-        <PersonalYearBanner personalYear={personalYear} />
+        <PersonalYearBanner personalYear={personalYear} lang={lang} />
         <div style={rec.focusCard}>
-          <p style={rec.focusLabel}>Your only focus right now</p>
-          <p style={rec.focusText}>Complete today's check-in honestly. One small act of alignment is enough to reset the momentum.</p>
+          <p style={rec.focusLabel}>{t(lang, 'only_focus')}</p>
+          <p style={rec.focusText}>{t(lang, 'only_focus_text')}</p>
         </div>
         <div style={rec.threeThings}>
-          <p style={rec.thingsLabel}>Three things to return to today</p>
-          {[
-            { icon:'◎', text:'Your morning ritual — even 5 minutes counts' },
-            { icon:'✦', text:'One non-negotiable from your personal agreements' },
-            { icon:'◦', text:'10 minutes of silence — no phone, no input' }
-          ].map((item, i) => (
+          <p style={rec.thingsLabel}>{t(lang, 'three_things')}</p>
+          {t(lang, 'recal_items').map((item, i) => (
             <div key={i} style={rec.thingItem}>
-              <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>{item.icon}</span>
-              <p style={rec.thingText}>{item.text}</p>
+              <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>◎</span>
+              <p style={rec.thingText}>{item}</p>
             </div>
           ))}
         </div>
@@ -178,15 +166,12 @@ function RecalibrationMode({ onComplete, personalYear }) {
         />
         {checkinDone && score < 40 && (
           <div style={rec.stillLow}>
-            <p style={rec.stillLowText}>
-              Your score is still low — and that's okay. Come back tomorrow.
-              Every check-in is a step forward, even the hard ones.
-            </p>
+            <p style={rec.stillLowText}>{t(lang, 'still_low')}</p>
           </div>
         )}
         {checkinDone && score >= 40 && (
           <div style={rec.unlocked}>
-            <p style={rec.unlockedText}>✦ Your alignment is returning. Dashboard unlocked.</p>
+            <p style={rec.unlockedText}>{t(lang, 'unlocked')}</p>
           </div>
         )}
       </main>
@@ -212,29 +197,20 @@ const rec = {
   unlockedText: { fontSize:'15px', color:'var(--green)', lineHeight:'1.7', textAlign:'center', fontWeight:'500' }
 }
 
-function ShadowAlert({ score }) {
+function ShadowAlert({ score, lang }) {
   if (score === 0 || score >= 40) return null
-  const messages = [
-    "Your alignment has been low lately. This is not failure — it's a signal. You know what needs to change.",
-    "A pattern is showing up. Not to judge you, but to remind you: small consistent actions beat big bursts of motivation.",
-    "Low alignment days are part of the journey. The question is not why it happened — it's what one thing you can do right now to reset.",
-    "Your system is telling you something. Slow down, simplify, and come back to your non-negotiables today."
-  ]
+  const messages = t(lang, 'shadow_messages')
   const message = messages[Math.floor(Math.random() * messages.length)]
   return (
     <div style={al.card}>
       <div style={al.header}>
         <span style={{color:'var(--orange)'}}>◦</span>
-        <p style={al.title}>Pattern Detected</p>
+        <p style={al.title}>{t(lang, 'pattern_detected')}</p>
       </div>
       <p style={al.message}>{message}</p>
       <div style={al.actions}>
-        <p style={al.actionLabel}>One thing to do right now:</p>
-        {[
-          'Return to your morning ritual',
-          'Do one non-negotiable from your profile',
-          'Take 10 minutes of silence — no phone'
-        ].map((action, i) => (
+        <p style={al.actionLabel}>{t(lang, 'one_thing')}</p>
+        {t(lang, 'shadow_actions').map((action, i) => (
           <div key={i} style={al.actionItem}>
             <span style={{color:'var(--orange)', marginRight:'8px'}}>→</span>
             {action}
@@ -265,6 +241,7 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState(null)
   const [subscribed, setSubscribed] = useState(false)
+  const [lang, setLang] = useState('en')
 
   useEffect(() => {
     const id = getUserId()
@@ -274,6 +251,7 @@ function DashboardContent() {
     if (stored) {
       const profile = JSON.parse(stored)
       if (profile.personal_year) setPersonalYear(profile.personal_year)
+      if (profile.language) setLang(profile.language)
     }
 
     Promise.all([
@@ -310,7 +288,7 @@ function DashboardContent() {
 
   if (loading) return (
     <div style={{textAlign:'center', padding:'80px', fontSize:'18px', color:'var(--text-muted)'}}>
-      Loading your dashboard...
+      {t(lang, 'loading_dashboard')}
     </div>
   )
 
@@ -318,6 +296,7 @@ function DashboardContent() {
     return (
       <RecalibrationMode
         personalYear={personalYear}
+        lang={lang}
         onComplete={(score) => {
           setAlignmentScore(score)
           setRecalibrating(false)
@@ -335,17 +314,17 @@ function DashboardContent() {
         <div style={s.header}>
           <div>
             <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>
-              Accountability System
+              {t(lang, 'dashboard_tag')}
             </span>
-            <h1 style={s.title}>Alignment Dashboard</h1>
-            <p style={s.subtitle}>Stay consistent. Build momentum.</p>
+            <h1 style={s.title}>{t(lang, 'dashboard_title')}</h1>
+            <p style={s.subtitle}>{t(lang, 'dashboard_subtitle')}</p>
           </div>
-          <a href="/" style={s.homeLink}>← Home</a>
+          <a href="/" style={s.homeLink}>{t(lang, 'home')}</a>
         </div>
 
-        <PersonalYearBanner personalYear={personalYear} />
+        <PersonalYearBanner personalYear={personalYear} lang={lang} />
 
-        {!subscribed && <UpgradeBanner />}
+        {!subscribed && <UpgradeBanner lang={lang} />}
 
         <WeeklyReset />
 
@@ -353,22 +332,22 @@ function DashboardContent() {
 
         <div style={s.statsRow}>
           <div style={{...s.statCard, borderTop:'3px solid var(--purple)'}}>
-            <p style={s.statLabel}>Alignment Score</p>
+            <p style={s.statLabel}>{t(lang, 'alignment_score')}</p>
             <p style={{...s.statValue, color:'var(--purple)'}}>{alignmentScore}</p>
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--green)'}}>
-            <p style={s.statLabel}>Current Streak</p>
-            <p style={{...s.statValue, color:'var(--green)'}}>{streak}<span style={s.statUnit}> days</span></p>
+            <p style={s.statLabel}>{t(lang, 'current_streak')}</p>
+            <p style={{...s.statValue, color:'var(--green)'}}>{streak}<span style={s.statUnit}> {t(lang, 'days')}</span></p>
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--orange)'}}>
-            <p style={s.statLabel}>Today</p>
+            <p style={s.statLabel}>{t(lang, 'today')}</p>
             <p style={{...s.statValue, color: checkinDone ? 'var(--green)' : 'var(--orange)'}}>
-              {checkinDone ? '✓ Done' : 'Pending'}
+              {checkinDone ? t(lang, 'done') : t(lang, 'pending')}
             </p>
           </div>
         </div>
 
-        <ShadowAlert score={alignmentScore} />
+        <ShadowAlert score={alignmentScore} lang={lang} />
 
         <DailyCheckin
           onComplete={handleCheckinComplete}
@@ -383,7 +362,7 @@ function DashboardContent() {
 
         <EmailCapture />
 
-        {userId && <InviteSection userId={userId} />}
+        {userId && <InviteSection userId={userId} lang={lang} />}
 
       </main>
     </>
