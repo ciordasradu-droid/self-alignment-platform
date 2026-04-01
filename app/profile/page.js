@@ -3,10 +3,10 @@
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
+import { t } from '../../lib/translations'
 
-function CommitmentGate({ commitments, onAccept }) {
+function CommitmentGate({ commitments, lang, onAccept }) {
   const [checked, setChecked] = useState([false, false, false])
-
   const allChecked = checked.every(c => c)
 
   const toggle = (i) => {
@@ -21,14 +21,10 @@ function CommitmentGate({ commitments, onAccept }) {
       <main style={g.wrap}>
         <div style={g.card}>
           <span className="tag tag-purple" style={{marginBottom:'20px', display:'inline-block'}}>
-            Before You Begin
+            {t(lang, 'before_you_begin')}
           </span>
-          <h1 style={g.title}>Your Personal Agreements</h1>
-          <p style={g.subtitle}>
-            These are not rules imposed on you. They are what your best self already knows.
-            Read each one, check it when it feels true, and step into your profile.
-          </p>
-
+          <h1 style={g.title}>{t(lang, 'your_agreements')}</h1>
+          <p style={g.subtitle}>{t(lang, 'agreements_subtitle')}</p>
           <div style={g.commitments}>
             {commitments?.map((item, i) => (
               <div
@@ -54,7 +50,6 @@ function CommitmentGate({ commitments, onAccept }) {
               </div>
             ))}
           </div>
-
           <button
             onClick={onAccept}
             disabled={!allChecked}
@@ -65,7 +60,7 @@ function CommitmentGate({ commitments, onAccept }) {
               boxShadow: allChecked ? '0 4px 20px rgba(124,92,191,0.3)' : 'none'
             }}
           >
-            {allChecked ? 'I am ready. Show me my profile →' : 'Check all agreements to continue'}
+            {allChecked ? t(lang, 'ready_btn') : t(lang, 'check_all')}
           </button>
         </div>
       </main>
@@ -86,6 +81,39 @@ const g = {
   btn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', transition:'all 0.2s' }
 }
 
+function HDCard({ hdData, lang }) {
+  if (!hdData) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--orange)', marginBottom:'20px'}}>
+      <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>Human Design</div>
+      <div style={s.grid2}>
+        <div style={hd.item}>
+          <p style={hd.label}>{t(lang, 'hd_type')}</p>
+          <p style={hd.value}>{hdData.type}</p>
+        </div>
+        <div style={hd.item}>
+          <p style={hd.label}>{t(lang, 'hd_profile')}</p>
+          <p style={hd.value}>{hdData.profile}</p>
+        </div>
+        <div style={hd.item}>
+          <p style={hd.label}>{t(lang, 'hd_strategy')}</p>
+          <p style={hd.value}>{hdData.strategy}</p>
+        </div>
+        <div style={hd.item}>
+          <p style={hd.label}>{t(lang, 'hd_authority')}</p>
+          <p style={hd.value}>{hdData.authority}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const hd = {
+  item: { background:'var(--bg)', borderRadius:'10px', padding:'14px' },
+  label: { fontSize:'11px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:'var(--text-muted)', marginBottom:'6px' },
+  value: { fontSize:'15px', fontWeight:'600', color:'var(--text)' }
+}
+
 function ProfileContent() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -98,7 +126,6 @@ function ProfileContent() {
       setLoading(false)
       return
     }
-
     const userId = getUserId()
     fetch(`/api/profile?user_id=${userId}`)
       .then(r => r.json())
@@ -117,7 +144,7 @@ function ProfileContent() {
       .catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <div style={s.center}>Loading your profile...</div>
+  if (loading) return <div style={s.center}>Loading...</div>
   if (!profile) return (
     <div style={s.center}>
       <p style={{marginBottom:'20px'}}>No profile found.</p>
@@ -125,16 +152,19 @@ function ProfileContent() {
     </div>
   )
 
+  const lang = profile.language || 'en'
+
   if (!committed) {
     return (
       <CommitmentGate
         commitments={profile.sections?.commitments}
+        lang={lang}
         onAccept={() => setCommitted(true)}
       />
     )
   }
 
-  const { sections, swot, alignment_plan, full_name, personal_year } = profile
+  const { sections, swot, alignment_plan, full_name, personal_year, hd_data } = profile
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
 
@@ -145,12 +175,12 @@ function ProfileContent() {
 
         <div style={s.header}>
           <div>
-            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>Your Profile</span>
-            <h1 style={s.title}>Alignment Profile</h1>
-            {full_name && <p style={s.subtitle}>Generated for {full_name}</p>}
+            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>{t(lang, 'profile_tag')}</span>
+            <h1 style={s.title}>{t(lang, 'profile_title')}</h1>
+            {full_name && <p style={s.subtitle}>{t(lang, 'profile_generated_for')} {full_name}</p>}
           </div>
           <button onClick={handleDownloadPDF} style={s.dlBtn}>
-            ↓ Download PDF
+            {t(lang, 'download_pdf')}
           </button>
         </div>
 
@@ -159,7 +189,7 @@ function ProfileContent() {
             <div style={s.personalYearLeft}>
               <span style={s.personalYearNum}>{personal_year.personal_year}</span>
               <div>
-                <p style={s.personalYearLabel}>Your Current Phase</p>
+                <p style={s.personalYearLabel}>{t(lang, 'current_phase')}</p>
                 <p style={s.personalYearTheme}>{personal_year.theme}</p>
               </div>
             </div>
@@ -173,29 +203,27 @@ function ProfileContent() {
           </div>
         )}
 
+        <HDCard hdData={hd_data} lang={lang} />
+
         <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ Core Energetic Blueprint</div>
+          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ {t(lang, 'blueprint')}</div>
           <p style={s.bodyText}>{sections?.blueprint}</p>
         </div>
 
         <div style={s.grid2}>
           <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
-            <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>Natural Strengths</div>
+            <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'strengths')}</div>
             <ul style={s.list}>
               {sections?.strengths?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
               ))}
             </ul>
           </div>
           <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
-            <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>Growth Opportunities</div>
+            <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'vulnerabilities')}</div>
             <ul style={s.list}>
               {sections?.vulnerabilities?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--orange)', marginRight:'8px'}}>🌱</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>🌱</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -203,22 +231,18 @@ function ProfileContent() {
 
         <div style={s.grid2}>
           <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>Energy Patterns</div>
+            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'energy_patterns')}</div>
             <ul style={s.list}>
               {sections?.energy_patterns?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
               ))}
             </ul>
           </div>
           <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
-            <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>Patterns to Watch</div>
+            <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'sabotage')}</div>
             <ul style={s.list}>
               {sections?.sabotage_tendencies?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -226,43 +250,37 @@ function ProfileContent() {
 
         <div style={s.grid2}>
           <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
-            <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>Decision-Making Style</div>
+            <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'decision')}</div>
             <ul style={s.list}>
               {sections?.decision_making?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
               ))}
             </ul>
           </div>
           <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>Work & Discipline Profile</div>
+            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'work')}</div>
             <ul style={s.list}>
               {sections?.work_discipline?.map((item, i) => (
-                <li key={i} style={s.listItem}>
-                  <span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}
-                </li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
               ))}
             </ul>
           </div>
         </div>
 
         <div style={s.card}>
-          <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>🪞 Self Perspective</div>
+          <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
           <div style={s.swotGrid}>
             {[
-              { title:'Natural Gifts', items: swot?.strengths, color:'var(--green)', icon:'✦' },
-              { title:'Growth Edges', items: swot?.weaknesses, color:'var(--orange)', icon:'🌱' },
-              { title:'Opportunities to Shine', items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
-              { title:'Patterns to Release', items: swot?.threats, color:'var(--orange)', icon:'◦' },
+              { title: t(lang, 'natural_gifts'), items: swot?.strengths, color:'var(--green)', icon:'✦' },
+              { title: t(lang, 'growth_edges'), items: swot?.weaknesses, color:'var(--orange)', icon:'🌱' },
+              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
+              { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' },
             ].map((q, i) => (
               <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
                 <p style={{...s.swotTitle, color: q.color}}>{q.title}</p>
                 <ul style={s.list}>
                   {q.items?.map((item, j) => (
-                    <li key={j} style={s.listItem}>
-                      <span style={{color: q.color, marginRight:'6px'}}>{q.icon}</span>{item}
-                    </li>
+                    <li key={j} style={s.listItem}><span style={{color: q.color, marginRight:'6px'}}>{q.icon}</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -271,29 +289,25 @@ function ProfileContent() {
         </div>
 
         <div style={s.card}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>🧭 Alignment Plan</div>
+          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
 
           <div style={s.planLayer}>
-            <div style={s.layerBadge('var(--purple)')}>Layer 1 — Directional Clarity</div>
+            <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
             <p style={s.bodyText}>{alignment_plan?.directional_clarity?.life_direction}</p>
             <div style={s.grid2}>
               <div>
-                <p style={s.planLabel}>Energize — Prioritize</p>
+                <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p style={s.planLabel}>Release — Let Go</p>
+                <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.directional_clarity?.eliminate?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -301,27 +315,23 @@ function ProfileContent() {
           </div>
 
           <div style={s.planLayer}>
-            <div style={s.layerBadge('var(--green)')}>Layer 2 — Structured Plan</div>
-            <p style={s.planLabel}>30-Day Focus</p>
+            <div style={s.layerBadge('var(--green)')}>{t(lang, 'layer2')}</div>
+            <p style={s.planLabel}>{t(lang, 'focus_30')}</p>
             <p style={{...s.bodyText, marginBottom:'20px'}}>{alignment_plan?.structured_plan?.thirty_day_focus}</p>
             <div style={s.grid2}>
               <div>
-                <p style={s.planLabel}>Weekly Template</p>
+                <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.structured_plan?.weekly_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p style={s.planLabel}>Daily Template</p>
+                <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.structured_plan?.daily_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -329,35 +339,29 @@ function ProfileContent() {
           </div>
 
           <div style={{...s.planLayer, borderBottom:'none', marginBottom:0, paddingBottom:0}}>
-            <div style={s.layerBadge('var(--orange)')}>Layer 3 — Behavioral Anchors</div>
+            <div style={s.layerBadge('var(--orange)')}>{t(lang, 'layer3')}</div>
             <div style={s.grid3}>
               <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--purple)'}}>Keystone Habits</p>
+                <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
                   ))}
                 </ul>
               </div>
               <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--orange)'}}>Forbidden Behaviors</p>
+                <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>
                   ))}
                 </ul>
               </div>
               <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--green)'}}>My Agreements</p>
+                <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
-                    <li key={i} style={s.listItem}>
-                      <span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}
-                    </li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -366,9 +370,12 @@ function ProfileContent() {
         </div>
 
         <div style={s.ctaBox}>
-          <h2 style={s.ctaTitle}>Ready to stay aligned?</h2>
-          <p style={s.ctaText}>Daily check-ins, alignment score, and streak tracking — $15/month.</p>
-          <a href="/subscribe" style={s.ctaBtn}>Start Accountability System →</a>
+          <h2 style={s.ctaTitle}>{t(lang, 'cta_title')}</h2>
+          <p style={s.ctaText}>{t(lang, 'cta_text')}</p>
+          <div style={s.ctaBtns}>
+            <a href="/subscribe" style={s.ctaBtn}>{t(lang, 'cta_btn')}</a>
+            <a href="/dashboard" style={s.ctaBtnSecondary}>{t(lang, 'cta_dashboard')}</a>
+          </div>
         </div>
 
       </main>
@@ -408,7 +415,9 @@ const s = {
   ctaBox: { background:'linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%)', borderRadius:'var(--radius)', padding:'40px', textAlign:'center', marginTop:'32px' },
   ctaTitle: { fontSize:'28px', fontWeight:'600', color:'#fff', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
   ctaText: { fontSize:'15px', color:'rgba(255,255,255,0.7)', marginBottom:'24px' },
-  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'#fff', color:'var(--purple-dark)', borderRadius:'10px', fontSize:'15px', fontWeight:'600' }
+  ctaBtns: { display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' },
+  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'#fff', color:'var(--purple-dark)', borderRadius:'10px', fontSize:'15px', fontWeight:'600' },
+  ctaBtnSecondary: { display:'inline-block', padding:'13px 28px', background:'rgba(255,255,255,0.15)', color:'#fff', borderRadius:'10px', fontSize:'15px', fontWeight:'600', border:'1px solid rgba(255,255,255,0.3)' }
 }
 
 export default function ProfilePage() {

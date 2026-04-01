@@ -7,14 +7,15 @@ import { calculateFullProfile } from '../../../lib/calculations/index'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { full_name, date_of_birth, time_of_birth, lat, lng, user_id } = body
+    const { full_name, date_of_birth, time_of_birth, lat, lng, user_id, language } = body
 
     const calculatedData = calculateFullProfile(
       full_name,
       date_of_birth,
       time_of_birth,
       lat,
-      lng
+      lng,
+      language || 'en'
     )
 
     const { data, error } = await supabase

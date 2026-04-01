@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { t, UI } from '../../lib/translations'
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -19,6 +20,7 @@ const LANGUAGES = [
 export default function Onboarding() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [lang, setLang] = useState('en')
   const [formData, setFormData] = useState({
     full_name: '',
     date_of_birth: '',
@@ -45,14 +47,18 @@ export default function Onboarding() {
     }
   }, [day, month, year])
 
+  const handleLanguageChange = (code) => {
+    setLang(code)
+    setFormData(prev => ({ ...prev, language: code }))
+    setMonth('')
+  }
+
   const handleCityInput = (e) => {
     const value = e.target.value
     setCityValue(value)
     setFormData(prev => ({ ...prev, city: '', lat: '', lng: '' }))
-
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (value.length < 2) { setCitySuggestions([]); return }
-
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
@@ -79,15 +85,15 @@ export default function Onboarding() {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!day || !month || !year || year.length !== 4) {
-      alert('Please enter a valid date of birth.')
+      alert(t(lang, 'date_error'))
       return
     }
     if (!formData.time_of_birth) {
-      alert('Please enter your time of birth.')
+      alert(t(lang, 'time_error'))
       return
     }
     if (!formData.city) {
-      alert('Please select a city from the dropdown suggestions.')
+      alert(t(lang, 'city_error'))
       return
     }
     setLoading(true)
@@ -95,10 +101,7 @@ export default function Onboarding() {
     router.push(`/generating?data=${encoded}`)
   }
 
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
+  const months = t(lang, 'months')
 
   return (
     <>
@@ -106,18 +109,14 @@ export default function Onboarding() {
       <main style={s.wrap}>
 
         <div style={s.header}>
-          <a href="/" style={s.back}>← Back</a>
+          <a href="/" style={s.back}>{t(lang, 'back')}</a>
           <span className="tag tag-purple">Free Profile</span>
         </div>
 
         <div style={s.card}>
-
           <div style={s.cardHeader}>
-            <h1 style={s.title}>Your Alignment Profile</h1>
-            <p style={s.subtitle}>
-              Enter your birth details to generate your personal blueprint.
-              Takes 30 seconds.
-            </p>
+            <h1 style={s.title}>{t(lang, 'onboarding_title')}</h1>
+            <p style={s.subtitle}>{t(lang, 'onboarding_subtitle')}</p>
             <div style={s.tags}>
               <span className="tag tag-purple">Astrology</span>
               <span className="tag tag-green">Human Design</span>
@@ -128,18 +127,32 @@ export default function Onboarding() {
           <div style={s.form}>
 
             <div style={s.field}>
-              <label style={s.label}>Full Name</label>
+              <label style={s.label}>{t(lang, 'profile_language')}</label>
+              <select
+                value={lang}
+                onChange={e => handleLanguageChange(e.target.value)}
+                style={s.input}
+              >
+                {LANGUAGES.map(l => (
+                  <option key={l.code} value={l.code}>{l.label}</option>
+                ))}
+              </select>
+              <p style={s.hint}>{t(lang, 'language_hint')}</p>
+            </div>
+
+            <div style={s.field}>
+              <label style={s.label}>{t(lang, 'full_name')}</label>
               <input
                 type="text"
                 value={formData.full_name}
                 onChange={e => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                placeholder="Your full name"
+                placeholder={t(lang, 'full_name_placeholder')}
                 style={s.input}
               />
             </div>
 
             <div style={s.field}>
-              <label style={s.label}>Date of Birth</label>
+              <label style={s.label}>{t(lang, 'date_of_birth')}</label>
               <div style={s.dateRow}>
                 <div style={{width:'70px', flexShrink:0}}>
                   <input
@@ -147,8 +160,7 @@ export default function Onboarding() {
                     placeholder="DD"
                     value={day}
                     onChange={e => setDay(e.target.value)}
-                    min="1"
-                    max="31"
+                    min="1" max="31"
                     style={{...s.input, textAlign:'center', width:'100%'}}
                   />
                 </div>
@@ -158,7 +170,7 @@ export default function Onboarding() {
                     onChange={e => setMonth(e.target.value)}
                     style={{...s.input, width:'100%'}}
                   >
-                    <option value="">Month</option>
+                    <option value="">—</option>
                     {months.map((m, i) => (
                       <option key={i} value={String(i + 1)}>{m}</option>
                     ))}
@@ -170,8 +182,7 @@ export default function Onboarding() {
                     placeholder="YYYY"
                     value={year}
                     onChange={e => setYear(e.target.value)}
-                    min="1900"
-                    max="2010"
+                    min="1900" max="2010"
                     style={{...s.input, textAlign:'center', width:'100%'}}
                   />
                 </div>
@@ -179,36 +190,32 @@ export default function Onboarding() {
             </div>
 
             <div style={s.field}>
-              <label style={s.label}>Time of Birth</label>
+              <label style={s.label}>{t(lang, 'time_of_birth')}</label>
               <input
                 type="time"
                 value={formData.time_of_birth}
                 onChange={e => setFormData(prev => ({ ...prev, time_of_birth: e.target.value }))}
                 style={s.input}
               />
-              <p style={s.hint}>Check your birth certificate for accuracy.</p>
+              <p style={s.hint}>{t(lang, 'time_hint')}</p>
             </div>
 
             <div style={{...s.field, position:'relative'}}>
-              <label style={s.label}>City of Birth</label>
+              <label style={s.label}>{t(lang, 'city_of_birth')}</label>
               <input
                 type="text"
                 value={cityValue}
                 onChange={handleCityInput}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Start typing your city..."
+                placeholder={t(lang, 'city_placeholder')}
                 style={s.input}
                 autoComplete="off"
               />
-              <p style={s.hint}>Select from the dropdown for accurate coordinates.</p>
+              <p style={s.hint}>{t(lang, 'city_hint')}</p>
               {showSuggestions && citySuggestions.length > 0 && (
                 <div style={s.suggestions}>
                   {citySuggestions.map((place, i) => (
-                    <div
-                      key={i}
-                      onMouseDown={() => handleCitySelect(place)}
-                      style={s.suggestion}
-                    >
+                    <div key={i} onMouseDown={() => handleCitySelect(place)} style={s.suggestion}>
                       <span style={s.suggestionIcon}>◦</span>
                       <span style={s.suggestionText}>{place.display_name}</span>
                     </div>
@@ -217,23 +224,9 @@ export default function Onboarding() {
               )}
             </div>
 
-            <div style={s.field}>
-              <label style={s.label}>Profile Language</label>
-              <select
-                value={formData.language}
-                onChange={e => setFormData(prev => ({ ...prev, language: e.target.value }))}
-                style={s.input}
-              >
-                {LANGUAGES.map(lang => (
-                  <option key={lang.code} value={lang.code}>{lang.label}</option>
-                ))}
-              </select>
-              <p style={s.hint}>Your profile, daily insights and weekly resets will be in this language.</p>
-            </div>
-
             <div style={s.freeNote}>
               <span style={s.freeIcon}>✦</span>
-              <span style={s.freeLabel}>Free — no payment required</span>
+              <span style={s.freeLabel}>{t(lang, 'free_note')}</span>
             </div>
 
             <button
@@ -245,12 +238,10 @@ export default function Onboarding() {
                 cursor: loading ? 'not-allowed' : 'pointer'
               }}
             >
-              {loading ? 'Generating...' : 'Generate My Profile →'}
+              {loading ? t(lang, 'generating_btn') : t(lang, 'generate_btn')}
             </button>
 
-            <p style={s.disclaimer}>
-              Your data is used only to generate your profile. Never shared.
-            </p>
+            <p style={s.disclaimer}>{t(lang, 'disclaimer')}</p>
 
           </div>
         </div>

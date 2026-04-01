@@ -3,39 +3,30 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getUserId } from '../../lib/userId'
+import { t } from '../../lib/translations'
 
 function GeneratingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [status, setStatus] = useState('Starting...')
   const [step, setStep] = useState(0)
-
-  const steps = [
-    'Calculating your astrology chart...',
-    'Mapping your numerology...',
-    'Reading your Human Design...',
-    'Synthesizing your profile...',
-    'Writing your alignment plan...',
-    'Almost ready...'
-  ]
+  const [lang, setLang] = useState('en')
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const data = searchParams.get('data')
-    if (!data) {
-      router.push('/onboarding')
-      return
-    }
+    if (!data) { router.push('/onboarding'); return }
 
     let formData
     try {
       formData = JSON.parse(decodeURIComponent(data))
+      setLang(formData.language || 'en')
     } catch (e) {
-      setStatus('Error reading your data. Please go back and try again.')
+      setError('Error reading your data. Please go back and try again.')
       return
     }
 
-    // Cycle through status messages while generating
     let stepIndex = 0
+    const steps = t(formData.language || 'en', 'generating_steps')
     const interval = setInterval(() => {
       stepIndex = (stepIndex + 1) % steps.length
       setStep(stepIndex)
@@ -47,6 +38,7 @@ function GeneratingContent() {
   const generateProfile = async (formData) => {
     try {
       const userId = getUserId()
+      const language = formData.language || 'en'
 
       const calcResponse = await fetch('/api/calculate', {
         method: 'POST',
@@ -57,13 +49,14 @@ function GeneratingContent() {
           time_of_birth: formData.time_of_birth,
           lat: formData.lat,
           lng: formData.lng,
-          user_id: userId
+          user_id: userId,
+          language
         })
       })
 
       const calcData = await calcResponse.json()
       if (!calcData.success) {
-        setStatus('Calculation failed: ' + (calcData.error || 'unknown error'))
+        setError('Calculation failed: ' + (calcData.error || 'unknown error'))
         return
       }
 
@@ -75,13 +68,13 @@ function GeneratingContent() {
           calculated_profile_id: calcData.calculated_profile_id,
           calculated_data: calcData.data,
           user_id: userId,
-          language: formData.language || 'en'
+          language
         })
       })
 
       const interpretData = await interpretResponse.json()
       if (!interpretData.success) {
-        setStatus('Interpretation failed: ' + (interpretData.error || 'unknown error'))
+        setError('Interpretation failed: ' + (interpretData.error || 'unknown error'))
         return
       }
 
@@ -91,17 +84,30 @@ function GeneratingContent() {
         swot: interpretData.swot,
         alignment_plan: interpretData.alignment_plan,
         personal_year: calcData.data.numerology.personal_year,
+        hd_data: calcData.data.human_design,
         interpreted_profile_id: interpretData.interpreted_profile_id,
-        language: formData.language || 'en'
+        language
       }
 
       localStorage.setItem('profile', JSON.stringify(profilePayload))
       router.push('/profile')
 
     } catch (err) {
-      setStatus('Error: ' + err.message)
+      setError('Error: ' + err.message)
     }
   }
+
+  const steps = t(lang, 'generating_steps')
+
+  if (error) return (
+    <>
+      <div className="cosmic-bg" />
+      <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
+        <p style={{ color:'var(--orange)', fontSize:'16px', marginBottom:'20px' }}>{error}</p>
+        <a href="/onboarding" style={{ color:'var(--purple)', fontWeight:'600' }}>← Go back</a>
+      </main>
+    </>
+  )
 
   return (
     <>
@@ -109,14 +115,13 @@ function GeneratingContent() {
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
         <div style={{ fontSize:'48px', marginBottom:'24px' }}>✦</div>
         <h1 style={{ fontSize:'24px', fontWeight:'600', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif' }}>
-          Building Your Profile
+          {t(lang, 'generating_title')}
         </h1>
         <p style={{ color:'var(--text-muted)', fontSize:'16px', lineHeight:'1.6', marginBottom:'8px' }}>
           {steps[step]}
         </p>
         <p style={{ color:'var(--text-light)', fontSize:'13px', marginTop:'24px', lineHeight:'1.6' }}>
-          We are combining three systems into one personalised profile.<br/>
-          This takes 2-3 minutes — please don't close this window.
+          {t(lang, 'generating_subtitle')}
         </p>
         <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'6px' }}>
           {steps.map((_, i) => (
