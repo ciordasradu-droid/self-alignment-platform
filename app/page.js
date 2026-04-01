@@ -1,4 +1,31 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+
+function ReturningUserBanner() {
+  const [hasProfile, setHasProfile] = useState(false)
+
+  useEffect(() => {
+    const profile = localStorage.getItem('profile')
+    if (profile) setHasProfile(true)
+  }, [])
+
+  if (!hasProfile) return null
+
+  return (
+    <div style={rb.banner}>
+      <span style={rb.text}>✦ Welcome back — your profile is waiting</span>
+      <Link href="/profile" style={rb.link}>View My Profile →</Link>
+    </div>
+  )
+}
+
+const rb = {
+  banner: { background:'var(--purple-light)', border:'1px solid var(--purple)', borderRadius:'12px', padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'32px', flexWrap:'wrap', gap:'12px' },
+  text: { fontSize:'14px', color:'var(--purple)', fontWeight:'500' },
+  link: { fontSize:'14px', color:'var(--purple)', fontWeight:'700', textDecoration:'underline' }
+}
 
 export default function Home() {
   return (
@@ -17,6 +44,8 @@ export default function Home() {
       </nav>
 
       <main style={s.wrap}>
+
+        <ReturningUserBanner />
 
         <section style={s.hero}>
           <div style={s.heroEyebrow}>
