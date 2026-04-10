@@ -1,4 +1,4 @@
-export const maxDuration = 60
+﻿export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
@@ -49,19 +49,19 @@ export async function POST(request) {
     const body = await request.json()
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
-    // Step 1 — main profile sections
+    // Step 1 â€” main profile sections
     const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaude(profilePrompt, language, 1500)
+    const sections = await callClaude(profilePrompt, language, 2500)
 
-    // Step 2 — self perspective (SWOT)
+    // Step 2 â€” self perspective (SWOT)
     const swotPrompt = buildSWOTPrompt(calculated_data, sections)
     const swot = await callClaude(swotPrompt, language, 1000)
 
-    // Step 3 — alignment plan
+    // Step 3 â€” alignment plan
     const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
     const alignmentPlan = await callClaude(planPrompt, language, 1500)
 
-    // Step 4 — personalized action plan (Task 3)
+    // Step 4 â€” personalized action plan (Task 3)
     const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
     const actionPlanRaw = await callClaude(actionPlanPrompt, language, 1500)
     const actionPlan = actionPlanRaw.practices || []
