@@ -14,19 +14,12 @@ const anthropic = new Anthropic({
 })
 
 const LANGUAGE_NAMES = {
-  en: 'English',
-  ro: 'Romanian',
-  es: 'Spanish',
-  fr: 'French',
-  de: 'German',
-  it: 'Italian',
-  pt: 'Portuguese',
-  nl: 'Dutch',
-  pl: 'Polish',
-  hu: 'Hungarian'
+  en: 'English', ro: 'Romanian', es: 'Spanish', fr: 'French',
+  de: 'German', it: 'Italian', pt: 'Portuguese', nl: 'Dutch',
+  pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 1500) {
+async function callClaude(prompt, language = 'en', maxTokens = 2000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
@@ -37,11 +30,16 @@ async function callClaude(prompt, language = 'en', maxTokens = 1500) {
     messages: [{ role: 'user', content: prompt + languageInstruction }]
   })
   const textBlock = message.content.find(block => block.type === 'text')
-  if (!textBlock || !textBlock.text) {
-    throw new Error('No text response from Claude')
+  if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
+  const raw = textBlock.text.trim()
+  // Strip markdown code fences if present
+  const clean = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+  try {
+    return JSON.parse(clean)
+  } catch (e) {
+    console.error('JSON parse failed. Raw response:', raw.slice(0, 500))
+    throw new Error(`JSON parse failed: ${e.message}. Response started with: ${raw.slice(0, 100)}`)
   }
-  const clean = textBlock.text.replace(/```json|```/g, '').trim()
-  return JSON.parse(clean)
 }
 
 export async function POST(request) {
@@ -49,24 +47,41 @@ export async function POST(request) {
     const body = await request.json()
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
-    // Step 1 â€” main profile sections
-    const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaude(profilePrompt, language, 2500)
+    let sections, swot, alignmentPlan, actionPlan
 
-    // Step 2 â€” self perspective (SWOT)
-    const swotPrompt = buildSWOTPrompt(calculated_data, sections)
-    const swot = await callClaude(swotPrompt, language, 2000)
+    try {
+      const profilePrompt = buildProfilePrompt(calculated_data, full_name)
+      sections = await callClaude(profilePrompt, language, 2500)
+    } catch (e) {
+      console.error('Step 1 (profile) failed:', e.message)
+      return NextResponse.json({ error: 'Profile generation failed: ' + e.message }, { status: 500 })
+    }
 
-    // Step 3 â€” alignment plan
-    const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
-    const alignmentPlan = await callClaude(planPrompt, language, 2000)
+    try {
+      const swotPrompt = buildSWOTPrompt(calculated_data, sections)
+      swot = await callClaude(swotPrompt, language, 2000)
+    } catch (e) {
+      console.error('Step 2 (swot) failed:', e.message)
+      return NextResponse.json({ error: 'Self perspective failed: ' + e.message }, { status: 500 })
+    }
 
-    // Step 4 â€” personalized action plan (Task 3)
-    const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
-    const actionPlanRaw = await callClaude(actionPlanPrompt, language, 2000)
-    const actionPlan = actionPlanRaw.practices || []
+    try {
+      const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
+      alignmentPlan = await callClaude(planPrompt, language, 2000)
+    } catch (e) {
+      console.error('Step 3 (alignment plan) failed:', e.message)
+      return NextResponse.json({ error: 'Alignment plan failed: ' + e.message }, { status: 500 })
+    }
 
-    // Persist everything
+    try {
+      const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
+      const actionPlanRaw = await callClaude(actionPlanPrompt, language, 2000)
+      actionPlan = actionPlanRaw.practices || []
+    } catch (e) {
+      console.error('Step 4 (action plan) failed:', e.message)
+      actionPlan = [] // non-fatal — profile still saves without action plan
+    }
+
     const { data, error } = await supabase
       .from('interpreted_profiles')
       .insert([{
@@ -82,7 +97,7 @@ export async function POST(request) {
       .select()
 
     if (error) {
-      console.error(error)
+      console.error('Supabase error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
