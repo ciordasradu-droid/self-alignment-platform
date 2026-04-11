@@ -40,6 +40,7 @@ function GeneratingContent() {
       const userId = getUserId()
       const language = formData.language || 'en'
 
+      // Step 1 — calculate chart data
       const calcResponse = await fetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,13 +54,13 @@ function GeneratingContent() {
           language
         })
       })
-
       const calcData = await calcResponse.json()
       if (!calcData.success) {
         setError('Calculation failed: ' + (calcData.error || 'unknown error'))
         return
       }
 
+      // Step 2 — generate profile + self perspective (~25s)
       const interpretResponse = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,18 +72,33 @@ function GeneratingContent() {
           language
         })
       })
-
       const interpretData = await interpretResponse.json()
       if (!interpretData.success) {
         setError('Interpretation failed: ' + (interpretData.error || 'unknown error'))
         return
       }
 
+      // Step 3 — generate alignment plan + action plan (~25s)
+      const planResponse = await fetch('/api/interpret-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interpreted_profile_id: interpretData.interpreted_profile_id,
+          calculated_data: calcData.data,
+          sections: interpretData.sections,
+          swot: interpretData.swot,
+          language
+        })
+      })
+      const planData = await planResponse.json()
+      // plan is non-fatal — continue even if it fails
+
       const profilePayload = {
         full_name: formData.full_name,
         sections: interpretData.sections,
         swot: interpretData.swot,
-        alignment_plan: interpretData.alignment_plan,
+        alignment_plan: planData.alignment_plan || null,
+        action_plan: planData.action_plan || [],
         personal_year: calcData.data.numerology.personal_year,
         hd_data: calcData.data.human_design,
         interpreted_profile_id: interpretData.interpreted_profile_id,
