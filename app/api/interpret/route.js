@@ -55,15 +55,15 @@ export async function POST(request) {
 
     // Step 2 â€” self perspective (SWOT)
     const swotPrompt = buildSWOTPrompt(calculated_data, sections)
-    const swot = await callClaude(swotPrompt, language, 1000)
+    const swot = await callClaude(swotPrompt, language, 2000)
 
     // Step 3 â€” alignment plan
     const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
-    const alignmentPlan = await callClaude(planPrompt, language, 1500)
+    const alignmentPlan = await callClaude(planPrompt, language, 2000)
 
     // Step 4 â€” personalized action plan (Task 3)
     const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
-    const actionPlanRaw = await callClaude(actionPlanPrompt, language, 1500)
+    const actionPlanRaw = await callClaude(actionPlanPrompt, language, 2000)
     const actionPlan = actionPlanRaw.practices || []
 
     // Persist everything
