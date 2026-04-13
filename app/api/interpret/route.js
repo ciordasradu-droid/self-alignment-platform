@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -14,19 +14,19 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 8000) {
+async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const reinforcement = language !== 'en'
     ? `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
     : ''
   const message = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt + reinforcement }]
   })
 
   if (message.stop_reason === 'max_tokens') {
-    console.warn(`[interpret] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
+    console.warn(`[interpret] Claude hit max_tokens (${maxTokens}) � output may be truncated.`)
   }
 
   const textBlock = message.content.find(block => block.type === 'text')
