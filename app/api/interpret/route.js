@@ -1,9 +1,10 @@
-﻿export const maxDuration = 60
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
+
+export const maxDuration = 60
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 

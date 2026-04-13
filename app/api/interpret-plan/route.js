@@ -1,8 +1,11 @@
-export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildAlignmentPlanPrompt, buildActionPlanPrompt } from '../../../lib/prompts/profile'
+import { jsonrepair } from 'jsonrepair'
+
+// Two sequential Claude calls (~40-50s). Set 300 on Pro plan, 60 on Hobby.
+export const maxDuration = 300
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -24,8 +27,12 @@ async function callClaude(prompt, language = 'en', maxTokens = 2000) {
   })
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
-  const clean = textBlock.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  return JSON.parse(clean)
+  const clean = textBlock.text.trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim()
+  return JSON.parse(jsonrepair(clean))
 }
 
 export async function POST(request) {

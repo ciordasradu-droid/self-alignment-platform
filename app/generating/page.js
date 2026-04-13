@@ -5,6 +5,24 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
+// Safe fetch: guards against HTML error pages (504, 502, etc.) returned as non-JSON
+async function safeFetch(url, options) {
+  const response = await fetch(url, options)
+  const contentType = response.headers.get('content-type') || ''
+
+  if (!response.ok || !contentType.includes('application/json')) {
+    // Vercel returned an HTML error page — extract status for a useful message
+    throw new Error(
+      `Request to ${url} failed (HTTP ${response.status}). ` +
+      (response.status === 504 ? 'The server took too long to respond. Please try again.' :
+       response.status === 502 ? 'Bad gateway. Please try again in a moment.' :
+       'Unexpected server error. Please try again.')
+    )
+  }
+
+  return response.json()
+}
+
 function GeneratingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -41,7 +59,7 @@ function GeneratingContent() {
       const language = formData.language || 'en'
 
       // Step 1 — calculate chart data
-      const calcResponse = await fetch('/api/calculate', {
+      const calcData = await safeFetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,14 +72,13 @@ function GeneratingContent() {
           language
         })
       })
-      const calcData = await calcResponse.json()
       if (!calcData.success) {
         setError('Calculation failed: ' + (calcData.error || 'unknown error'))
         return
       }
 
       // Step 2 — generate profile + self perspective (~25s)
-      const interpretResponse = await fetch('/api/interpret', {
+      const interpretData = await safeFetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,26 +89,29 @@ function GeneratingContent() {
           language
         })
       })
-      const interpretData = await interpretResponse.json()
       if (!interpretData.success) {
         setError('Interpretation failed: ' + (interpretData.error || 'unknown error'))
         return
       }
 
-      // Step 3 — generate alignment plan + action plan (~25s)
-      const planResponse = await fetch('/api/interpret-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          interpreted_profile_id: interpretData.interpreted_profile_id,
-          calculated_data: calcData.data,
-          sections: interpretData.sections,
-          swot: interpretData.swot,
-          language
-        })
-      })
-      const planData = await planResponse.json()
+      // Step 3 — generate alignment plan + action plan (~40-50s)
       // plan is non-fatal — continue even if it fails
+      let planData = {}
+      try {
+        planData = await safeFetch('/api/interpret-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            interpreted_profile_id: interpretData.interpreted_profile_id,
+            calculated_data: calcData.data,
+            sections: interpretData.sections,
+            swot: interpretData.swot,
+            language
+          })
+        })
+      } catch (planErr) {
+        console.warn('interpret-plan failed (non-fatal):', planErr.message)
+      }
 
       const profilePayload = {
         full_name: formData.full_name,

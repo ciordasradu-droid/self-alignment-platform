@@ -1,8 +1,8 @@
-export const maxDuration = 60
-
 import { NextResponse } from 'next/server'
 import { supabase } from '../../../lib/supabase'
 import { calculateFullProfile } from '../../../lib/calculations/index'
+
+export const maxDuration = 60
 
 export async function POST(request) {
   try {
