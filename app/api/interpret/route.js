@@ -13,31 +13,23 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaudeStreaming(prompt, language = 'en', maxTokens = 5000) {
+async function callClaude(prompt, language = 'en', maxTokens = 4000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
-    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
+    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. Keep the same length as you would in English — do not write more text just because it is a different language.`
     : ''
-
-  let fullText = ''
-  const stream = await anthropic.messages.stream({
+  const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt + languageInstruction }]
   })
-
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
-      fullText += chunk.delta.text
-    }
-  }
-
-  const clean = fullText.trim()
+  const textBlock = message.content.find(block => block.type === 'text')
+  if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
+  const clean = textBlock.text.trim()
     .replace(/^```json\n?/i, '')
     .replace(/^```\n?/i, '')
     .replace(/\n?```$/i, '')
     .trim()
-
   return JSON.parse(jsonrepair(clean))
 }
 
@@ -47,7 +39,7 @@ export async function POST(request) {
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaudeStreaming(profilePrompt, language, 5000)
+    const sections = await callClaude(profilePrompt, language, 4000)
 
     const swot = {
       strengths: sections.strengths?.slice(0, 4) || [],
