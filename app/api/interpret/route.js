@@ -12,7 +12,7 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 2500) {
+async function callClaude(prompt, language = 'en', maxTokens = 3500) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
@@ -25,7 +25,8 @@ async function callClaude(prompt, language = 'en', maxTokens = 2500) {
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
   const clean = textBlock.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  return JSON.parse(clean)
+  const fixed = clean.replace(/,(\s*[\]}])/g, '$1')
+  return JSON.parse(fixed)
 }
 
 export async function POST(request) {
