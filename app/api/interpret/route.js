@@ -14,16 +14,21 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 4000) {
+async function callClaude(prompt, language = 'en', maxTokens = 8000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
-  const languageInstruction = language !== 'en'
-    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. Keep the same length as you would in English — do not write more text just because it is a different language.`
+  const reinforcement = language !== 'en'
+    ? `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
     : ''
   const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: maxTokens,
-    messages: [{ role: 'user', content: prompt + languageInstruction }]
+    messages: [{ role: 'user', content: prompt + reinforcement }]
   })
+
+  if (message.stop_reason === 'max_tokens') {
+    console.warn(`[interpret] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
+  }
+
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
   const clean = textBlock.text.trim()
@@ -39,18 +44,14 @@ export async function POST(request) {
     const body = await request.json()
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
-    const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaude(profilePrompt, language, 4000)
+    const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
+    const sections = await callClaude(profilePrompt, language, 8000)
 
+    // opportunities now come from Claude's output, not hardcoded English strings
     const swot = {
       strengths: sections.strengths?.slice(0, 4) || [],
       weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
-      opportunities: [
-        `Personal Year ${calculated_data.enriched?.numerology?.personal_year?.personal_year} of 9: ${calculated_data.enriched?.numerology?.personal_year?.theme}`,
-        `${calculated_data.enriched?.human_design?.incarnation_cross}`,
-        `Channel ${calculated_data.enriched?.human_design?.formed_channels?.[0] || 'activation'} — a consistent strength to build on`,
-        `Expression ${calculated_data.enriched?.numerology?.expression} — ${calculated_data.enriched?.numerology?.expression_meaning}`
-      ],
+      opportunities: sections.opportunities || [],
       threats: sections.sabotage_tendencies?.slice(0, 4) || []
     }
 
@@ -63,7 +64,7 @@ export async function POST(request) {
         swot,
         alignment_plan: null,
         action_plan: null,
-        prompt_version: 'v2',
+        prompt_version: 'v3',
         language
       }])
       .select()

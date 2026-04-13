@@ -5,6 +5,24 @@ import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
+// Terminology imports for HDCard subtitles
+import { headerBoxExplanations as roExpl } from '../../lib/prompts/terminology/ro'
+import { headerBoxExplanations as enExpl } from '../../lib/prompts/terminology/en'
+import { headerBoxExplanations as esExpl } from '../../lib/prompts/terminology/es'
+import { headerBoxExplanations as frExpl } from '../../lib/prompts/terminology/fr'
+import { headerBoxExplanations as deExpl } from '../../lib/prompts/terminology/de'
+import { headerBoxExplanations as itExpl } from '../../lib/prompts/terminology/it'
+import { headerBoxExplanations as ptExpl } from '../../lib/prompts/terminology/pt'
+import { headerBoxExplanations as nlExpl } from '../../lib/prompts/terminology/nl'
+import { headerBoxExplanations as plExpl } from '../../lib/prompts/terminology/pl'
+import { headerBoxExplanations as huExpl } from '../../lib/prompts/terminology/hu'
+
+const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl }
+
+function getExplanations(lang) {
+  return EXPLANATIONS[lang] || EXPLANATIONS['en']
+}
+
 const COMMITMENTS = {
   en: [
     "I take full responsibility for my choices and their consequences.",
@@ -137,6 +155,14 @@ const g = {
 
 function HDCard({ hdData, lang }) {
   if (!hdData) return null
+  const expl = getExplanations(lang)
+
+  // Look up subtitle for strategy value
+  const strategySubtitle = expl.strategy?.subtitles?.[hdData.strategy] || null
+  const authoritySubtitle = expl.authority?.subtitles?.[hdData.authority] || null
+  const typeSubtitle = expl.type?.subtitles?.[hdData.type] || null
+  const profileSubtitle = expl.profile?.subtitle || null
+
   return (
     <div style={{...s.card, borderLeft:'4px solid var(--orange)', marginBottom:'20px'}}>
       <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>Human Design</div>
@@ -144,18 +170,22 @@ function HDCard({ hdData, lang }) {
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_type')}</p>
           <p style={hd.value}>{hdData.type}</p>
+          {typeSubtitle && <p style={hd.subtitle}>{typeSubtitle}</p>}
         </div>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_profile')}</p>
           <p style={hd.value}>{hdData.profile}</p>
+          {profileSubtitle && <p style={hd.subtitle}>{profileSubtitle}</p>}
         </div>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_strategy')}</p>
           <p style={hd.value}>{hdData.strategy}</p>
+          {strategySubtitle && <p style={hd.subtitle}>{strategySubtitle}</p>}
         </div>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_authority')}</p>
           <p style={hd.value}>{hdData.authority}</p>
+          {authoritySubtitle && <p style={hd.subtitle}>{authoritySubtitle}</p>}
         </div>
       </div>
     </div>
@@ -165,7 +195,8 @@ function HDCard({ hdData, lang }) {
 const hd = {
   item: { background:'var(--bg)', borderRadius:'10px', padding:'14px' },
   label: { fontSize:'11px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:'var(--text-muted)', marginBottom:'6px' },
-  value: { fontSize:'15px', fontWeight:'600', color:'var(--text)' }
+  value: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'4px' },
+  subtitle: { fontSize:'12px', color:'var(--text-muted)', lineHeight:'1.5', marginTop:'4px', fontStyle:'italic' }
 }
 
 function ProfileContent() {
@@ -320,12 +351,11 @@ function ProfileContent() {
           </div>
         </div>
 
+        {/* Self Perspective — opportunities + threats only (strengths/weaknesses already shown above) */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
           <div style={s.swotGrid}>
             {[
-              { title: t(lang, 'natural_gifts'), items: swot?.strengths, color:'var(--green)', icon:'✦' },
-              { title: t(lang, 'growth_edges'), items: swot?.weaknesses, color:'var(--orange)', icon:'🌱' },
               { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
               { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' },
             ].map((q, i) => (
