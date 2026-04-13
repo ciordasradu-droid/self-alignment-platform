@@ -4,7 +4,7 @@ import { supabase } from '../../../lib/supabase'
 import { buildAlignmentPlanPrompt, buildActionPlanPrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
-// Two sequential Claude calls (~40-50s). Set 300 on Pro plan, 60 on Hobby.
+// Two sequential Claude calls. 300s on Pro plan.
 export const maxDuration = 300
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -15,16 +15,21 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 2000) {
+async function callClaude(prompt, language = 'en', maxTokens = 4000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
-    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
+    ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}. No English words, no code-switching.`
     : ''
   const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt + languageInstruction }]
   })
+
+  if (message.stop_reason === 'max_tokens') {
+    console.warn(`[interpret-plan] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
+  }
+
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
   const clean = textBlock.text.trim()
@@ -41,12 +46,12 @@ export async function POST(request) {
     const { interpreted_profile_id, calculated_data, sections, swot, language = 'en' } = body
 
     const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
-    const alignmentPlan = await callClaude(planPrompt, language, 2000)
+    const alignmentPlan = await callClaude(planPrompt, language, 4000)
 
     let actionPlan = []
     try {
       const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
-      const actionPlanRaw = await callClaude(actionPlanPrompt, language, 2000)
+      const actionPlanRaw = await callClaude(actionPlanPrompt, language, 3000)
       actionPlan = actionPlanRaw.practices || []
     } catch (e) {
       console.error('Action plan failed (non-fatal):', e.message)

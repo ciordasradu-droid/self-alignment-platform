@@ -5,22 +5,28 @@ import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
-// Terminology imports for HDCard subtitles
-import { headerBoxExplanations as roExpl } from '../../lib/prompts/terminology/ro'
-import { headerBoxExplanations as enExpl } from '../../lib/prompts/terminology/en'
-import { headerBoxExplanations as esExpl } from '../../lib/prompts/terminology/es'
-import { headerBoxExplanations as frExpl } from '../../lib/prompts/terminology/fr'
-import { headerBoxExplanations as deExpl } from '../../lib/prompts/terminology/de'
-import { headerBoxExplanations as itExpl } from '../../lib/prompts/terminology/it'
-import { headerBoxExplanations as ptExpl } from '../../lib/prompts/terminology/pt'
-import { headerBoxExplanations as nlExpl } from '../../lib/prompts/terminology/nl'
-import { headerBoxExplanations as plExpl } from '../../lib/prompts/terminology/pl'
-import { headerBoxExplanations as huExpl } from '../../lib/prompts/terminology/hu'
+// Terminology imports for HDCard subtitles + translated values
+import { headerBoxExplanations as roExpl, hdTerms as roHd } from '../../lib/prompts/terminology/ro'
+import { headerBoxExplanations as enExpl, hdTerms as enHd } from '../../lib/prompts/terminology/en'
+import { headerBoxExplanations as esExpl, hdTerms as esHd } from '../../lib/prompts/terminology/es'
+import { headerBoxExplanations as frExpl, hdTerms as frHd } from '../../lib/prompts/terminology/fr'
+import { headerBoxExplanations as deExpl, hdTerms as deHd } from '../../lib/prompts/terminology/de'
+import { headerBoxExplanations as itExpl, hdTerms as itHd } from '../../lib/prompts/terminology/it'
+import { headerBoxExplanations as ptExpl, hdTerms as ptHd } from '../../lib/prompts/terminology/pt'
+import { headerBoxExplanations as nlExpl, hdTerms as nlHd } from '../../lib/prompts/terminology/nl'
+import { headerBoxExplanations as plExpl, hdTerms as plHd } from '../../lib/prompts/terminology/pl'
+import { headerBoxExplanations as huExpl, hdTerms as huHd } from '../../lib/prompts/terminology/hu'
 
 const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl }
+const HD_TERMS = { ro: roHd, en: enHd, es: esHd, fr: frHd, de: deHd, it: itHd, pt: ptHd, nl: nlHd, pl: plHd, hu: huHd }
 
-function getExplanations(lang) {
-  return EXPLANATIONS[lang] || EXPLANATIONS['en']
+function getExplanations(lang) { return EXPLANATIONS[lang] || EXPLANATIONS['en'] }
+function getHdTerms(lang) { return HD_TERMS[lang] || HD_TERMS['en'] }
+
+// Translate a raw HD value (type/strategy/authority) to the user's language
+function translateHd(category, value, lang) {
+  const terms = getHdTerms(lang)
+  return terms?.[category]?.[value] || value
 }
 
 const COMMITMENTS = {
@@ -157,11 +163,16 @@ function HDCard({ hdData, lang }) {
   if (!hdData) return null
   const expl = getExplanations(lang)
 
-  // Look up subtitle for strategy value
-  const strategySubtitle = expl.strategy?.subtitles?.[hdData.strategy] || null
-  const authoritySubtitle = expl.authority?.subtitles?.[hdData.authority] || null
+  // Translated display values
+  const translatedType = translateHd('types', hdData.type, lang)
+  const translatedStrategy = translateHd('strategies', hdData.strategy, lang)
+  const translatedAuthority = translateHd('authorities', hdData.authority, lang)
+
+  // Plain-language subtitles
   const typeSubtitle = expl.type?.subtitles?.[hdData.type] || null
   const profileSubtitle = expl.profile?.subtitle || null
+  const strategySubtitle = expl.strategy?.subtitles?.[hdData.strategy] || null
+  const authoritySubtitle = expl.authority?.subtitles?.[hdData.authority] || null
 
   return (
     <div style={{...s.card, borderLeft:'4px solid var(--orange)', marginBottom:'20px'}}>
@@ -169,7 +180,7 @@ function HDCard({ hdData, lang }) {
       <div style={s.grid2}>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_type')}</p>
-          <p style={hd.value}>{hdData.type}</p>
+          <p style={hd.value}>{translatedType}</p>
           {typeSubtitle && <p style={hd.subtitle}>{typeSubtitle}</p>}
         </div>
         <div style={hd.item}>
@@ -179,12 +190,12 @@ function HDCard({ hdData, lang }) {
         </div>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_strategy')}</p>
-          <p style={hd.value}>{hdData.strategy}</p>
+          <p style={hd.value}>{translatedStrategy}</p>
           {strategySubtitle && <p style={hd.subtitle}>{strategySubtitle}</p>}
         </div>
         <div style={hd.item}>
           <p style={hd.label}>{t(lang, 'hd_authority')}</p>
-          <p style={hd.value}>{hdData.authority}</p>
+          <p style={hd.value}>{translatedAuthority}</p>
           {authoritySubtitle && <p style={hd.subtitle}>{authoritySubtitle}</p>}
         </div>
       </div>
@@ -205,12 +216,9 @@ function ProfileContent() {
   const [committed, setCommitted] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('profile')
-    if (stored) {
-      setProfile(JSON.parse(stored))
-      setLoading(false)
-      return
-    }
+    // Always clear localStorage so stale cached profiles don't show old data
+    localStorage.removeItem('profile')
+
     const userId = getUserId()
     fetch(`/api/profile?user_id=${userId}`)
       .then(r => r.json())
@@ -219,14 +227,23 @@ function ProfileContent() {
           const profilePayload = {
             sections: data.sections,
             swot: data.swot,
-            alignment_plan: data.alignment_plan
+            alignment_plan: data.alignment_plan,
+            full_name: data.full_name,
+            personal_year: data.personal_year,
+            hd_data: data.hd_data,
+            language: data.language
           }
           localStorage.setItem('profile', JSON.stringify(profilePayload))
           setProfile(profilePayload)
         }
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        // Fallback to localStorage if API fails
+        const stored = localStorage.getItem('profile')
+        if (stored) setProfile(JSON.parse(stored))
+        setLoading(false)
+      })
   }, [])
 
   if (loading) return <div style={s.center}>Loading...</div>
@@ -351,7 +368,7 @@ function ProfileContent() {
           </div>
         </div>
 
-        {/* Self Perspective — opportunities + threats only (strengths/weaknesses already shown above) */}
+        {/* Self Perspective — opportunities + threats only */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
           <div style={s.swotGrid}>
