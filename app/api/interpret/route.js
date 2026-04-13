@@ -12,7 +12,7 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 3500) {
+async function callClaude(prompt, language = 'en', maxTokens = 5000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
