@@ -5,8 +5,62 @@ import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
-function CommitmentGate({ commitments, lang, onAccept }) {
-  const [checked, setChecked] = useState([false, false, false])
+const COMMITMENTS = {
+  en: [
+    "I take full responsibility for my choices and their consequences.",
+    "I will use this profile as a mirror, not an excuse.",
+    "I commit to honest self-observation, even when it's uncomfortable."
+  ],
+  ro: [
+    "Îmi asum responsabilitatea deplină pentru alegerile și consecințele mele.",
+    "Voi folosi acest profil ca pe o oglindă, nu ca pe o scuză.",
+    "Mă angajez la auto-observare sinceră, chiar și când este inconfortabil."
+  ],
+  es: [
+    "Asumo plena responsabilidad por mis decisiones y sus consecuencias.",
+    "Usaré este perfil como un espejo, no como una excusa.",
+    "Me comprometo a la auto-observación honesta, incluso cuando sea incómodo."
+  ],
+  fr: [
+    "J'assume l'entière responsabilité de mes choix et de leurs conséquences.",
+    "J'utiliserai ce profil comme un miroir, pas comme une excuse.",
+    "Je m'engage à une auto-observation honnête, même quand c'est inconfortable."
+  ],
+  de: [
+    "Ich übernehme die volle Verantwortung für meine Entscheidungen und deren Folgen.",
+    "Ich werde dieses Profil als Spiegel nutzen, nicht als Ausrede.",
+    "Ich verpflichte mich zur ehrlichen Selbstbeobachtung, auch wenn es unangenehm ist."
+  ],
+  it: [
+    "Mi assumo la piena responsabilità delle mie scelte e delle loro conseguenze.",
+    "Userò questo profilo come uno specchio, non come una scusa.",
+    "Mi impegno all'auto-osservazione onesta, anche quando è scomoda."
+  ],
+  pt: [
+    "Assumo total responsabilidade pelas minhas escolhas e suas consequências.",
+    "Usarei este perfil como um espelho, não como uma desculpa.",
+    "Comprometo-me à auto-observação honesta, mesmo quando é desconfortável."
+  ],
+  nl: [
+    "Ik neem volledige verantwoordelijkheid voor mijn keuzes en de gevolgen daarvan.",
+    "Ik zal dit profiel gebruiken als een spiegel, niet als een excuus.",
+    "Ik verbind me tot eerlijke zelfobservatie, ook als het ongemakkelijk is."
+  ],
+  pl: [
+    "Biorę pełną odpowiedzialność za swoje wybory i ich konsekwencje.",
+    "Będę używać tego profilu jako lustra, nie jako wymówki.",
+    "Zobowiązuję się do uczciwej samoobserwacji, nawet gdy jest niewygodna."
+  ],
+  hu: [
+    "Teljes felelősséget vállalok döntéseimért és azok következményeiért.",
+    "Ezt a profilt tükörként fogom használni, nem kifogásként.",
+    "Elkötelezem magam az őszinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."
+  ],
+}
+
+function CommitmentGate({ lang, onAccept }) {
+  const commitments = COMMITMENTS[lang] || COMMITMENTS['en']
+  const [checked, setChecked] = useState(commitments.map(() => false))
   const allChecked = checked.every(c => c)
 
   const toggle = (i) => {
@@ -26,7 +80,7 @@ function CommitmentGate({ commitments, lang, onAccept }) {
           <h1 style={g.title}>{t(lang, 'your_agreements')}</h1>
           <p style={g.subtitle}>{t(lang, 'agreements_subtitle')}</p>
           <div style={g.commitments}>
-            {commitments?.map((item, i) => (
+            {commitments.map((item, i) => (
               <div
                 key={i}
                 onClick={() => toggle(i)}
@@ -157,7 +211,6 @@ function ProfileContent() {
   if (!committed) {
     return (
       <CommitmentGate
-        commitments={profile.sections?.commitments}
         lang={lang}
         onAccept={() => setCommitted(true)}
       />
