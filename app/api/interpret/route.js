@@ -4,7 +4,7 @@ import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
-export const maxDuration = 60
+export const maxDuration = 300
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
