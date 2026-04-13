@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
+import { jsonrepair } from 'jsonrepair'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -35,10 +36,9 @@ async function callClaudeStreaming(prompt, language = 'en', maxTokens = 5000) {
     .replace(/^```json\n?/i, '')
     .replace(/^```\n?/i, '')
     .replace(/\n?```$/i, '')
-    .replace(/,(\s*[\]}])/g, '$1')
     .trim()
 
-  return JSON.parse(clean)
+  return JSON.parse(jsonrepair(clean))
 }
 
 export async function POST(request) {
