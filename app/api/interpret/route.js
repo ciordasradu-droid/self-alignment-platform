@@ -12,21 +12,33 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 5000) {
+async function callClaudeStreaming(prompt, language = 'en', maxTokens = 5000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}.`
     : ''
-  const message = await anthropic.messages.create({
+
+  let fullText = ''
+  const stream = await anthropic.messages.stream({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt + languageInstruction }]
   })
-  const textBlock = message.content.find(block => block.type === 'text')
-  if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
-  const clean = textBlock.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  const fixed = clean.replace(/,(\s*[\]}])/g, '$1')
-  return JSON.parse(fixed)
+
+  for await (const chunk of stream) {
+    if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
+      fullText += chunk.delta.text
+    }
+  }
+
+  const clean = fullText.trim()
+    .replace(/^```json\n?/i, '')
+    .replace(/^```\n?/i, '')
+    .replace(/\n?```$/i, '')
+    .replace(/,(\s*[\]}])/g, '$1')
+    .trim()
+
+  return JSON.parse(clean)
 }
 
 export async function POST(request) {
@@ -35,16 +47,15 @@ export async function POST(request) {
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name)
-    const sections = await callClaude(profilePrompt, language, 2500)
+    const sections = await callClaudeStreaming(profilePrompt, language, 5000)
 
-    // Build swot from sections without a second Claude call
     const swot = {
       strengths: sections.strengths?.slice(0, 4) || [],
       weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
       opportunities: [
-        `Personal Year ${calculated_data.enriched?.numerology?.personal_year?.personal_year}: ${calculated_data.enriched?.numerology?.personal_year?.theme} — use this energy deliberately`,
-        `Your ${calculated_data.enriched?.human_design?.incarnation_cross} points to your life direction`,
-        `Channel ${calculated_data.enriched?.human_design?.formed_channels?.[0] || 'activation'} is a consistent strength to build on`,
+        `Personal Year ${calculated_data.enriched?.numerology?.personal_year?.personal_year} of 9: ${calculated_data.enriched?.numerology?.personal_year?.theme}`,
+        `${calculated_data.enriched?.human_design?.incarnation_cross}`,
+        `Channel ${calculated_data.enriched?.human_design?.formed_channels?.[0] || 'activation'} — a consistent strength to build on`,
         `Expression ${calculated_data.enriched?.numerology?.expression} — ${calculated_data.enriched?.numerology?.expression_meaning}`
       ],
       threats: sections.sabotage_tendencies?.slice(0, 4) || []
