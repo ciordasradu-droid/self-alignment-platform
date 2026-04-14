@@ -26,7 +26,7 @@ async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   })
 
   if (message.stop_reason === 'max_tokens') {
-    console.warn(`[interpret] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
+    console.warn('[interpret] Claude hit max_tokens - output may be truncated.')
   }
 
   const textBlock = message.content.find(block => block.type === 'text')
@@ -45,9 +45,8 @@ export async function POST(request) {
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
-    const sections = await callClaude(profilePrompt, language, 8000)
+    const sections = await callClaude(profilePrompt, language, 6000)
 
-    // opportunities now come from Claude's output, not hardcoded English strings
     const swot = {
       strengths: sections.strengths?.slice(0, 4) || [],
       weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
