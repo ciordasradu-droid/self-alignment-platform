@@ -1,60 +1,32 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getUserId } from '../../../lib/userId'
+import { getDailyThought } from '../../../lib/dailyThoughts'
 
 export default function DailyInsight() {
   const [insight, setInsight] = useState(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const stored = localStorage.getItem('profile')
-    if (!stored) {
-      setLoading(false)
-      return
+    if (!stored) return
+
+    try {
+      const profile = JSON.parse(stored)
+      const hdType = profile.hd_data?.type || 'Generator'
+      const lang = profile.language || 'en'
+      const thought = getDailyThought(hdType, lang)
+      setInsight(thought)
+    } catch (e) {
+      console.error('Error loading daily thought:', e)
     }
-
-    const profile = JSON.parse(stored)
-    const userId = getUserId()
-
-    const profileData = {
-      human_design_type: profile.sections?.energy_patterns?.[0] || '',
-      human_design_strategy: profile.sections?.decision_making?.[0] || '',
-      life_path: '',
-      blueprint: profile.sections?.blueprint || '',
-      sabotage: profile.sections?.sabotage_tendencies?.[0] || ''
-    }
-
-    fetch('/api/daily-insight', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: userId,
-        profile: profileData,
-        personal_year: profile.personal_year,
-        language: profile.language || 'en'
-      })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) setInsight(data.insight)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
   }, [])
-
-  if (loading) return (
-    <div style={s.card}>
-      <p style={s.loading}>Generating your daily insight...</p>
-    </div>
-  )
 
   if (!insight) return null
 
   return (
     <div style={s.card}>
       <div style={s.header}>
-        <span style={s.tag}>✦ Daily Insight</span>
+        <span style={s.tag}>✦ Daily Thought</span>
         <span style={s.date}>
           {new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })}
         </span>
@@ -81,5 +53,4 @@ const s = {
   questionBox: { background:'rgba(255,255,255,0.06)', borderRadius:'10px', padding:'16px' },
   questionLabel: { fontSize:'11px', fontWeight:'700', color:'var(--orange)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'8px' },
   question: { fontSize:'15px', color:'rgba(255,255,255,0.85)', lineHeight:'1.6', fontStyle:'italic' },
-  loading: { fontSize:'14px', color:'rgba(255,255,255,0.5)', textAlign:'center', padding:'20px 0' }
 }
