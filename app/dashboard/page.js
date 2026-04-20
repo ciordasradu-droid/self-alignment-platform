@@ -8,6 +8,9 @@ import WeeklyReview from './components/WeeklyReview'
 import EmailCapture from './components/EmailCapture'
 import DailyInsight from './components/DailyInsight'
 import WeeklyReset from './components/WeeklyReset'
+import ProgressiveUnlock from './components/ProgressiveUnlock'
+import FreeJournal from './components/FreeJournal'
+import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUnlock'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
@@ -358,11 +361,19 @@ function DashboardContent() {
 
         <StreakTracker streak={streak} longestStreak={longestStreak} />
 
-        <WeeklyReview />
+        {isFeatureUnlocked('journal', getAccountAgeDays()) && (
+          <FreeJournal lang={lang} />
+        )}
+
+        {isFeatureUnlocked('review', getAccountAgeDays()) && (
+          <WeeklyReview />
+        )}
 
         <EmailCapture />
 
         {userId && <InviteSection userId={userId} lang={lang} />}
+
+        <ProgressiveUnlock lang={lang} />
 
       </main>
     </>
