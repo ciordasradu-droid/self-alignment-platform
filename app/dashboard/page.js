@@ -10,6 +10,7 @@ import DailyInsight from './components/DailyInsight'
 import WeeklyReset from './components/WeeklyReset'
 import ProgressiveUnlock from './components/ProgressiveUnlock'
 import FreeJournal from './components/FreeJournal'
+import CommitmentDocument from './components/CommitmentDocument'
 import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUnlock'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
@@ -367,6 +368,10 @@ function DashboardContent() {
 
         {isFeatureUnlocked('review', getAccountAgeDays()) && (
           <WeeklyReview />
+        )}
+
+        {isFeatureUnlocked('commitment', getAccountAgeDays()) && (
+          <CommitmentDocument lang={lang} />
         )}
 
         <EmailCapture />
