@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -45,7 +45,7 @@ export async function POST(request) {
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
     const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
-    const sections = await callClaude(profilePrompt, language, 6000)
+    const sections = await callClaude(profilePrompt, language, 10000)
 
     const swot = {
       strengths: sections.strengths?.slice(0, 4) || [],
