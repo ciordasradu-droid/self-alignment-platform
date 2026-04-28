@@ -11,6 +11,7 @@ import WeeklyReset from './components/WeeklyReset'
 import ProgressiveUnlock from './components/ProgressiveUnlock'
 import FreeJournal from './components/FreeJournal'
 import CommitmentDocument from './components/CommitmentDocument'
+import PatternsInsight from './components/PatternsInsight'
 import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUnlock'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
@@ -364,6 +365,10 @@ function DashboardContent() {
 
         {isFeatureUnlocked('journal', getAccountAgeDays()) && (
           <FreeJournal lang={lang} />
+        )}
+
+        {isFeatureUnlocked('patterns', getAccountAgeDays()) && (
+          <PatternsInsight lang={lang} />
         )}
 
         {isFeatureUnlocked('review', getAccountAgeDays()) && (
