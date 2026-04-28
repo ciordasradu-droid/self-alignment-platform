@@ -34,6 +34,13 @@ const UNLOCK_TRANSLATIONS = {
 
 export function getAccountAgeDays() {
   try {
+    // Testing override: add ?day=14 (or any number) to URL to simulate account age
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const dayOverride = params.get('day')
+      if (dayOverride !== null) return parseInt(dayOverride, 10)
+    }
+
     const stored = localStorage.getItem('profile')
     if (!stored) return 0
     const profile = JSON.parse(stored)

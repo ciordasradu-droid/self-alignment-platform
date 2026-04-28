@@ -52,8 +52,8 @@ export default function Home() {
             <span style={s.heroGradient}>everything else follows.</span>
           </h1>
           <p style={s.heroSub}>
-            Three systems. One profile. A clear path to knowing yourself
-            better than you ever have — and acting on it, every day.
+            Human Design. Astrology. Numerology. One profile that finally
+            tells you who you are — and a daily system to act on it.
           </p>
           <Link href="/onboarding" style={s.heroCta}>
             Start Here →
@@ -70,7 +70,7 @@ export default function Home() {
               <h3 style={s.cardTitle}>Your Profile</h3>
               <p style={s.cardText}>
                 Human Design, astrology, and numerology synthesized into one
-                clear, personal reading. Who you are, how you operate, what
+                honest, personal profile. Who you are, how you operate, what
                 lights you up — and what holds you back.
               </p>
             </div>
@@ -103,7 +103,7 @@ export default function Home() {
           <h2 style={s.sectionTitle}>How it works</h2>
           <div style={s.threeGrid}>
             {[
-              { n:'1', color:'var(--purple)', title:'Enter your birth data', text:'Name, date, time, and city of birth. This is how the three systems calculate your chart.' },
+              { n:'1', color:'var(--purple)', title:'Enter your birth data', text:'Name, date, time, and city of birth. This is how your unique profile is calculated.' },
               { n:'2', color:'var(--green)', title:'Receive your profile', text:'In 2-3 minutes, your personal profile is generated — warm, honest, and structured.' },
               { n:'3', color:'var(--orange)', title:'Start the path', text:'Read your profile. Start your plan. Check in daily. The rest unfolds from there.' },
             ].map((step, i) => (
@@ -123,11 +123,11 @@ export default function Home() {
 
             <div style={s.priceCard}>
               <span className="tag tag-purple" style={{marginBottom:'16px', display:'inline-block'}}>Profile</span>
-              <p style={s.priceAmount}>€4</p>
-              <p style={s.pricePeriod}>one time</p>
+              <p style={s.priceAmount}>Free</p>
+              <p style={s.pricePeriod}>&nbsp;</p>
               <p style={s.priceDesc}>
                 Your personal profile — Human Design, astrology, and numerology
-                combined into one reading. Includes your alignment plan. Yours to keep.
+                combined into one document. Includes your alignment plan. Yours to keep.
               </p>
               <Link href="/onboarding" style={s.priceBtn}>
                 Get Your Profile →
@@ -151,7 +151,7 @@ export default function Home() {
             </div>
 
           </div>
-          <p style={s.pricingNote}>No asterisks. No hidden fees. No free trial that turns into a charge.</p>
+          <p style={s.pricingNote}>No asterisks. No hidden fees. Cancel anytime.</p>
         </section>
 
         {/* ── SECTION 5 — FINAL CTA ── */}
@@ -168,7 +168,7 @@ export default function Home() {
         {/* ── FOOTER ── */}
         <footer style={s.footer}>
           <p style={s.footerLogo}>✦ Alignment</p>
-          <p style={s.footerText}>A self-alignment platform.</p>
+          <p style={s.footerText}>Available in 10 languages. Built for people who are done with generic advice.</p>
         </footer>
 
       </main>
