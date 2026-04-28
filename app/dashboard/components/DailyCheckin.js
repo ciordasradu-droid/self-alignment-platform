@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { getDailyCheckinQuestions } from '../../../lib/checkinQuestions'
-import { supabase } from '../../../lib/supabase'
 
 export default function DailyCheckin({ onComplete, checkinDone }) {
   const [questions, setQuestions] = useState([])
@@ -45,13 +44,6 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
     const alignmentScore = Math.round((totalScore / (questions.length * 5)) * 100)
 
     try {
-      await supabase.from('daily_checkins').insert([{
-        date: new Date().toISOString().split('T')[0],
-        responses: answers,
-        alignment_score: alignmentScore,
-        questions: questions.map(q => ({ id: q.id, category: q.category, question: q.question }))
-      }])
-
       setSubmitted(true)
       onComplete(alignmentScore, answers)
     } catch (err) {

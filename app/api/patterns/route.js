@@ -23,35 +23,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'user_id required' }, { status: 400 })
     }
 
-    // Get last 30 check-ins
+    // Get check-ins from the checkins table (written by dashboard API, has user_id)
     const { data: checkins, error: checkinError } = await supabase
-      .from('daily_checkins')
-      .select('date, responses, alignment_score, questions')
+      .from('checkins')
+      .select('created_at, score, answers')
       .eq('user_id', user_id)
-      .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(30)
 
     if (checkinError) throw checkinError
 
-    // Also try the checkins table (dashboard API uses this)
-    let allCheckins = checkins || []
-    if (allCheckins.length === 0) {
-      const { data: altCheckins } = await supabase
-        .from('checkins')
-        .select('created_at, score, answers')
-        .eq('user_id', user_id)
-        .order('created_at', { ascending: false })
-        .limit(30)
-
-      if (altCheckins && altCheckins.length > 0) {
-        allCheckins = altCheckins.map(c => ({
-          date: c.created_at?.split('T')[0],
-          alignment_score: c.score,
-          responses: c.answers,
-          questions: null
-        }))
-      }
-    }
+    const allCheckins = (checkins || []).map(c => ({
+      date: c.created_at?.split('T')[0],
+      alignment_score: c.score,
+      responses: c.answers,
+      questions: null
+    }))
 
     // Need at least 7 check-ins for meaningful patterns
     if (allCheckins.length < 7) {
@@ -135,7 +122,7 @@ Return ONLY a JSON object, no markdown:
 }${languageInstruction}`
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 800,
       messages: [{ role: 'user', content: prompt }]
     })
