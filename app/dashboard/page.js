@@ -7,6 +7,9 @@ import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 import EmailCapture from './components/EmailCapture'
 import DailyInsight from './components/DailyInsight'
+import FeelingCheckin from './components/FeelingCheckin'
+import DailyIntention from './components/DailyIntention'
+import EveningCheckout from './components/EveningCheckout'
 import WeeklyReset from './components/WeeklyReset'
 import ProgressiveUnlock from './components/ProgressiveUnlock'
 import FreeJournal from './components/FreeJournal'
@@ -247,6 +250,7 @@ function DashboardContent() {
   const [userId, setUserId] = useState(null)
   const [subscribed, setSubscribed] = useState(false)
   const [lang, setLang] = useState('en')
+  const [hdType, setHdType] = useState('Generator')
 
   useEffect(() => {
     const id = getUserId()
@@ -256,6 +260,7 @@ function DashboardContent() {
     if (stored) {
       const profile = JSON.parse(stored)
       if (profile.personal_year) setPersonalYear(profile.personal_year)
+      if (profile.hd_data?.type) setHdType(profile.hd_data.type)
       if (profile.language) setLang(profile.language)
     }
 
@@ -336,6 +341,10 @@ function DashboardContent() {
 
         <DailyInsight />
 
+        <FeelingCheckin lang={lang} hdType={hdType} />
+
+        <DailyIntention lang={lang} hdType={hdType} />
+
         <div style={s.statsRow}>
           <div style={{...s.statCard, borderTop:'3px solid var(--purple)'}}>
             <p style={s.statLabel}>{t(lang, 'alignment_score')}</p>
@@ -379,6 +388,8 @@ function DashboardContent() {
         {isFeatureUnlocked('commitment', getAccountAgeDays()) && (
           <CommitmentDocument lang={lang} />
         )}
+
+        <EveningCheckout lang={lang} />
 
         <EmailCapture lang={lang} />
 

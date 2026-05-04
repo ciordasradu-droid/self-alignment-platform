@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { getDailyThought } from "../../../lib/dailyThoughts"
 
 const LABELS = {
-  en: { tag: "Daily Thought", reflect: "Reflect on this today" },
-  ro: { tag: "Gandul Zilei", reflect: "Reflecteaza asupra asta azi" },
+  en: { tag: "Daily Thought", reflect: "Reflect on this today", micro: "Take three deep breaths. Notice where this lands in your body." },
+  ro: { tag: "Gandul Zilei", reflect: "Reflecteaza asupra asta azi", micro: "Ia trei respiratii adanci. Observa unde se aseaza asta in corpul tau." },
   es: { tag: "Pensamiento del Dia", reflect: "Reflexiona sobre esto hoy" },
   fr: { tag: "Pensee du Jour", reflect: "Reflechis a cela aujourd'hui" },
   de: { tag: "Gedanke des Tages", reflect: "Denke heute darueber nach" },
@@ -54,6 +54,7 @@ export default function DailyInsight() {
         <p style={s.questionLabel}>{t.reflect}</p>
         <p style={s.question}>"{insight.question}"</p>
       </div>
+      {t.micro && <p style={s.micro}>{t.micro}</p>}
     </div>
   )
 }
@@ -67,5 +68,6 @@ const s = {
   body: { fontSize: "15px", color: "rgba(255,255,255,0.8)", lineHeight: "1.75", marginBottom: "20px" },
   questionBox: { background: "rgba(255,255,255,0.06)", borderRadius: "10px", padding: "16px" },
   questionLabel: { fontSize: "11px", fontWeight: "700", color: "var(--orange)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" },
+  micro: { fontSize: "13px", color: "rgba(255,255,255,0.45)", textAlign: "center", marginTop: "16px", fontStyle: "italic", lineHeight: "1.5" },
   question: { fontSize: "15px", color: "rgba(255,255,255,0.85)", lineHeight: "1.6", fontStyle: "italic" },
 }
