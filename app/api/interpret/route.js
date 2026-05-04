@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
