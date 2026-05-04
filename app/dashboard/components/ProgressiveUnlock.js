@@ -8,28 +8,28 @@
 import { useState, useEffect } from 'react'
 
 const UNLOCK_STAGES = [
-  { day: 0,  id: 'checkin',    icon: '◎', label: 'Daily Check-in',        description: 'Your daily mirror — 3 questions, less than 2 minutes.' },
-  { day: 0,  id: 'insight',    icon: '✦', label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
-  { day: 3,  id: 'journal',    icon: '📓', label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
-  { day: 7,  id: 'plan',       icon: '🧭', label: 'Alignment Plan',        description: 'Your personalized roadmap — direction, structure, and anchors.' },
-  { day: 14, id: 'patterns',   icon: '🔍', label: 'Patterns',             description: 'AI synthesis of your check-ins — what is emerging in your journey.' },
-  { day: 30, id: 'review',     icon: '🪞', label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
-  { day: 60, id: 'commitment', icon: '📜', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
-  { day: 90, id: 'circle',     icon: '⭕', label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
+  { day: 0,  id: 'checkin',    icon: 'â—Ž', label: 'Daily Check-in',        description: 'Your daily mirror â€” 3 questions, less than 2 minutes.' },
+  { day: 0,  id: 'insight',    icon: 'âœ¦', label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
+  { day: 3,  id: 'journal',    icon: 'ðŸ““', label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
+  { day: 7,  id: 'plan',       icon: 'ðŸ§­', label: 'Alignment Plan',        description: 'Your personalized roadmap â€” direction, structure, and anchors.' },
+  { day: 14, id: 'patterns',   icon: 'ðŸ”', label: 'Patterns',             description: 'AI synthesis of your check-ins â€” what is emerging in your journey.' },
+  { day: 30, id: 'review',     icon: 'ðŸªž', label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
+  { day: 60, id: 'commitment', icon: 'ðŸ“œ', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
+  { day: 90, id: 'circle',     icon: 'â­•', label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
 ]
 
 // Translations for unlock stage labels
 const UNLOCK_TRANSLATIONS = {
-  en: { opens_after: 'Opens after', days: 'days', unlocked: 'Unlocked', new: 'New', your_path: 'Your Path', path_subtitle: 'Everything unlocks with time and consistency. You can see the full map — each step opens when you are ready.' },
-  ro: { opens_after: 'Se deschide după', days: 'zile', unlocked: 'Deblocat', new: 'Nou', your_path: 'Drumul Tău', path_subtitle: 'Totul se deblochează cu timp și consecvență. Poți vedea harta completă — fiecare pas se deschide când ești pregătit.' },
-  es: { opens_after: 'Se abre después de', days: 'días', unlocked: 'Desbloqueado', new: 'Nuevo', your_path: 'Tu Camino', path_subtitle: 'Todo se desbloquea con tiempo y consistencia. Puedes ver el mapa completo.' },
-  fr: { opens_after: 'S\'ouvre après', days: 'jours', unlocked: 'Débloqué', new: 'Nouveau', your_path: 'Ton Chemin', path_subtitle: 'Tout se débloque avec le temps et la constance. Tu peux voir la carte complète.' },
-  de: { opens_after: 'Öffnet sich nach', days: 'Tagen', unlocked: 'Freigeschaltet', new: 'Neu', your_path: 'Dein Weg', path_subtitle: 'Alles wird mit Zeit und Beständigkeit freigeschaltet. Du kannst die vollständige Karte sehen.' },
+  en: { opens_after: 'Opens after', days: 'days', unlocked: 'Unlocked', new: 'New', your_path: 'Your Path', path_subtitle: 'Everything unlocks with time and consistency. You can see the full map â€” each step opens when you are ready.' },
+  ro: { opens_after: 'Se deschide dupÄƒ', days: 'zile', unlocked: 'Deblocat', new: 'Nou', your_path: 'Drumul TÄƒu', path_subtitle: 'Totul se deblocheazÄƒ cu timp È™i consecvenÈ›Äƒ. PoÈ›i vedea harta completÄƒ â€” fiecare pas se deschide cÃ¢nd eÈ™ti pregÄƒtit.' },
+  es: { opens_after: 'Se abre despuÃ©s de', days: 'dÃ­as', unlocked: 'Desbloqueado', new: 'Nuevo', your_path: 'Tu Camino', path_subtitle: 'Todo se desbloquea con tiempo y consistencia. Puedes ver el mapa completo.' },
+  fr: { opens_after: 'S\'ouvre aprÃ¨s', days: 'jours', unlocked: 'DÃ©bloquÃ©', new: 'Nouveau', your_path: 'Ton Chemin', path_subtitle: 'Tout se dÃ©bloque avec le temps et la constance. Tu peux voir la carte complÃ¨te.' },
+  de: { opens_after: 'Ã–ffnet sich nach', days: 'Tagen', unlocked: 'Freigeschaltet', new: 'Neu', your_path: 'Dein Weg', path_subtitle: 'Alles wird mit Zeit und BestÃ¤ndigkeit freigeschaltet. Du kannst die vollstÃ¤ndige Karte sehen.' },
   it: { opens_after: 'Si apre dopo', days: 'giorni', unlocked: 'Sbloccato', new: 'Nuovo', your_path: 'Il Tuo Percorso', path_subtitle: 'Tutto si sblocca con tempo e costanza. Puoi vedere la mappa completa.' },
-  pt: { opens_after: 'Abre após', days: 'dias', unlocked: 'Desbloqueado', new: 'Novo', your_path: 'O Teu Caminho', path_subtitle: 'Tudo se desbloqueia com tempo e consistência. Podes ver o mapa completo.' },
+  pt: { opens_after: 'Abre apÃ³s', days: 'dias', unlocked: 'Desbloqueado', new: 'Novo', your_path: 'O Teu Caminho', path_subtitle: 'Tudo se desbloqueia com tempo e consistÃªncia. Podes ver o mapa completo.' },
   nl: { opens_after: 'Opent na', days: 'dagen', unlocked: 'Ontgrendeld', new: 'Nieuw', your_path: 'Jouw Pad', path_subtitle: 'Alles wordt ontgrendeld met tijd en consistentie. Je kunt de volledige kaart zien.' },
-  pl: { opens_after: 'Otwiera się po', days: 'dniach', unlocked: 'Odblokowane', new: 'Nowe', your_path: 'Twoja Ścieżka', path_subtitle: 'Wszystko odblokowuje się z czasem i konsekwencją. Możesz zobaczyć pełną mapę.' },
-  hu: { opens_after: 'Megnyílik', days: 'nap után', unlocked: 'Feloldva', new: 'Új', your_path: 'Az Utad', path_subtitle: 'Minden idővel és következetességgel oldódik fel. Láthatod a teljes térképet.' },
+  pl: { opens_after: 'Otwiera siÄ™ po', days: 'dniach', unlocked: 'Odblokowane', new: 'Nowe', your_path: 'Twoja ÅšcieÅ¼ka', path_subtitle: 'Wszystko odblokowuje siÄ™ z czasem i konsekwencjÄ…. MoÅ¼esz zobaczyÄ‡ peÅ‚nÄ… mapÄ™.' },
+  hu: { opens_after: 'MegnyÃ­lik', days: 'nap utÃ¡n', unlocked: 'Feloldva', new: 'Ãšj', your_path: 'Az Utad', path_subtitle: 'Minden idÅ‘vel Ã©s kÃ¶vetkezetessÃ©ggel oldÃ³dik fel. LÃ¡thatod a teljes tÃ©rkÃ©pet.' },
 }
 
 export function getAccountAgeDays() {
@@ -140,10 +140,10 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
               }}>
                 <div style={s.stageHeader}>
                   <span style={s.stageIcon}>{stage.icon}</span>
-                  <span style={s.stageLabel}>{(STAGE_TRANSLATIONS[lang] || STAGE_TRANSLATIONS.en)[stage.id]?.label || stage.id}</span>
+                  <span style={s.stageLabel}>{(UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']).stages?.[stage.id]?.l || stage.label}</span>
                   {isNew && <span style={s.newBadge}>{t.new}</span>}
                 </div>
-                <p style={s.stageDesc}>{(STAGE_TRANSLATIONS[lang] || STAGE_TRANSLATIONS.en)[stage.id]?.description || ""}</p>
+                <p style={s.stageDesc}>{(UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']).stages?.[stage.id]?.d || stage.description}</p>
                 {!unlocked && (
                   <p style={s.lockText}>
                     {t.opens_after} {stage.day} {t.days}
