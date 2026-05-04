@@ -19,7 +19,6 @@ async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   const reinforcement = language === 'en'
     ? `\n\nFINAL REMINDER: Your entire response must be in English. No Spanish, no other languages. Every word must be English.`
     : `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
-    : ''
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
