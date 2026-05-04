@@ -329,7 +329,8 @@ function DashboardContent() {
 
         <PersonalYearBanner personalYear={personalYear} lang={lang} />
 
-        {!subscribed && <UpgradeBanner lang={lang} />}
+        {/* Upgrade banner hidden during beta */}
+        {false && !subscribed && <UpgradeBanner lang={lang} />}
 
         <WeeklyReset />
 
@@ -359,9 +360,9 @@ function DashboardContent() {
           checkinDone={checkinDone}
         />
 
-        <AlignmentScore score={alignmentScore} />
+        <AlignmentScore score={alignmentScore} lang={lang} />
 
-        <StreakTracker streak={streak} longestStreak={longestStreak} />
+        <StreakTracker streak={streak} longestStreak={longestStreak} lang={lang} />
 
         {isFeatureUnlocked('journal', getAccountAgeDays()) && (
           <FreeJournal lang={lang} />
@@ -379,7 +380,7 @@ function DashboardContent() {
           <CommitmentDocument lang={lang} />
         )}
 
-        <EmailCapture />
+        <EmailCapture lang={lang} />
 
         {userId && <InviteSection userId={userId} lang={lang} />}
 

@@ -140,10 +140,10 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
               }}>
                 <div style={s.stageHeader}>
                   <span style={s.stageIcon}>{stage.icon}</span>
-                  <span style={s.stageLabel}>{stage.label}</span>
+                  <span style={s.stageLabel}>{(STAGE_TRANSLATIONS[lang] || STAGE_TRANSLATIONS.en)[stage.id]?.label || stage.id}</span>
                   {isNew && <span style={s.newBadge}>{t.new}</span>}
                 </div>
-                <p style={s.stageDesc}>{stage.description}</p>
+                <p style={s.stageDesc}>{(STAGE_TRANSLATIONS[lang] || STAGE_TRANSLATIONS.en)[stage.id]?.description || ""}</p>
                 {!unlocked && (
                   <p style={s.lockText}>
                     {t.opens_after} {stage.day} {t.days}

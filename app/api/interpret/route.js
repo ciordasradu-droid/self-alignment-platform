@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -16,8 +16,9 @@ const LANGUAGE_NAMES = {
 
 async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
-  const reinforcement = language !== 'en'
-    ? `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
+  const reinforcement = language === 'en'
+    ? `\n\nFINAL REMINDER: Your entire response must be in English. No Spanish, no other languages. Every word must be English.`
+    : `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
     : ''
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
