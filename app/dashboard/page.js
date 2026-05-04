@@ -332,7 +332,7 @@ function DashboardContent() {
         {/* Upgrade banner hidden during beta */}
         {false && !subscribed && <UpgradeBanner lang={lang} />}
 
-        <WeeklyReset />
+        <WeeklyReset lang={lang} />
 
         <DailyInsight />
 

@@ -3,9 +3,16 @@
 import { useState, useEffect } from 'react'
 import { getUserId } from '../../../lib/userId'
 
-export default function WeeklyReset() {
+const WR_LABELS = {
+  en: { tag: "Weekly Reset", date: "Monday -- New Week", last: "Last Week", intention: "This Week's Intention", focus: "Your One Focus This Week", carry: "Carry this question through the week", loading: "Generating your weekly reset..." },
+  ro: { tag: "Resetare Saptamanala", date: "Luni -- Saptamana Noua", last: "Saptamana Trecuta", intention: "Intentia Acestei Saptamani", focus: "Un Singur Focus Saptamana Aceasta", carry: "Poarta aceasta intrebare cu tine toata saptamana", loading: "Se genereaza resetarea ta saptamanala..." },
+}
+
+
+export default function WeeklyReset({ lang: propLang } = {}) {
   const [reset, setReset] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [lang, setLang] = useState(propLang || 'en')
 
   const isMonday = new Date().getDay() === 1
 
@@ -22,6 +29,7 @@ export default function WeeklyReset() {
     }
 
     const profile = JSON.parse(stored)
+    setLang(profile.language || propLang || 'en')
     const userId = getUserId()
 
     const profileData = {
@@ -52,9 +60,11 @@ export default function WeeklyReset() {
   }, [])
 
   if (!isMonday) return null
+  const wt = WR_LABELS[lang] || WR_LABELS.en
+
   if (loading) return (
     <div style={s.card}>
-      <p style={s.loading}>Generating your weekly reset...</p>
+      <p style={s.loading}>{wt.loading}</p>
     </div>
   )
   if (!reset) return null
@@ -69,22 +79,22 @@ export default function WeeklyReset() {
       <h3 style={s.title}>{reset.title}</h3>
 
       <div style={s.section}>
-        <p style={s.sectionLabel}>Last Week</p>
+        <p style={s.sectionLabel}>{wt.last}</p>
         <p style={s.sectionText}>{reset.reflection}</p>
       </div>
 
       <div style={s.section}>
-        <p style={s.sectionLabel}>This Week's Intention</p>
+        <p style={s.sectionLabel}>{wt.intention}</p>
         <p style={s.sectionText}>{reset.intention}</p>
       </div>
 
       <div style={s.focusBox}>
-        <p style={s.focusLabel}>Your One Focus This Week</p>
+        <p style={s.focusLabel}>{wt.focus}</p>
         <p style={s.focusText}>{reset.focus}</p>
       </div>
 
       <div style={s.questionBox}>
-        <p style={s.questionLabel}>Carry this question through the week</p>
+        <p style={s.questionLabel}>{wt.carry}</p>
         <p style={s.question}>"{reset.question}"</p>
       </div>
     </div>
