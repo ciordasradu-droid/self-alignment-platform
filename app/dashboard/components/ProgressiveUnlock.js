@@ -182,7 +182,7 @@ const s = {
 
   // Stage content
   stageContent: { flex: 1, paddingBottom: '16px' },
-  stageHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' },
+  stageHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' },
   stageIcon: { fontSize: '16px' },
   stageLabel: { fontSize: '15px', fontWeight: '600', color: 'var(--text)' },
   newBadge: { background: 'var(--orange)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' },

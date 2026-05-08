@@ -279,7 +279,7 @@ const styles = {
   anchorRow: { display: "flex", justifyContent: "space-between", marginBottom: "6px", padding: "0 2px" },
   anchorLabel: { fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" },
   ratingRow: { display: "flex", gap: "8px" },
-  ratingBtn: { width: "44px", height: "44px", borderRadius: "10px", border: "1.5px solid", fontSize: "15px", fontWeight: "500", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center" },
+  ratingBtn: { flex: 1, minWidth: "36px", maxWidth: "52px", height: "44px", borderRadius: "10px", border: "1.5px solid", fontSize: "15px", fontWeight: "500", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center" },
   submitButton: { width: "100%", padding: "15px", color: "#fff", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "500", boxShadow: "0 4px 20px rgba(124,92,191,0.3)" },
   doneBox: { textAlign: "center", padding: "24px 0" },
   doneText: { fontSize: "18px", fontWeight: "600", marginBottom: "8px", color: "var(--text)" },

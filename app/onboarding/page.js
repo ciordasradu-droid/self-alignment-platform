@@ -154,7 +154,7 @@ export default function Onboarding() {
             <div style={s.field}>
               <label style={s.label}>{t(lang, 'date_of_birth')}</label>
               <div style={s.dateRow}>
-                <div style={{width:'70px', flexShrink:0}}>
+                <div style={{flex:1, minWidth:'56px'}}>
                   <input
                     type="number"
                     placeholder="DD"
@@ -176,7 +176,7 @@ export default function Onboarding() {
                     ))}
                   </select>
                 </div>
-                <div style={{width:'90px', flexShrink:0}}>
+                <div style={{flex:1, minWidth:'70px'}}>
                   <input
                     type="number"
                     placeholder="YYYY"
@@ -256,10 +256,10 @@ const s = {
   back: { fontSize:'14px', color:'var(--text-muted)', fontWeight:'500' },
   card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', boxShadow:'var(--shadow-lg)', overflow:'hidden' },
   cardHeader: { padding:'36px 36px 28px', borderBottom:'1px solid var(--border)', background:'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)' },
-  title: { fontSize:'32px', fontWeight:'600', color:'var(--text)', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
+  title: { fontSize:'clamp(24px, 6vw, 32px)', fontWeight:'600', color:'var(--text)', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'16px' },
   tags: { display:'flex', gap:'8px', flexWrap:'wrap' },
-  form: { padding:'36px' },
+  form: { padding:'clamp(20px, 5vw, 36px)' },
   field: { marginBottom:'20px' },
   dateRow: { display:'flex', gap:'10px', alignItems:'center' },
   label: { display:'block', fontSize:'13px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.5px' },
