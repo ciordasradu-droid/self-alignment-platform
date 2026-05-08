@@ -52,7 +52,7 @@ const SUBSCRIBE_LABELS = {
     back: '← Înapoi',
     tag: 'Sistem de Responsabilitate',
     title_line1: 'Suntem responsabili față de toți.',
-    title_line2: 'Mai puțin față de noi.',
+    title_line2: 'Mai puțin față de noi. Hai să schimbăm asta!',
     subtitle: 'Sistemul de Responsabilitate te menține aliniat în fiecare zi — cu check-in-uri, detectarea tiparelor și o structură construită în jurul a cine ești cu adevărat.',
     spots_left: 'locuri rămase',
     spots_text_1: 'Primii 1.000 de oameni care încep călătoria de responsabilitate primesc',
