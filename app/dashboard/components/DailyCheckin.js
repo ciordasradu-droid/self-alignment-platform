@@ -13,29 +13,35 @@ const LABELS = {
     submit: "Submit Check-in",
     saving: "Saving...",
     done: "Check-in complete.",
-    tomorrow: "Come back tomorrow."
+    tomorrow: "Come back tomorrow.",
+    anchor_low: "Not at all",
+    anchor_high: "Completely"
   },
   ro: {
     title: "Check-in Zilnic",
-    subtitle: "3 intrebari. Mai putin de 2 minute.",
+    subtitle: "3 întrebări. Mai puțin de 2 minute.",
     mirroring: "oglindire",
-    gratitude: "recunostinta",
-    intention: "intentie",
+    gratitude: "recunoștință",
+    intention: "intenție",
     submit: "Trimite Check-in",
-    saving: "Se salveaza...",
+    saving: "Se salvează...",
     done: "Check-in complet.",
-    tomorrow: "Revino maine."
+    tomorrow: "Revino mâine.",
+    anchor_low: "Deloc",
+    anchor_high: "Total"
   },
   es: {
     title: "Check-in Diario",
     subtitle: "3 preguntas. Menos de 2 minutos.",
     mirroring: "reflejo",
     gratitude: "gratitud",
-    intention: "intencion",
+    intention: "intención",
     submit: "Enviar Check-in",
     saving: "Guardando...",
     done: "Check-in completado.",
-    tomorrow: "Vuelve manana."
+    tomorrow: "Vuelve mañana.",
+    anchor_low: "Para nada",
+    anchor_high: "Completamente"
   },
   fr: {
     title: "Check-in Quotidien",
@@ -45,11 +51,13 @@ const LABELS = {
     intention: "intention",
     submit: "Envoyer le Check-in",
     saving: "Enregistrement...",
-    done: "Check-in termine.",
-    tomorrow: "Reviens demain."
+    done: "Check-in terminé.",
+    tomorrow: "Reviens demain.",
+    anchor_low: "Pas du tout",
+    anchor_high: "Totalement"
   },
   de: {
-    title: "Taglicher Check-in",
+    title: "Täglicher Check-in",
     subtitle: "3 Fragen. Weniger als 2 Minuten.",
     mirroring: "Spiegelung",
     gratitude: "Dankbarkeit",
@@ -57,7 +65,9 @@ const LABELS = {
     submit: "Check-in absenden",
     saving: "Speichern...",
     done: "Check-in abgeschlossen.",
-    tomorrow: "Komm morgen wieder."
+    tomorrow: "Komm morgen wieder.",
+    anchor_low: "Gar nicht",
+    anchor_high: "Vollständig"
   },
   it: {
     title: "Check-in Giornaliero",
@@ -68,18 +78,22 @@ const LABELS = {
     submit: "Invia Check-in",
     saving: "Salvataggio...",
     done: "Check-in completato.",
-    tomorrow: "Torna domani."
+    tomorrow: "Torna domani.",
+    anchor_low: "Per niente",
+    anchor_high: "Completamente"
   },
   pt: {
-    title: "Check-in Diario",
+    title: "Check-in Diário",
     subtitle: "3 perguntas. Menos de 2 minutos.",
     mirroring: "espelho",
-    gratitude: "gratidao",
-    intention: "intencao",
+    gratitude: "gratidão",
+    intention: "intenção",
     submit: "Enviar Check-in",
     saving: "A guardar...",
     done: "Check-in completo.",
-    tomorrow: "Volta amanha."
+    tomorrow: "Volta amanhã.",
+    anchor_low: "De modo algum",
+    anchor_high: "Completamente"
   },
   nl: {
     title: "Dagelijkse Check-in",
@@ -90,29 +104,35 @@ const LABELS = {
     submit: "Check-in versturen",
     saving: "Opslaan...",
     done: "Check-in voltooid.",
-    tomorrow: "Kom morgen terug."
+    tomorrow: "Kom morgen terug.",
+    anchor_low: "Helemaal niet",
+    anchor_high: "Volledig"
   },
   pl: {
     title: "Codzienny Check-in",
-    subtitle: "3 pytania. Mniej niz 2 minuty.",
+    subtitle: "3 pytania. Mniej niż 2 minuty.",
     mirroring: "lustro",
-    gratitude: "wdziecznosc",
+    gratitude: "wdzięczność",
     intention: "intencja",
-    submit: "Wyslij Check-in",
+    submit: "Wyślij Check-in",
     saving: "Zapisywanie...",
-    done: "Check-in ukonczony.",
-    tomorrow: "Wroc jutro."
+    done: "Check-in ukończony.",
+    tomorrow: "Wróć jutro.",
+    anchor_low: "Wcale nie",
+    anchor_high: "Całkowicie"
   },
   hu: {
     title: "Napi Check-in",
-    subtitle: "3 kerdes. Kevesebb mint 2 perc.",
-    mirroring: "tukor",
-    gratitude: "hala",
-    intention: "szandek",
-    submit: "Check-in kuldese",
-    saving: "Mentes...",
-    done: "Check-in kesz.",
-    tomorrow: "Gyere vissza holnap."
+    subtitle: "3 kérdés. Kevesebb mint 2 perc.",
+    mirroring: "tükör",
+    gratitude: "hála",
+    intention: "szándék",
+    submit: "Check-in küldése",
+    saving: "Mentés...",
+    done: "Check-in kész.",
+    tomorrow: "Gyere vissza holnap.",
+    anchor_low: "Egyáltalán nem",
+    anchor_high: "Teljesen"
   }
 }
 
@@ -205,21 +225,27 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
               <span style={{ ...styles.categoryLabel, color: cat.color }}>{catLabel}</span>
             </div>
             <p style={styles.questionText}>{q.question}</p>
-            <div style={styles.ratingRow}>
-              {[1, 2, 3, 4, 5].map((val) => (
-                <button
-                  key={val}
-                  onClick={() => handleAnswer(q.id, val)}
-                  style={{
-                    ...styles.ratingBtn,
-                    background: answers[q.id] === val ? cat.color : "var(--bg)",
-                    color: answers[q.id] === val ? "#fff" : "var(--text)",
-                    borderColor: answers[q.id] === val ? cat.color : "var(--border)"
-                  }}
-                >
-                  {val}
-                </button>
-              ))}
+            <div style={styles.scaleWrap}>
+              <div style={styles.anchorRow}>
+                <span style={styles.anchorLabel}>{t.anchor_low}</span>
+                <span style={styles.anchorLabel}>{t.anchor_high}</span>
+              </div>
+              <div style={styles.ratingRow}>
+                {[1, 2, 3, 4, 5].map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => handleAnswer(q.id, val)}
+                    style={{
+                      ...styles.ratingBtn,
+                      background: answers[q.id] === val ? cat.color : "var(--bg)",
+                      color: answers[q.id] === val ? "#fff" : "var(--text)",
+                      borderColor: answers[q.id] === val ? cat.color : "var(--border)"
+                    }}
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )
@@ -249,6 +275,9 @@ const styles = {
   categoryRow: { display: "flex", alignItems: "center", marginBottom: "8px" },
   categoryLabel: { fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" },
   questionText: { fontSize: "16px", fontWeight: "500", marginBottom: "14px", color: "var(--text)", lineHeight: "1.5" },
+  scaleWrap: {},
+  anchorRow: { display: "flex", justifyContent: "space-between", marginBottom: "6px", padding: "0 2px" },
+  anchorLabel: { fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" },
   ratingRow: { display: "flex", gap: "8px" },
   ratingBtn: { width: "44px", height: "44px", borderRadius: "10px", border: "1.5px solid", fontSize: "15px", fontWeight: "500", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center" },
   submitButton: { width: "100%", padding: "15px", color: "#fff", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "500", boxShadow: "0 4px 20px rgba(124,92,191,0.3)" },

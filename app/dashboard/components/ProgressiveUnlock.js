@@ -8,14 +8,14 @@
 import { useState, useEffect } from 'react'
 
 const UNLOCK_STAGES = [
-  { day: 0,  id: 'checkin',    icon: 'â—Ž', label: 'Daily Check-in',        description: 'Your daily mirror â€” 3 questions, less than 2 minutes.' },
-  { day: 0,  id: 'insight',    icon: 'âœ¦', label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
-  { day: 3,  id: 'journal',    icon: 'ðŸ““', label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
-  { day: 7,  id: 'plan',       icon: 'ðŸ§­', label: 'Alignment Plan',        description: 'Your personalized roadmap â€” direction, structure, and anchors.' },
-  { day: 14, id: 'patterns',   icon: 'ðŸ”', label: 'Patterns',             description: 'AI synthesis of your check-ins â€” what is emerging in your journey.' },
-  { day: 30, id: 'review',     icon: 'ðŸªž', label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
-  { day: 60, id: 'commitment', icon: 'ðŸ“œ', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
-  { day: 90, id: 'circle',     icon: 'â­•', label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
+  { day: 0,  id: 'checkin',    icon: '◎', label: 'Daily Check-in',        description: 'Your daily mirror â€” 3 questions, less than 2 minutes.' },
+  { day: 0,  id: 'insight',    icon: '✦', label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
+  { day: 3,  id: 'journal',    icon: '📔', label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
+  { day: 7,  id: 'plan',       icon: '🧭', label: 'Alignment Plan',        description: 'Your personalized roadmap â€” direction, structure, and anchors.' },
+  { day: 14, id: 'patterns',   icon: '🔍', label: 'Patterns',             description: 'AI synthesis of your check-ins â€” what is emerging in your journey.' },
+  { day: 30, id: 'review',     icon: '🪞', label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
+  { day: 60, id: 'commitment', icon: '📜', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
+  { day: 90, id: 'circle',     icon: '⭕', label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
 ]
 
 // Translations for unlock stage labels

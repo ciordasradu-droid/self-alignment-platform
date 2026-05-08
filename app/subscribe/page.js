@@ -3,18 +3,118 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getUserId } from '../../lib/userId'
+import { t as tr } from '../../lib/translations'
+
+const SUBSCRIBE_LABELS = {
+  en: {
+    back: '← Back',
+    tag: 'Accountability System',
+    title_line1: 'We are accountable to everyone.',
+    title_line2: 'Except ourselves.',
+    subtitle: 'The Accountability System keeps you aligned every day — with check-ins, pattern detection, and a structure built around who you actually are.',
+    spots_left: 'spots left',
+    spots_text_1: 'The first 1,000 people to start their accountability journey get their',
+    spots_text_bold: 'first month free',
+    spots_text_2: '. No credit card needed for the trial.',
+    monthly: 'Monthly',
+    annual: 'Annual',
+    save_badge: 'Save 2 months',
+    per_month: '/month',
+    per_year: '/year',
+    two_months_free: '2 months free',
+    features: [
+      { icon: '◎', text: 'Daily alignment check-in — 2 minutes' },
+      { icon: '✦', text: 'Daily personalized insight — generated from your profile' },
+      { icon: '◎', text: 'Weekly reset — every Monday morning' },
+      { icon: '⚡', text: 'Personal alignment score — updated daily' },
+      { icon: '⟳', text: 'Streak tracking — build real consistency' },
+      { icon: '🪞', text: 'Weekly review — reflect and reset' },
+      { icon: '◦', text: 'Shadow alerts — pattern detection' },
+      { icon: '🧭', text: 'Recalibration mode — when you drift' },
+      { icon: '✦', text: 'Personal year phase — always in context' },
+      { icon: '🌍', text: 'Available in 10 languages' },
+    ],
+    subscribe_btn: 'Start for',
+    redirecting: 'Redirecting...',
+    try_free: 'Try for free first →',
+    guarantee_badge: '🛡 30-day money-back guarantee. No questions asked.',
+    no_profile_text: "Don't have your free profile yet?",
+    no_profile_link: 'Generate your free profile first →',
+    promise_title: 'Our promise to you',
+    promise_1_title: '30-Day Money Back',
+    promise_1_text: "If you're not satisfied in the first 30 days, we refund you fully. No questions, no hassle.",
+    promise_2_title: 'Cancel Anytime',
+    promise_2_text: 'No lock-in. Cancel your subscription at any time with one click. No penalties.',
+    promise_3_title: 'Built Around You',
+    promise_3_text: 'Every feature is generated from your unique profile. This is not a generic app.',
+  },
+  ro: {
+    back: '← Înapoi',
+    tag: 'Sistem de Responsabilitate',
+    title_line1: 'Suntem responsabili față de toți.',
+    title_line2: 'Mai puțin față de noi.',
+    subtitle: 'Sistemul de Responsabilitate te menține aliniat în fiecare zi — cu check-in-uri, detectarea tiparelor și o structură construită în jurul a cine ești cu adevărat.',
+    spots_left: 'locuri rămase',
+    spots_text_1: 'Primii 1.000 de oameni care încep călătoria de responsabilitate primesc',
+    spots_text_bold: 'prima lună gratuită',
+    spots_text_2: '. Nu e nevoie de card de credit pentru încercare.',
+    monthly: 'Lunar',
+    annual: 'Anual',
+    save_badge: 'Economisești 2 luni',
+    per_month: '/lună',
+    per_year: '/an',
+    two_months_free: '2 luni gratuite',
+    features: [
+      { icon: '◎', text: 'Check-in zilnic de aliniere — 2 minute' },
+      { icon: '✦', text: 'Gândul zilnic personalizat — generat din profilul tău' },
+      { icon: '◎', text: 'Reset săptămânal — în fiecare luni dimineața' },
+      { icon: '⚡', text: 'Scor personal de aliniere — actualizat zilnic' },
+      { icon: '⟳', text: 'Urmărirea streak-ului — construiește consecvență reală' },
+      { icon: '🪞', text: 'Revizuire săptămânală — reflectează și resetează' },
+      { icon: '◦', text: 'Alerte de umbră — detectarea tiparelor' },
+      { icon: '🧭', text: 'Mod de recalibrare — când deviezi' },
+      { icon: '✦', text: 'Faza anului personal — mereu în context' },
+      { icon: '🌍', text: 'Disponibil în 10 limbi' },
+    ],
+    subscribe_btn: 'Începe pentru',
+    redirecting: 'Redirecționare...',
+    try_free: 'Încearcă gratuit mai întâi →',
+    guarantee_badge: '🛡 Garanție de returnare 30 de zile. Fără întrebări.',
+    no_profile_text: 'Nu ai încă profilul gratuit?',
+    no_profile_link: 'Generează-ți profilul gratuit mai întâi →',
+    promise_title: 'Promisiunea noastră pentru tine',
+    promise_1_title: 'Banii Înapoi în 30 de Zile',
+    promise_1_text: 'Dacă nu ești satisfăcut în primele 30 de zile, îți returnăm banii integral. Fără întrebări.',
+    promise_2_title: 'Anulează Oricând',
+    promise_2_text: 'Fără angajament. Anulează abonamentul oricând cu un singur click. Fără penalități.',
+    promise_3_title: 'Construit În Jurul Tău',
+    promise_3_text: 'Fiecare funcționalitate e generată din profilul tău unic. Nu e o aplicație generică.',
+  }
+}
 
 export default function SubscribePage() {
   const [plan, setPlan] = useState('monthly')
   const [spotsLeft, setSpotsLeft] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [lang, setLang] = useState('en')
 
   useEffect(() => {
+    // Detect user language from profile
+    try {
+      const stored = localStorage.getItem('profile')
+      if (stored) {
+        const profile = JSON.parse(stored)
+        if (profile.language) setLang(profile.language)
+      }
+    } catch (e) {}
+
     fetch('/api/spots')
       .then(r => r.json())
       .then(data => setSpotsLeft(data.spots_left))
       .catch(() => setSpotsLeft(847))
   }, [])
+
+  const labels = SUBSCRIBE_LABELS[lang] || SUBSCRIBE_LABELS['en']
 
   const handleSubscribe = async () => {
     setLoading(true)
@@ -37,37 +137,37 @@ export default function SubscribePage() {
     window.location.href = '/dashboard'
   }
 
+  const priceLabel = plan === 'monthly' ? '€8' : '€80'
+  const periodLabel = plan === 'monthly' ? labels.per_month : labels.per_year
+
   return (
     <>
       <div className="cosmic-bg" />
       <main style={s.wrap}>
 
         <div style={s.header}>
-          <Link href="/" style={s.back}>← Back</Link>
+          <Link href="/" style={s.back}>{labels.back}</Link>
         </div>
 
         <div style={s.hero}>
           <span className="tag tag-orange" style={{marginBottom:'16px', display:'inline-block'}}>
-            Accountability System
+            {labels.tag}
           </span>
           <h1 style={s.title}>
-            We are accountable to everyone.<br />
-            <span style={s.accent}>Except ourselves.</span>
+            {labels.title_line1}<br />
+            <span style={s.accent}>{labels.title_line2}</span>
           </h1>
-          <p style={s.subtitle}>
-            The Accountability System keeps you aligned every day —
-            with check-ins, pattern detection, and a structure built around who you actually are.
-          </p>
+          <p style={s.subtitle}>{labels.subtitle}</p>
         </div>
 
         {spotsLeft !== null && spotsLeft > 0 && (
           <div style={s.spotsBanner}>
             <div style={s.spotsLeft}>
               <span style={s.spotsNum}>{spotsLeft}</span>
-              <span style={s.spotsLabel}>spots left</span>
+              <span style={s.spotsLabel}>{labels.spots_left}</span>
             </div>
             <p style={s.spotsText}>
-              The first 1,000 people to start their accountability journey get their <strong>first month free</strong>. No credit card needed for the trial.
+              {labels.spots_text_1} <strong>{labels.spots_text_bold}</strong>{labels.spots_text_2}
             </p>
           </div>
         )}
@@ -81,7 +181,7 @@ export default function SubscribePage() {
               color: plan === 'monthly' ? '#fff' : 'var(--text-muted)'
             }}
           >
-            Monthly
+            {labels.monthly}
           </button>
           <button
             onClick={() => setPlan('annual')}
@@ -91,36 +191,21 @@ export default function SubscribePage() {
               color: plan === 'annual' ? '#fff' : 'var(--text-muted)'
             }}
           >
-            Annual <span style={s.saveBadge}>Save 2 months</span>
+            {labels.annual} <span style={s.saveBadge}>{labels.save_badge}</span>
           </button>
         </div>
 
         <div style={s.pricingCard}>
           <div style={s.priceRow}>
-            <span style={s.price}>
-              {plan === 'monthly' ? '€8' : '€80'}
-            </span>
-            <span style={s.period}>
-              {plan === 'monthly' ? '/month' : '/year'}
-            </span>
+            <span style={s.price}>{priceLabel}</span>
+            <span style={s.period}>{periodLabel}</span>
             {plan === 'annual' && (
-              <span style={s.annualNote}>2 months free</span>
+              <span style={s.annualNote}>{labels.two_months_free}</span>
             )}
           </div>
 
           <div style={s.features}>
-            {[
-              { icon:'◎', text:'Daily alignment check-in — 2 minutes' },
-              { icon:'✦', text:'Daily personalized insight — generated from your profile' },
-              { icon:'◎', text:'Weekly reset — every Monday morning' },
-              { icon:'⚡', text:'Personal alignment score — updated daily' },
-              { icon:'⟳', text:'Streak tracking — build real consistency' },
-              { icon:'🪞', text:'Weekly review — reflect and reset' },
-              { icon:'◦', text:'Shadow alerts — pattern detection' },
-              { icon:'🧭', text:'Recalibration mode — when you drift' },
-              { icon:'✦', text:'Personal year phase — always in context' },
-              { icon:'🌍', text:'Available in 10 languages' },
-            ].map((f, i) => (
+            {labels.features.map((f, i) => (
               <div key={i} style={s.feature}>
                 <span style={{color:'var(--purple)', marginRight:'10px', fontSize:'16px'}}>{f.icon}</span>
                 <span style={s.featureText}>{f.text}</span>
@@ -133,44 +218,40 @@ export default function SubscribePage() {
             disabled={loading}
             style={s.subscribeBtn}
           >
-            {loading ? 'Redirecting...' : `Start for ${plan === 'monthly' ? '€8/month' : '€80/year'} →`}
+            {loading ? labels.redirecting : `${labels.subscribe_btn} ${priceLabel}${periodLabel} →`}
           </button>
 
           <button onClick={handleTryFree} style={s.tryFreeBtn}>
-            Try for free first →
+            {labels.try_free}
           </button>
 
-          <p style={s.guarantee}>
-            🛡 30-day money-back guarantee. No questions asked.
-          </p>
+          <p style={s.guarantee}>{labels.guarantee_badge}</p>
         </div>
 
         <div style={s.profileNote}>
-          <p style={s.profileNoteText}>
-            Don't have your free profile yet?
-          </p>
+          <p style={s.profileNoteText}>{labels.no_profile_text}</p>
           <Link href="/onboarding" style={s.profileNoteLink}>
-            Generate your free profile first →
+            {labels.no_profile_link}
           </Link>
         </div>
 
         <div style={s.guaranteeSection}>
-          <h2 style={s.guaranteeTitle}>Our promise to you</h2>
+          <h2 style={s.guaranteeTitle}>{labels.promise_title}</h2>
           <div style={s.guaranteeGrid}>
             <div style={s.guaranteeCard}>
               <p style={s.guaranteeIcon}>🛡</p>
-              <p style={s.guaranteeCardTitle}>30-Day Money Back</p>
-              <p style={s.guaranteeCardText}>If you're not satisfied in the first 30 days, we refund you fully. No questions, no hassle.</p>
+              <p style={s.guaranteeCardTitle}>{labels.promise_1_title}</p>
+              <p style={s.guaranteeCardText}>{labels.promise_1_text}</p>
             </div>
             <div style={s.guaranteeCard}>
               <p style={s.guaranteeIcon}>⚡</p>
-              <p style={s.guaranteeCardTitle}>Cancel Anytime</p>
-              <p style={s.guaranteeCardText}>No lock-in. Cancel your subscription at any time with one click. No penalties.</p>
+              <p style={s.guaranteeCardTitle}>{labels.promise_2_title}</p>
+              <p style={s.guaranteeCardText}>{labels.promise_2_text}</p>
             </div>
             <div style={s.guaranteeCard}>
               <p style={s.guaranteeIcon}>✦</p>
-              <p style={s.guaranteeCardTitle}>Built Around You</p>
-              <p style={s.guaranteeCardText}>Every feature is generated from your unique profile. This is not a generic app.</p>
+              <p style={s.guaranteeCardTitle}>{labels.promise_3_title}</p>
+              <p style={s.guaranteeCardText}>{labels.promise_3_text}</p>
             </div>
           </div>
         </div>
