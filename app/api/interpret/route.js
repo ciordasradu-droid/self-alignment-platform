@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -14,29 +14,62 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
+class TruncationError extends Error {
+  constructor() {
+    super('Profile generation was too long, please try again')
+    this.name = 'TruncationError'
+  }
+}
+
 async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const reinforcement = language === 'en'
     ? `\n\nFINAL REMINDER: Your entire response must be in English. No Spanish, no other languages. Every word must be English.`
     : `\n\nFINAL REMINDER: Your entire response must be in ${languageName}. No English words, no code-switching.`
-  const message = await anthropic.messages.create({
+
+  const params = {
     model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt + reinforcement }]
-  })
+  }
 
-  if (message.stop_reason === 'max_tokens') {
-    console.warn('[interpret] Claude hit max_tokens - output may be truncated.')
+  let message
+  try {
+    message = await anthropic.messages.create(params)
+  } catch (err) {
+    const status = err?.status
+    if (status === 529 || (typeof status === 'number' && status >= 500 && status < 600)) {
+      console.warn(`[interpret] Anthropic ${status}, retrying once after 2s...`)
+      await new Promise(r => setTimeout(r, 2000))
+      message = await anthropic.messages.create(params)
+    } else {
+      throw err
+    }
   }
 
   const textBlock = message.content.find(block => block.type === 'text')
   if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
+
   const clean = textBlock.text.trim()
     .replace(/^```json\n?/i, '')
     .replace(/^```\n?/i, '')
     .replace(/\n?```$/i, '')
     .trim()
-  return JSON.parse(jsonrepair(clean))
+
+  const wasTruncated = message.stop_reason === 'max_tokens'
+  if (wasTruncated) {
+    console.warn('[interpret] Claude hit max_tokens - attempting jsonrepair recovery.')
+  }
+
+  try {
+    return JSON.parse(jsonrepair(clean))
+  } catch (parseErr) {
+    if (wasTruncated) {
+      console.error('[interpret] jsonrepair could not recover truncated output.')
+      throw new TruncationError()
+    }
+    throw parseErr
+  }
 }
 
 export async function POST(request) {
@@ -80,6 +113,13 @@ export async function POST(request) {
       swot
     })
   } catch (err) {
+    if (err instanceof TruncationError) {
+      console.error('Interpret truncation:', err.message)
+      return NextResponse.json(
+        { error: 'Profile generation was too long, please try again' },
+        { status: 502 }
+      )
+    }
     console.error('Interpret error:', err.message)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
