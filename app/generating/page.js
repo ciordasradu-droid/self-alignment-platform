@@ -162,8 +162,30 @@ function GeneratingContent() {
     <>
       <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
-        <p style={{ color:'var(--orange)', fontSize:'16px', marginBottom:'20px' }}>{error}</p>
-        <a href="/onboarding" style={{ color:'var(--purple)', fontWeight:'600' }}>← Go back</a>
+        <div style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '16px',
+          padding: '32px 24px',
+          boxShadow: 'var(--shadow)'
+        }}>
+          <p style={{
+            color: 'var(--text)',
+            fontSize: '17px',
+            fontWeight: 500,
+            lineHeight: 1.6,
+            marginBottom: '20px'
+          }}>
+            {error}
+          </p>
+          <a href="/onboarding" style={{
+            color: 'var(--purple)',
+            fontWeight: 600,
+            fontSize: '15px'
+          }}>
+            ← Go back
+          </a>
+        </div>
       </main>
     </>
   )
@@ -172,22 +194,42 @@ function GeneratingContent() {
     <>
       <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
-        <div style={{ fontSize:'48px', marginBottom:'24px' }}>✦</div>
-        <h1 style={{ fontSize:'24px', fontWeight:'600', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif' }}>
+        <div style={{ fontSize:'48px', marginBottom:'24px' }} aria-hidden="true">✦</div>
+        <h1 style={{
+          fontSize:'26px',
+          fontWeight:600,
+          marginBottom:'18px',
+          color:'var(--text)',
+          fontFamily:'Cormorant Garamond, serif',
+          lineHeight:1.2
+        }}>
           {t(lang, 'generating_title')}
         </h1>
-        <p style={{ color:'var(--text-muted)', fontSize:'16px', lineHeight:'1.6', marginBottom:'8px' }}>
+        <p style={{
+          color:'var(--text)',
+          fontSize:'16px',
+          lineHeight:1.65,
+          marginBottom:'8px',
+          fontWeight:500
+        }}>
           {steps[step]}
         </p>
-        <p style={{ color:'var(--text-light)', fontSize:'13px', marginTop:'24px', lineHeight:'1.6' }}>
+        <p style={{
+          color:'var(--text-muted)',
+          fontSize:'14px',
+          marginTop:'24px',
+          lineHeight:1.6
+        }}>
           {t(lang, 'generating_subtitle')}
         </p>
-        <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'6px' }}>
+        <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'8px' }} aria-hidden="true">
           {steps.map((_, i) => (
             <div key={i} style={{
-              width:'8px', height:'8px', borderRadius:'50%',
+              width: i === step ? '24px' : '8px',
+              height:'8px',
+              borderRadius:'4px',
               background: i === step ? 'var(--purple)' : 'var(--border)',
-              transition:'background 0.3s'
+              transition:'background 0.3s ease, width 0.3s ease'
             }} />
           ))}
         </div>
