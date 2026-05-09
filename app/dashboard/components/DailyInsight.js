@@ -41,16 +41,16 @@ export default function DailyInsight() {
   const dateLocale = lang === "en" ? "en-US" : lang
 
   return (
-    <div style={s.card}>
+    <div style={s.card} className="anim-fade-in">
       <div style={s.header}>
-        <span style={s.tag}>{"✦"} {t.tag}</span>
+        <span style={s.tag} className="shimmer-overlay">{"✦"} {t.tag}</span>
         <span style={s.date}>
           {new Date().toLocaleDateString(dateLocale, { weekday: "long", month: "long", day: "numeric" })}
         </span>
       </div>
       <h3 style={s.title}>{insight.title}</h3>
       <p style={s.body}>{insight.body}</p>
-      <div style={s.questionBox}>
+      <div style={s.questionBox} className="question-accent-orange">
         <p style={s.questionLabel}>{t.reflect}</p>
         <p style={s.question}>"{insight.question}"</p>
       </div>

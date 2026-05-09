@@ -97,7 +97,7 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
     <div style={s.card}>
       {/* Celebration banner for newly unlocked feature */}
       {justUnlocked && (
-        <div style={s.celebration}>
+        <div style={s.celebration} className="shimmer-overlay anim-scale-in">
           <p style={s.celebrationIcon}>{justUnlocked.icon}</p>
           <p style={s.celebrationTitle}>{justUnlocked.label}</p>
           <p style={s.celebrationText}>{justUnlocked.description}</p>
@@ -120,28 +120,34 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
             <div key={stage.id} style={s.stageRow}>
               {/* Timeline line */}
               <div style={s.timelineCol}>
-                <div style={{
-                  ...s.dot,
-                  background: unlocked ? 'var(--purple)' : 'var(--border)',
-                  border: isNew ? '2px solid var(--orange)' : '2px solid transparent',
-                }} />
+                <div
+                  className={unlocked ? 'unlock-dot-active' : ''}
+                  style={{
+                    ...s.dot,
+                    background: unlocked ? 'var(--purple)' : 'var(--border)',
+                    border: isNew ? '2px solid var(--orange)' : '2px solid transparent',
+                  }}
+                />
                 {!isLast && (
                   <div style={{
                     ...s.line,
-                    background: unlocked ? 'var(--purple)' : 'var(--border)',
+                    background: unlocked ? 'var(--gradient-timeline)' : 'var(--border)',
                   }} />
                 )}
               </div>
 
               {/* Stage content */}
-              <div style={{
-                ...s.stageContent,
-                opacity: unlocked ? 1 : 0.5,
-              }}>
+              <div
+                className={!unlocked ? 'locked-frost' : ''}
+                style={{
+                  ...s.stageContent,
+                  opacity: unlocked ? 1 : 0.55,
+                }}
+              >
                 <div style={s.stageHeader}>
                   <span style={s.stageIcon}>{stage.icon}</span>
                   <span style={s.stageLabel}>{(UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']).stages?.[stage.id]?.l || stage.label}</span>
-                  {isNew && <span style={s.newBadge}>{t.new}</span>}
+                  {isNew && <span style={s.newBadge} className="shimmer-overlay">{t.new}</span>}
                 </div>
                 <p style={s.stageDesc}>{(UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']).stages?.[stage.id]?.d || stage.description}</p>
                 {!unlocked && (

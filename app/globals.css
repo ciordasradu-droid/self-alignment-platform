@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
+  /* Core palette */
   --purple: #7C5CBF;
   --purple-light: #F0EBFF;
   --purple-dark: #4A3280;
@@ -8,6 +9,9 @@
   --green-light: #E8F7F2;
   --orange: #E8824A;
   --orange-light: #FFF0E8;
+  --amber: #d4a574;
+
+  /* Surfaces */
   --bg: #FAFAF8;
   --surface: #FFFFFF;
   --surface2: #F5F4F0;
@@ -15,10 +19,41 @@
   --text-muted: #6B6B80;
   --text-light: #A0A0B0;
   --border: #E8E8F0;
-  --shadow: 0 2px 20px rgba(124, 92, 191, 0.08);
-  --shadow-lg: 0 8px 40px rgba(124, 92, 191, 0.15);
+
+  /* Warm/cool glow tokens (for soft auras + selected states) */
+  --purple-glow: rgba(124, 92, 191, 0.35);
+  --purple-glow-soft: rgba(124, 92, 191, 0.14);
+  --green-glow: rgba(74, 155, 127, 0.35);
+  --green-glow-soft: rgba(74, 155, 127, 0.14);
+  --orange-glow: rgba(232, 130, 74, 0.35);
+  --orange-glow-soft: rgba(232, 130, 74, 0.14);
+  --amber-glow: rgba(212, 165, 116, 0.30);
+
+  /* Layered shadows — gives cards depth without flat borders */
+  --shadow-sm: 0 1px 4px rgba(124, 92, 191, 0.05);
+  --shadow: 0 1px 3px rgba(124, 92, 191, 0.04), 0 4px 16px rgba(124, 92, 191, 0.08);
+  --shadow-md: 0 2px 8px rgba(124, 92, 191, 0.06), 0 8px 24px rgba(124, 92, 191, 0.10);
+  --shadow-lg: 0 4px 12px rgba(124, 92, 191, 0.08), 0 16px 40px rgba(124, 92, 191, 0.14);
+  --shadow-glow: 0 0 24px var(--purple-glow-soft);
+  --shadow-glow-purple: 0 0 24px rgba(124, 92, 191, 0.20);
+  --shadow-glow-green: 0 0 24px rgba(74, 155, 127, 0.20);
+  --shadow-glow-orange: 0 0 24px rgba(232, 130, 74, 0.20);
+
+  /* Soft gradients */
+  --gradient-warm: linear-gradient(135deg, var(--purple-light) 0%, var(--orange-light) 100%);
+  --gradient-purple: linear-gradient(135deg, #7C5CBF 0%, #9d7cd6 100%);
+  --gradient-purple-orange: linear-gradient(135deg, var(--purple) 0%, var(--orange) 100%);
+  --gradient-amber: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
+  --gradient-timeline: linear-gradient(180deg, var(--purple) 0%, rgba(124, 92, 191, 0.25) 100%);
+
+  /* Geometry */
   --radius: 16px;
   --radius-sm: 8px;
+
+  /* Easings */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -51,13 +86,25 @@ a {
 
 button {
   font-family: 'DM Sans', sans-serif;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, transform 0.18s var(--ease-out);
+}
+
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 input, textarea, select {
   font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Cosmic background effect */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--purple) !important;
+  box-shadow: 0 0 0 3px var(--purple-glow-soft);
+}
+
+/* ---------- Cosmic background — slow gentle breathing ---------- */
 .cosmic-bg {
   position: fixed;
   top: 0;
@@ -70,9 +117,10 @@ input, textarea, select {
     radial-gradient(ellipse at 20% 20%, rgba(124, 92, 191, 0.06) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(74, 155, 127, 0.06) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 20%, rgba(232, 130, 74, 0.04) 0%, transparent 40%);
+  animation: cosmic-breathing 18s var(--ease-soft) infinite;
 }
 
-/* Utility classes */
+/* ---------- Tag utilities ---------- */
 .tag {
   display: inline-block;
   padding: 4px 12px;
@@ -82,12 +130,321 @@ input, textarea, select {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-
 .tag-purple { background: var(--purple-light); color: var(--purple); }
 .tag-green { background: var(--green-light); color: var(--green); }
 .tag-orange { background: var(--orange-light); color: var(--orange); }
 
-/* Scrollbar */
+/* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ============================================================
+   KEYFRAMES — short, subtle, GPU-friendly (transform/opacity)
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--purple-glow-soft); }
+  50% { box-shadow: 0 0 22px 3px var(--purple-glow-soft); }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-3px) scale(1.04); }
+  70% { transform: translateY(0) scale(1.02); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -150% 0; }
+  100% { background-position: 250% 0; }
+}
+
+@keyframes cosmic-breathing {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 var(--purple-glow); opacity: 1; }
+  100% { box-shadow: 0 0 0 10px transparent; opacity: 0; }
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes check-in {
+  0% { opacity: 0; transform: scale(0.4) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.12) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--purple-glow-soft); }
+  50% { box-shadow: 0 0 0 4px var(--purple-glow-soft); }
+}
+
+/* ============================================================
+   ANIMATION UTILITY CLASSES
+   ============================================================ */
+
+.anim-fade-in { animation: fade-in 0.4s var(--ease-soft) both; }
+.anim-slide-up { animation: slide-up 0.4s var(--ease-out) both; }
+.anim-scale-in { animation: scale-in 0.32s var(--ease-out) both; }
+.anim-bounce-subtle { animation: bounce-subtle 0.4s var(--ease-out); }
+.anim-glow-pulse { animation: glow-pulse 2.4s var(--ease-soft) infinite; }
+.anim-pulse-once { animation: pulse-once 0.3s var(--ease-out); }
+.anim-check-in { animation: check-in 0.5s var(--ease-bounce) both; }
+.anim-dot-pulse { animation: dot-pulse 2.6s var(--ease-soft) infinite; }
+
+/* Stagger helpers for sequential reveals */
+.stagger-1 { animation-delay: 0.04s; }
+.stagger-2 { animation-delay: 0.08s; }
+.stagger-3 { animation-delay: 0.12s; }
+.stagger-4 { animation-delay: 0.16s; }
+.stagger-5 { animation-delay: 0.20s; }
+.stagger-6 { animation-delay: 0.24s; }
+.stagger-7 { animation-delay: 0.28s; }
+.stagger-8 { animation-delay: 0.32s; }
+
+/* Shimmer overlay (for tags / new badges) */
+.shimmer-overlay {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  background-size: 200% 100%;
+  animation: shimmer 2.8s infinite;
+  pointer-events: none;
+}
+
+/* ============================================================
+   INTERACTION CLASSES — hover lift, tap feedback
+   ============================================================ */
+
+.card-hover {
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  will-change: transform;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-lift {
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), background-color 0.18s ease, border-color 0.18s ease;
+}
+.btn-lift:hover {
+  transform: translateY(-1px);
+}
+.btn-lift:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* DailyCheckin rating buttons (1-5) */
+.rating-btn {
+  transition: transform 0.16s var(--ease-out), box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.rating-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 18px var(--purple-glow-soft);
+}
+.rating-btn:active {
+  transform: scale(0.96);
+}
+.rating-btn-purple.rating-btn:hover { box-shadow: 0 0 18px var(--purple-glow-soft); }
+.rating-btn-green.rating-btn:hover  { box-shadow: 0 0 18px var(--green-glow-soft); }
+.rating-btn-orange.rating-btn:hover { box-shadow: 0 0 18px var(--orange-glow-soft); }
+
+/* FeelingCheckin emotion buttons */
+.feeling-btn {
+  transition: transform 0.20s var(--ease-out), box-shadow 0.20s ease, background-color 0.20s ease, border-color 0.20s ease, color 0.20s ease;
+}
+.feeling-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(124, 92, 191, 0.10);
+  border-color: var(--purple) !important;
+  color: var(--purple);
+}
+.feeling-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* DailyIntention list buttons */
+.intention-btn {
+  position: relative;
+  transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.intention-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: transparent;
+  border-radius: 12px 0 0 12px;
+  transition: background 0.22s ease;
+}
+.intention-btn:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 14px rgba(124, 92, 191, 0.08);
+}
+.intention-btn:hover::before {
+  background: var(--purple);
+}
+.intention-btn:active {
+  transform: translateX(2px) scale(0.99);
+}
+
+/* Stats row (dashboard) — gentle hover lift on each stat card */
+.stats-row > div {
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.stats-row > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(124, 92, 191, 0.10);
+}
+
+/* ============================================================
+   STATE HELPERS
+   ============================================================ */
+
+/* Selected state aura — apply with category color via inline style if needed */
+.aura-purple { box-shadow: 0 0 18px var(--purple-glow); }
+.aura-green  { box-shadow: 0 0 18px var(--green-glow); }
+.aura-orange { box-shadow: 0 0 18px var(--orange-glow); }
+
+/* Streak/score gradient text */
+.gradient-text-purple {
+  background: var(--gradient-purple);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.gradient-text-warm {
+  background: var(--gradient-purple-orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.gradient-text-amber {
+  background: var(--gradient-amber);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Streak number warm glow when active */
+.streak-active {
+  filter: drop-shadow(0 0 14px var(--orange-glow));
+}
+
+/* Day dots — filled day & today */
+.day-dot-active {
+  animation: dot-pulse 2.8s var(--ease-soft) infinite;
+}
+.day-dot-today {
+  position: relative;
+}
+.day-dot-today::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--purple);
+  animation: ring-pulse 2.2s var(--ease-soft) infinite;
+  pointer-events: none;
+}
+
+/* ProgressiveUnlock helpers */
+.unlock-dot-active {
+  box-shadow: 0 0 14px var(--purple-glow-soft);
+}
+.locked-frost {
+  filter: blur(0.4px) saturate(0.7);
+}
+
+/* Done state — celebratory checkmark badge */
+.checkmark-celebrate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 auto 14px;
+  box-shadow: 0 0 24px var(--green-glow-soft);
+}
+
+/* Question box left accent */
+.question-accent-orange {
+  border-left: 3px solid rgba(232, 130, 74, 0.55);
+}
+
+/* ============================================================
+   DASHBOARD STAGGER — direct children fade-in sequentially
+   ============================================================ */
+
+.dashboard-cards-stagger > * {
+  animation: slide-up 0.45s var(--ease-out) both;
+}
+.dashboard-cards-stagger > *:nth-child(1)  { animation-delay: 0.04s; }
+.dashboard-cards-stagger > *:nth-child(2)  { animation-delay: 0.08s; }
+.dashboard-cards-stagger > *:nth-child(3)  { animation-delay: 0.12s; }
+.dashboard-cards-stagger > *:nth-child(4)  { animation-delay: 0.16s; }
+.dashboard-cards-stagger > *:nth-child(5)  { animation-delay: 0.20s; }
+.dashboard-cards-stagger > *:nth-child(6)  { animation-delay: 0.24s; }
+.dashboard-cards-stagger > *:nth-child(7)  { animation-delay: 0.28s; }
+.dashboard-cards-stagger > *:nth-child(8)  { animation-delay: 0.32s; }
+.dashboard-cards-stagger > *:nth-child(9)  { animation-delay: 0.36s; }
+.dashboard-cards-stagger > *:nth-child(10) { animation-delay: 0.40s; }
+.dashboard-cards-stagger > *:nth-child(11) { animation-delay: 0.44s; }
+.dashboard-cards-stagger > *:nth-child(n+12) { animation-delay: 0.48s; }
+
+/* ============================================================
+   REDUCED MOTION — respect user preference
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cosmic-bg { animation: none; }
+}

@@ -27,10 +27,15 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
   }
 
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="anim-fade-in">
       <div style={styles.row}>
         <div style={styles.stat}>
-          <p style={styles.streakNum}>{streak}</p>
+          <p
+            style={styles.streakNum}
+            className={streak > 0 ? "gradient-text-amber streak-active" : ""}
+          >
+            {streak}
+          </p>
           <p style={styles.streakLabel}>{t.current}</p>
         </div>
         <div style={styles.stat}>
@@ -39,11 +44,26 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
         </div>
       </div>
       <div style={styles.weekRow}>
-        {t.dayLetters.map((day, i) => (
-          <div key={i} style={{ ...styles.dayDot, backgroundColor: i <= adjustedToday ? "#111" : "#eee" }}>
-            <span style={{ color: i <= adjustedToday ? "#fff" : "#999", fontSize: "11px" }}>{day}</span>
-          </div>
-        ))}
+        {t.dayLetters.map((day, i) => {
+          const filled = i <= adjustedToday
+          const isToday = i === adjustedToday
+          const cls = [
+            filled ? "day-dot-active" : "",
+            isToday ? "day-dot-today" : ""
+          ].filter(Boolean).join(" ")
+          return (
+            <div
+              key={i}
+              className={cls}
+              style={{
+                ...styles.dayDot,
+                backgroundColor: filled ? "var(--purple)" : "var(--border)"
+              }}
+            >
+              <span style={{ color: filled ? "#fff" : "var(--text-light)", fontSize: "11px", fontWeight: 600 }}>{day}</span>
+            </div>
+          )
+        })}
       </div>
       <p style={styles.message}>{getMessage()}</p>
     </div>

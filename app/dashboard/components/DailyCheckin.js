@@ -190,9 +190,9 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
 
   if (submitted) {
     return (
-      <div style={styles.card}>
-        <h2 style={styles.cardTitle}>{t.done}</h2>
+      <div style={styles.card} className="anim-scale-in">
         <div style={styles.doneBox}>
+          <div className="checkmark-celebrate anim-check-in" aria-hidden="true">✓</div>
           <p style={styles.doneText}>{t.done}</p>
           <p style={styles.doneSubtext}>{t.tomorrow}</p>
         </div>
@@ -209,7 +209,7 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
   }
 
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="anim-fade-in">
       <div style={styles.header}>
         <h2 style={styles.cardTitle}>{t.title}</h2>
         <p style={styles.cardSubtitle}>{t.subtitle}</p>
@@ -218,6 +218,10 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
       {questions.map((q) => {
         const cat = categoryMeta[q.category] || categoryMeta.mirroring
         const catLabel = t[q.category] || q.category
+        const colorClass = cat.color === "var(--purple)" ? "rating-btn-purple"
+          : cat.color === "var(--green)" ? "rating-btn-green"
+          : cat.color === "var(--orange)" ? "rating-btn-orange"
+          : ""
         return (
           <div key={q.id} style={styles.questionBlock}>
             <div style={styles.categoryRow}>
@@ -231,20 +235,25 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
                 <span style={styles.anchorLabel}>{t.anchor_high}</span>
               </div>
               <div style={styles.ratingRow}>
-                {[1, 2, 3, 4, 5].map((val) => (
-                  <button
-                    key={val}
-                    onClick={() => handleAnswer(q.id, val)}
-                    style={{
-                      ...styles.ratingBtn,
-                      background: answers[q.id] === val ? cat.color : "var(--bg)",
-                      color: answers[q.id] === val ? "#fff" : "var(--text)",
-                      borderColor: answers[q.id] === val ? cat.color : "var(--border)"
-                    }}
-                  >
-                    {val}
-                  </button>
-                ))}
+                {[1, 2, 3, 4, 5].map((val) => {
+                  const selected = answers[q.id] === val
+                  return (
+                    <button
+                      key={val}
+                      onClick={() => handleAnswer(q.id, val)}
+                      className={`rating-btn ${colorClass} ${selected ? "anim-pulse-once" : ""}`}
+                      style={{
+                        ...styles.ratingBtn,
+                        background: selected ? cat.color : "var(--bg)",
+                        color: selected ? "#fff" : "var(--text)",
+                        borderColor: selected ? cat.color : "var(--border)",
+                        boxShadow: selected ? `0 0 18px ${cat.color === "var(--purple)" ? "var(--purple-glow-soft)" : cat.color === "var(--green)" ? "var(--green-glow-soft)" : "var(--orange-glow-soft)"}` : "none"
+                      }}
+                    >
+                      {val}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -277,7 +286,7 @@ const styles = {
   questionText: { fontSize: "16px", fontWeight: "500", marginBottom: "14px", color: "var(--text)", lineHeight: "1.5" },
   scaleWrap: {},
   anchorRow: { display: "flex", justifyContent: "space-between", marginBottom: "6px", padding: "0 2px" },
-  anchorLabel: { fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" },
+  anchorLabel: { fontSize: "11px", color: "var(--text-muted)", fontWeight: "500", letterSpacing: "0.5px", textTransform: "uppercase" },
   ratingRow: { display: "flex", gap: "8px" },
   ratingBtn: { flex: 1, minWidth: "36px", maxWidth: "52px", height: "44px", borderRadius: "10px", border: "1.5px solid", fontSize: "15px", fontWeight: "500", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center" },
   submitButton: { width: "100%", padding: "15px", color: "#fff", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "500", boxShadow: "0 4px 20px rgba(124,92,191,0.3)" },

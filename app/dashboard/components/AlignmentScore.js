@@ -23,10 +23,10 @@ export default function AlignmentScore({ score = 0, lang = "en" }) {
   }
 
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="anim-fade-in">
       <h2 style={styles.cardTitle}>{t.title}</h2>
       <div style={styles.scoreWrap}>
-        <p style={styles.scoreNum}>{score}</p>
+        <p style={styles.scoreNum} className="gradient-text-warm">{score}</p>
         <p style={styles.scoreMax}>/100</p>
       </div>
       <p style={styles.scoreLabel}>{getLabel()}</p>

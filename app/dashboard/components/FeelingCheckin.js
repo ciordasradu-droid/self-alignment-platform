@@ -19,12 +19,20 @@ export default function FeelingCheckin({ lang = "en", hdType = "Generator", onSe
   const options = feelings[lang] || feelings.en
   const [selected, setSelected] = useState(null)
   const handleSelect = (f) => { setSelected(f); if (onSelect) onSelect(f) }
-  if (selected) return (<div style={s.card}><p style={s.done}>{selected}</p></div>)
+  if (selected) return (
+    <div style={s.card} className="anim-scale-in">
+      <p style={s.done} className="anim-bounce-subtle">{selected}</p>
+    </div>
+  )
   return (
-    <div style={s.card}>
+    <div style={s.card} className="anim-fade-in">
       <p style={s.title}>{t.title}</p>
       <p style={s.subtitle}>{t.subtitle}</p>
-      <div style={s.grid}>{options.map((f, i) => (<button key={i} onClick={() => handleSelect(f)} style={s.btn}>{f}</button>))}</div>
+      <div style={s.grid}>
+        {options.map((f, i) => (
+          <button key={i} onClick={() => handleSelect(f)} style={s.btn} className="feeling-btn">{f}</button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -34,5 +42,5 @@ const s = {
   subtitle: { fontSize: "13px", color: "var(--text-muted)", marginBottom: "16px" },
   grid: { display: "flex", flexWrap: "wrap", gap: "8px" },
   btn: { padding: "10px 18px", borderRadius: "20px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "14px", cursor: "pointer" },
-  done: { fontSize: "18px", fontWeight: "600", color: "var(--purple)", textAlign: "center", padding: "8px 0" }
+  done: { fontSize: "20px", fontWeight: "600", color: "var(--purple)", textAlign: "center", padding: "8px 0", fontFamily: "Cormorant Garamond, serif", textShadow: "0 0 18px rgba(124, 92, 191, 0.25)" }
 }

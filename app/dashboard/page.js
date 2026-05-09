@@ -319,11 +319,11 @@ function DashboardContent() {
   return (
     <>
       <div className="cosmic-bg" />
-      <main style={s.wrap}>
+      <main style={s.wrap} className="dashboard-cards-stagger">
 
         <div style={s.header}>
           <div>
-            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>
+            <span className="tag tag-purple shimmer-overlay" style={{marginBottom:'12px', display:'inline-block'}}>
               {t(lang, 'dashboard_tag')}
             </span>
             <h1 style={s.title}>{t(lang, 'dashboard_title')}</h1>
@@ -345,14 +345,19 @@ function DashboardContent() {
 
         <DailyIntention lang={lang} hdType={hdType} />
 
-        <div style={s.statsRow}>
+        <div style={s.statsRow} className="stats-row">
           <div style={{...s.statCard, borderTop:'3px solid var(--purple)'}}>
             <p style={s.statLabel}>{t(lang, 'alignment_score')}</p>
-            <p style={{...s.statValue, color:'var(--purple)'}}>{alignmentScore}</p>
+            <p style={s.statValue} className="gradient-text-warm">{alignmentScore}</p>
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--green)'}}>
             <p style={s.statLabel}>{t(lang, 'current_streak')}</p>
-            <p style={{...s.statValue, color:'var(--green)'}}>{streak}<span style={s.statUnit}> {t(lang, 'days')}</span></p>
+            <p
+              style={{...s.statValue, color: streak > 0 ? 'transparent' : 'var(--green)'}}
+              className={streak > 0 ? 'gradient-text-amber streak-active' : ''}
+            >
+              {streak}<span style={{...s.statUnit, color: 'var(--text-muted)', WebkitTextFillColor: 'var(--text-muted)'}}> {t(lang, 'days')}</span>
+            </p>
           </div>
           <div style={{...s.statCard, borderTop:'3px solid var(--orange)'}}>
             <p style={s.statLabel}>{t(lang, 'today')}</p>
