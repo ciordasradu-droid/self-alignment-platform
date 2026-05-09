@@ -17,6 +17,27 @@ const LANGUAGES = [
   { code: 'hu', label: 'Magyar' },
 ]
 
+const READY_NOTE = {
+  en: 'Your profile will be ready in 2-3 minutes',
+  ro: 'Profilul tău va fi generat în 2-3 minute',
+  es: 'Tu perfil estará listo en 2-3 minutos',
+  fr: 'Ton profil sera prêt en 2-3 minutes',
+  de: 'Dein Profil ist in 2-3 Minuten fertig',
+  it: 'Il tuo profilo sarà pronto in 2-3 minuti',
+  pt: 'O teu perfil estará pronto em 2-3 minutos',
+  nl: 'Je profiel is klaar in 2-3 minuten',
+  pl: 'Twój profil będzie gotowy za 2-3 minuty',
+  hu: 'A profilod 2-3 perc alatt elkészül',
+}
+
+function CosmicStars() {
+  return (
+    <div className="cosmic-stars" aria-hidden="true">
+      {Array.from({ length: 25 }).map((_, i) => <span key={i} />)}
+    </div>
+  )
+}
+
 export default function Onboarding() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -102,20 +123,22 @@ export default function Onboarding() {
   }
 
   const months = t(lang, 'months')
+  const readyNote = READY_NOTE[lang] || READY_NOTE.en
 
   return (
     <>
       <div className="cosmic-bg" />
+      <CosmicStars />
       <main style={s.wrap}>
 
         <div style={s.header}>
-          <a href="/" style={s.back}>{t(lang, 'back')}</a>
+          <a href="/" style={s.back} className="btn-lift">{t(lang, 'back')}</a>
           <span className="tag tag-purple">Free Profile</span>
         </div>
 
-        <div style={s.card} className="anim-fade-in">
-          <div style={s.cardHeader}>
-            <h1 style={s.title}>{t(lang, 'onboarding_title')}</h1>
+        <div className="onboarding-premium-card anim-fade-in">
+          <div className="onboarding-card-header">
+            <h1 className="onboarding-title-huge">{t(lang, 'onboarding_title')}</h1>
             <p style={s.subtitle}>{t(lang, 'onboarding_subtitle')}</p>
             <div style={s.tags}>
               <span className="tag tag-purple">Astrology</span>
@@ -124,14 +147,14 @@ export default function Onboarding() {
             </div>
           </div>
 
-          <div style={s.form}>
+          <div className="onboarding-form-body">
 
             <div style={s.field}>
-              <label style={s.label}>{t(lang, 'profile_language')}</label>
+              <label className="onboarding-label">{t(lang, 'profile_language')}</label>
               <select
                 value={lang}
                 onChange={e => handleLanguageChange(e.target.value)}
-                style={s.input}
+                className="input-clean select-clean"
               >
                 {LANGUAGES.map(l => (
                   <option key={l.code} value={l.code}>{l.label}</option>
@@ -141,18 +164,18 @@ export default function Onboarding() {
             </div>
 
             <div style={s.field}>
-              <label style={s.label}>{t(lang, 'full_name')}</label>
+              <label className="onboarding-label">{t(lang, 'full_name')}</label>
               <input
                 type="text"
                 value={formData.full_name}
                 onChange={e => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                 placeholder={t(lang, 'full_name_placeholder')}
-                style={s.input}
+                className="input-clean"
               />
             </div>
 
             <div style={s.field}>
-              <label style={s.label}>{t(lang, 'date_of_birth')}</label>
+              <label className="onboarding-label">{t(lang, 'date_of_birth')}</label>
               <div style={s.dateRow}>
                 <div style={{flex:1, minWidth:'56px'}}>
                   <input
@@ -161,14 +184,15 @@ export default function Onboarding() {
                     value={day}
                     onChange={e => setDay(e.target.value)}
                     min="1" max="31"
-                    style={{...s.input, textAlign:'center', width:'100%'}}
+                    className="input-clean"
+                    style={{ textAlign:'center' }}
                   />
                 </div>
                 <div style={{flex:2}}>
                   <select
                     value={month}
                     onChange={e => setMonth(e.target.value)}
-                    style={{...s.input, width:'100%'}}
+                    className="input-clean select-clean"
                   >
                     <option value="">—</option>
                     {months.map((m, i) => (
@@ -183,32 +207,33 @@ export default function Onboarding() {
                     value={year}
                     onChange={e => setYear(e.target.value)}
                     min="1900" max="2010"
-                    style={{...s.input, textAlign:'center', width:'100%'}}
+                    className="input-clean"
+                    style={{ textAlign:'center' }}
                   />
                 </div>
               </div>
             </div>
 
             <div style={s.field}>
-              <label style={s.label}>{t(lang, 'time_of_birth')}</label>
+              <label className="onboarding-label">{t(lang, 'time_of_birth')}</label>
               <input
                 type="time"
                 value={formData.time_of_birth}
                 onChange={e => setFormData(prev => ({ ...prev, time_of_birth: e.target.value }))}
-                style={s.input}
+                className="input-clean"
               />
               <p style={s.hint}>{t(lang, 'time_hint')}</p>
             </div>
 
             <div style={{...s.field, position:'relative'}}>
-              <label style={s.label}>{t(lang, 'city_of_birth')}</label>
+              <label className="onboarding-label">{t(lang, 'city_of_birth')}</label>
               <input
                 type="text"
                 value={cityValue}
                 onChange={handleCityInput}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={t(lang, 'city_placeholder')}
-                style={s.input}
+                className="input-clean"
                 autoComplete="off"
               />
               <p style={s.hint}>{t(lang, 'city_hint')}</p>
@@ -229,18 +254,30 @@ export default function Onboarding() {
               <span style={s.freeLabel}>{t(lang, 'free_note')}</span>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className={loading ? '' : 'btn-glow-pulse'}
-              style={{
-                ...s.btn,
-                background: loading ? '#ccc' : 'var(--purple)',
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {loading ? t(lang, 'generating_btn') : t(lang, 'generate_btn')}
-            </button>
+            <div style={s.submitWrap}>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className={`cta-premium cta-premium-large${loading ? '' : ''}`}
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  background: loading ? '#bbb' : undefined,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  animation: loading ? 'none' : undefined,
+                  opacity: loading ? 0.85 : 1
+                }}
+              >
+                {loading ? t(lang, 'generating_btn') : t(lang, 'generate_btn')}
+                {!loading && <span className="arrow" aria-hidden="true">→</span>}
+              </button>
+
+              <p className="onboarding-note">
+                <span className="onboarding-note-star">✦</span>
+                <span>{readyNote}</span>
+              </p>
+            </div>
 
             <p style={s.disclaimer}>{t(lang, 'disclaimer')}</p>
 
@@ -252,27 +289,21 @@ export default function Onboarding() {
 }
 
 const s = {
-  wrap: { maxWidth:'560px', margin:'0 auto', padding:'32px 24px 80px' },
+  wrap: { maxWidth:'600px', margin:'0 auto', padding:'40px 20px 80px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'32px' },
-  back: { fontSize:'14px', color:'var(--text-muted)', fontWeight:'500' },
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', boxShadow:'var(--shadow-lg)', overflow:'hidden' },
-  cardHeader: { padding:'36px 36px 28px', borderBottom:'1px solid var(--border)', background:'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)' },
-  title: { fontSize:'clamp(24px, 6vw, 32px)', fontWeight:'600', color:'var(--text)', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
-  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'16px' },
+  back: { display:'inline-flex', fontSize:'14px', color:'var(--text-muted)', fontWeight:'500', padding:'8px 14px', borderRadius:'8px', minHeight:'40px', alignItems:'center' },
+  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'18px' },
   tags: { display:'flex', gap:'8px', flexWrap:'wrap' },
-  form: { padding:'clamp(20px, 5vw, 36px)' },
-  field: { marginBottom:'20px' },
+  field: { marginBottom:'22px' },
   dateRow: { display:'flex', gap:'10px', alignItems:'center' },
-  label: { display:'block', fontSize:'13px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.5px' },
-  input: { width:'100%', padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', outline:'none', boxSizing:'border-box' },
-  hint: { fontSize:'12px', color:'var(--text-light)', marginTop:'6px' },
-  suggestions: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'200px', overflowY:'auto' },
+  hint: { fontSize:'12px', color:'var(--text-light)', marginTop:'8px' },
+  suggestions: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'12px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'240px', overflowY:'auto', marginTop:'4px' },
   suggestion: { display:'flex', alignItems:'flex-start', gap:'10px', padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)' },
   suggestionIcon: { color:'var(--purple)', flexShrink:0, marginTop:'2px' },
   suggestionText: { fontSize:'13px', color:'var(--text)', lineHeight:'1.5' },
-  freeNote: { display:'flex', alignItems:'center', gap:'10px', padding:'16px', background:'var(--purple-light)', borderRadius:'10px', marginBottom:'20px' },
+  freeNote: { display:'flex', alignItems:'center', gap:'10px', padding:'14px 18px', background:'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)', borderRadius:'12px', marginBottom:'24px', border:'1px solid rgba(124, 92, 191, 0.15)' },
   freeIcon: { fontSize:'20px', color:'var(--purple)' },
   freeLabel: { fontSize:'14px', color:'var(--purple)', fontWeight:'500' },
-  btn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
-  disclaimer: { textAlign:'center', fontSize:'12px', color:'var(--text-light)', marginTop:'16px' }
+  submitWrap: { textAlign:'center', marginTop:'28px' },
+  disclaimer: { textAlign:'center', fontSize:'12px', color:'var(--text-light)', marginTop:'20px', lineHeight:'1.5' }
 }

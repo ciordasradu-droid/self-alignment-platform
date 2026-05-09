@@ -982,7 +982,598 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   PROGRESSIVE UNLOCK — flowing gradient line + sparkle
+   PREMIUM LANDING — hero orb, story cards, premium CTA, trust
+   ============================================================ */
+
+/* Hero — drifting glowing orb behind the title (depth + life) */
+.hero-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(420px, 80vw, 760px);
+  height: clamp(420px, 80vw, 760px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(124, 92, 191, 0.32) 0%, transparent 45%),
+    radial-gradient(circle at 70% 65%, rgba(212, 165, 116, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(232, 130, 74, 0.10) 0%, transparent 60%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orb-drift 20s ease-in-out infinite;
+}
+@keyframes orb-drift {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  33%      { transform: translate(calc(-50% + 30px), calc(-50% - 24px)) scale(1.08); }
+  66%      { transform: translate(calc(-50% - 26px), calc(-50% + 18px)) scale(0.94); }
+}
+
+/* Faster animated gradient text — purple → gold → purple, 6s */
+.gradient-text-fast {
+  background: linear-gradient(135deg, var(--purple) 0%, #d4a574 50%, var(--purple) 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradient-flow 6s ease-in-out infinite;
+}
+
+/* Premium CTA button — 56px, gradient bg, constant glow + pulse, sliding arrow */
+.cta-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 32px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #7C5CBF 0%, #9d7cd6 50%, #d4a574 100%);
+  background-size: 200% 200%;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 10px 32px rgba(124, 92, 191, 0.35),
+    0 0 0 0 rgba(124, 92, 191, 0.4);
+  animation: cta-glow 2.6s var(--ease-soft) infinite, gradient-flow 6s ease-in-out infinite;
+  transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease;
+}
+.cta-premium:hover { transform: translateY(-2px); }
+.cta-premium:active { transform: translateY(0) scale(0.98); }
+.cta-premium .arrow {
+  display: inline-block;
+  transition: transform 0.22s var(--ease-out);
+}
+.cta-premium:hover .arrow { transform: translateX(5px); }
+@keyframes cta-glow {
+  0%, 100% {
+    box-shadow:
+      0 10px 32px rgba(124, 92, 191, 0.35),
+      0 0 0 0 rgba(124, 92, 191, 0.40);
+  }
+  50% {
+    box-shadow:
+      0 12px 40px rgba(124, 92, 191, 0.50),
+      0 0 0 14px rgba(124, 92, 191, 0);
+  }
+}
+
+.cta-premium-large {
+  height: 64px;
+  padding: 0 40px;
+  font-size: 18px;
+  border-radius: 32px;
+}
+
+.cta-subtext {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+}
+
+/* ============================================================
+   STORY CARDS — large gradient cards with rich previews inside
+   ============================================================ */
+
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.story-card {
+  position: relative;
+  border-radius: 24px;
+  padding: clamp(28px, 4vw, 40px);
+  min-height: 260px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(124, 92, 191, 0.10);
+  transition: transform 0.32s var(--ease-out), box-shadow 0.32s ease;
+  display: flex;
+  flex-direction: column;
+}
+.story-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 56px rgba(124, 92, 191, 0.18);
+}
+.story-card::after {
+  /* subtle inner highlight at top */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: 0;
+}
+.story-card > * { position: relative; z-index: 1; }
+
+.story-card-purple { background: linear-gradient(135deg, #ebe3ff 0%, #f5e8d8 100%); }
+.story-card-green  { background: linear-gradient(135deg, #e8f7f2 0%, #f5e8d8 100%); }
+.story-card-amber  { background: linear-gradient(135deg, #f5e8d8 0%, #ffe1d8 100%); }
+.story-card-mixed  { background: linear-gradient(135deg, #ebe3ff 0%, #e8f7f2 100%); }
+
+.story-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--purple);
+  margin-bottom: 16px;
+  align-self: flex-start;
+  backdrop-filter: blur(4px);
+}
+.story-title {
+  font-size: clamp(22px, 3vw, 28px);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.story-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+.story-preview {
+  margin-top: auto;
+}
+
+/* Mock profile preview (used in story card 1) */
+.mock-profile {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 18px rgba(124, 92, 191, 0.10);
+}
+.mock-profile-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--purple);
+  background: var(--purple-light);
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.mock-line {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--purple), var(--amber));
+  opacity: 0.35;
+  margin-bottom: 8px;
+}
+.mock-line-1 { width: 90%; }
+.mock-line-2 { width: 75%; opacity: 0.28; filter: blur(0.4px); }
+.mock-line-3 { width: 82%; opacity: 0.22; filter: blur(0.6px); }
+.mock-line-4 { width: 60%; opacity: 0.18; filter: blur(0.9px); }
+
+/* Mock rating preview (used in story card 2) — uses real emoji slider styling */
+.mock-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 4px;
+  position: relative;
+}
+.mock-rating::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #d4756e 0%, #d99454 30%, #d4b454 50%, #88b86a 75%, #4a9b7f 100%);
+  opacity: 0.35;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+.mock-rating-emoji {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mock-rating-emoji.active {
+  border-color: #4a9b7f;
+  background: #e8f7f2;
+  transform: scale(1.18) translateY(-4px);
+  box-shadow: 0 6px 18px rgba(74, 155, 127, 0.45);
+}
+
+/* Mock streak preview (used in story card 3) */
+.mock-streak {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.mock-streak-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.mock-streak-num {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  background: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  line-height: 1;
+}
+.mock-streak-fire {
+  font-size: 22px;
+  filter: drop-shadow(0 0 6px rgba(232, 130, 74, 0.5));
+}
+.mock-streak-dots {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.mock-streak-dot {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+}
+.mock-streak-dot.filled {
+  background: linear-gradient(90deg, var(--purple), var(--amber));
+  box-shadow: 0 0 8px rgba(124, 92, 191, 0.4);
+}
+
+/* Mock pillars (used in story card 4) */
+.mock-pillars {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mock-pillar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+.mock-pillar-icon {
+  font-size: 14px;
+}
+
+/* ============================================================
+   TRUST BANNER + INDICATORS
+   ============================================================ */
+
+.trust-section {
+  padding: 32px 0 64px;
+}
+.trust-banner {
+  background: linear-gradient(135deg, #fef3eb 0%, #f0ebff 50%, #e8f7f2 100%);
+  background-size: 200% 200%;
+  animation: gradient-flow 12s ease-in-out infinite;
+  border-radius: 24px;
+  padding: clamp(24px, 4vw, 36px);
+  text-align: center;
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  box-shadow: 0 8px 32px rgba(124, 92, 191, 0.08);
+  margin-bottom: 24px;
+}
+.trust-banner-title {
+  font-size: clamp(20px, 3vw, 26px);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+.trust-indicators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+.trust-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease;
+}
+.trust-indicator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 92, 191, 0.10);
+}
+.trust-indicator-icon {
+  font-size: 18px;
+}
+
+/* ============================================================
+   PREMIUM PRICING CARD
+   ============================================================ */
+
+.price-premium {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 70%, #3d2860 100%);
+  border-radius: 28px;
+  padding: clamp(32px, 5vw, 48px) clamp(24px, 4vw, 40px);
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(124, 92, 191, 0.30);
+}
+.price-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 25% 0%, rgba(212, 165, 116, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 80% 100%, rgba(124, 92, 191, 0.30) 0%, transparent 50%);
+  pointer-events: none;
+}
+.price-premium > * { position: relative; }
+
+.price-premium-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #d4a574;
+  background: rgba(212, 165, 116, 0.15);
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(212, 165, 116, 0.3);
+}
+.price-premium-amount {
+  font-size: clamp(56px, 9vw, 80px);
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1;
+  background: linear-gradient(135deg, #d4a574 0%, #f5d976 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
+}
+.price-premium-period {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-left: 4px;
+}
+.price-premium-annual {
+  font-size: 13px;
+  color: rgba(212, 165, 116, 0.85);
+  margin-top: 6px;
+  font-weight: 500;
+}
+.price-premium-features {
+  text-align: left;
+  margin: 32px auto 28px;
+  max-width: 320px;
+}
+.price-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.price-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.18);
+  color: #d4a574;
+  flex-shrink: 0;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.price-card-free {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: clamp(28px, 5vw, 40px);
+  text-align: center;
+  box-shadow: 0 8px 28px rgba(124, 92, 191, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.price-card-free .price-amount-free {
+  font-size: clamp(48px, 8vw, 64px);
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ============================================================
+   PREMIUM ONBOARDING CARD
+   ============================================================ */
+
+.onboarding-premium-card {
+  position: relative;
+  background: var(--surface);
+  border-radius: 28px;
+  box-shadow:
+    0 4px 16px rgba(124, 92, 191, 0.08),
+    0 24px 56px rgba(124, 92, 191, 0.14);
+  overflow: hidden;
+  z-index: 0;
+}
+.onboarding-premium-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 50%, var(--green) 100%);
+  background-size: 200% 200%;
+  animation: gradient-flow 8s ease-in-out infinite;
+  z-index: -1;
+}
+
+.onboarding-card-header {
+  padding: clamp(28px, 5vw, 44px) clamp(24px, 5vw, 44px) clamp(22px, 4vw, 32px);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(124, 92, 191, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 80% 100%, rgba(212, 165, 116, 0.10) 0%, transparent 55%),
+    linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%);
+  border-bottom: 1px solid var(--border);
+}
+.onboarding-title-huge {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--purple) 0%, #d4a574 50%, var(--purple) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradient-flow 6s ease-in-out infinite;
+}
+.onboarding-form-body {
+  padding: clamp(24px, 5vw, 40px);
+}
+
+.onboarding-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Polished select / inputs for onboarding */
+.input-clean {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  box-sizing: border-box;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+}
+.input-clean:hover { border-color: rgba(124, 92, 191, 0.35); }
+.input-clean:focus {
+  border-color: var(--purple) !important;
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(124, 92, 191, 0.12), 0 4px 14px rgba(124, 92, 191, 0.08) !important;
+}
+
+.select-clean {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+
+.onboarding-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  font-style: italic;
+}
+.onboarding-note-star {
+  color: var(--amber);
+  font-style: normal;
+}
+
+/* ============================================================
+   LANDING PAGE — animated gradient title, CTA glow, reveal-on-scroll
    ============================================================ */
 
 .unlock-line-flow {

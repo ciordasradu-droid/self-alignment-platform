@@ -39,7 +39,7 @@ function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' })
   )
 }
 
-// ── CosmicStars: 25 drifting decorative dots, positioned via CSS :nth-child ──
+// ── 25 drifting decorative dots ──
 function CosmicStars() {
   return (
     <div className="cosmic-stars" aria-hidden="true">
@@ -48,31 +48,7 @@ function CosmicStars() {
   )
 }
 
-// ── Sacred-geometry mandala overlay used behind hero ──
-function HeroMandala() {
-  return (
-    <svg
-      className="mandala-bg-light"
-      style={{ top: '-60px', left: '50%', transform: 'translateX(-50%)', width: '480px', height: '480px' }}
-      viewBox="0 0 200 200"
-      aria-hidden="true"
-    >
-      <g fill="none" stroke="var(--purple)" strokeWidth="0.5">
-        <circle cx="100" cy="100" r="90" />
-        <circle cx="100" cy="100" r="70" />
-        <circle cx="100" cy="100" r="50" />
-        <circle cx="100" cy="100" r="30" />
-        {[0, 30, 60, 90, 120, 150].map((a) => (
-          <line key={a} x1="100" y1="10" x2="100" y2="190" transform={`rotate(${a} 100 100)`} />
-        ))}
-        {[0, 60, 120].map((a) => (
-          <polygon key={a} points="100,30 158,130 42,130" transform={`rotate(${a} 100 100)`} />
-        ))}
-      </g>
-    </svg>
-  )
-}
-
+// ── Returning user banner ──
 function ReturningUserBanner() {
   const [hasProfile, setHasProfile] = useState(false)
 
@@ -107,7 +83,7 @@ export default function Home() {
       <nav style={s.nav}>
         <div style={s.navInner}>
           <p style={s.logo}>✦ Alignment</p>
-          <Link href="/onboarding" style={s.navCta}>Start</Link>
+          <Link href="/onboarding" style={s.navCta} className="btn-lift">Start</Link>
         </div>
       </nav>
 
@@ -115,72 +91,145 @@ export default function Home() {
 
         <ReturningUserBanner />
 
-        {/* ── SECTION 1 — HERO ── */}
+        {/* ── HERO ── */}
         <section style={s.hero}>
-          <HeroMandala />
+          <div className="hero-orb" aria-hidden="true" />
           <div style={s.heroInner}>
             <h1 style={s.heroTitle} className="anim-fade-in">
               When you align with yourself
               <br />
-              <span className="gradient-text-animated">everything else follows.</span>
+              <span className="gradient-text-fast">everything else follows.</span>
             </h1>
             <p style={s.heroSub} className="anim-fade-in stagger-3">
               Human Design. Astrology. Numerology. One profile that finally
-              tells you who you are — and a daily system to act on it.
+              tells you who you are — and a daily ritual to live it.
             </p>
             <div className="anim-fade-in stagger-5" style={{ display:'inline-block' }}>
-              <Link href="/onboarding" style={s.heroCta} className="btn-glow-pulse">
-                Start Here →
+              <Link href="/onboarding" className="cta-premium cta-premium-large">
+                Start Here <span className="arrow" aria-hidden="true">→</span>
               </Link>
+              <span className="cta-subtext">Free. No card. 30 seconds.</span>
             </div>
           </div>
         </section>
 
-        {/* ── SECTION 2 — WHAT YOU GET (3 CARDS) ── */}
+        {/* ── VISUAL STORYTELLING ── */}
         <section style={s.section}>
-          <Reveal as="h2" style={s.sectionTitle}>What you get</Reveal>
-          <div style={s.threeGrid}>
+          <Reveal as="h2" style={s.sectionTitle}>What you actually get</Reveal>
+          <Reveal as="p" style={s.sectionSub} delay={80}>
+            Four pieces, designed to work together. Built around who you are — not generic advice.
+          </Reveal>
+
+          <div className="story-grid" style={{ marginTop: '36px' }}>
 
             <Reveal delay={0}>
-              <div style={{...s.card, borderLeft:'4px solid var(--purple)'}} className="landing-card">
-                <div style={{...s.cardIcon, color:'var(--purple)', background:'var(--purple-light)'}}>◎</div>
-                <h3 style={s.cardTitle}>Your Profile</h3>
-                <p style={s.cardText}>
-                  Human Design, astrology, and numerology synthesized into one
-                  honest, personal profile. Who you are, how you operate, what
-                  lights you up — and what holds you back.
+              <div className="story-card story-card-purple">
+                <span className="story-tag">Profile</span>
+                <h3 className="story-title">Your unique profile</h3>
+                <p className="story-text">
+                  Human Design, astrology, and numerology synthesized into one honest document.
+                  Personal. Specific. Yours.
                 </p>
+                <div className="story-preview">
+                  <div className="mock-profile">
+                    <span className="mock-profile-tag">Generator · 2/4</span>
+                    <div className="mock-line mock-line-1" />
+                    <div className="mock-line mock-line-2" />
+                    <div className="mock-line mock-line-3" />
+                    <div className="mock-line mock-line-4" />
+                  </div>
+                </div>
               </div>
             </Reveal>
 
             <Reveal delay={120}>
-              <div style={{...s.card, borderLeft:'4px solid var(--green)'}} className="landing-card">
-                <div style={{...s.cardIcon, color:'var(--green)', background:'var(--green-light)'}}>🧭</div>
-                <h3 style={s.cardTitle}>Your Plan</h3>
-                <p style={s.cardText}>
-                  A personalized alignment plan calibrated to your design.
-                  Not generic advice — concrete actions, daily structure,
-                  and behavioral anchors built around who you actually are.
+              <div className="story-card story-card-green">
+                <span className="story-tag" style={{ color:'var(--green)' }}>Daily Ritual</span>
+                <h3 className="story-title">2-minute daily ritual</h3>
+                <p className="story-text">
+                  A short check-in. Real questions. Your alignment, tracked over time without ever
+                  feeling like a chore.
                 </p>
+                <div className="story-preview">
+                  <div className="mock-rating" aria-hidden="true">
+                    <div className="mock-rating-emoji"><span>😔</span></div>
+                    <div className="mock-rating-emoji"><span>😐</span></div>
+                    <div className="mock-rating-emoji"><span>🙂</span></div>
+                    <div className="mock-rating-emoji active"><span>😊</span></div>
+                    <div className="mock-rating-emoji"><span>✨</span></div>
+                  </div>
+                </div>
               </div>
             </Reveal>
 
             <Reveal delay={240}>
-              <div style={{...s.card, borderLeft:'4px solid var(--orange)'}} className="landing-card">
-                <div style={{...s.cardIcon, color:'var(--orange)', background:'var(--orange-light)'}}>⚡</div>
-                <h3 style={s.cardTitle}>Accountability</h3>
-                <p style={s.cardText}>
-                  Daily check-ins, weekly reviews, pattern detection, and
-                  a structure that keeps you honest with yourself. Because
-                  knowing is not enough — doing is what changes things.
+              <div className="story-card story-card-amber">
+                <span className="story-tag" style={{ color:'var(--orange)' }}>Patterns</span>
+                <h3 className="story-title">Patterns that guide you</h3>
+                <p className="story-text">
+                  Streaks, weekly reviews, and pattern detection that learns from you — not from
+                  some generic app's idea of progress.
                 </p>
+                <div className="story-preview">
+                  <div className="mock-streak">
+                    <div className="mock-streak-row">
+                      <span className="mock-streak-num">12</span>
+                      <span className="mock-streak-fire" aria-hidden="true">🔥</span>
+                    </div>
+                    <div className="mock-streak-dots">
+                      <div className="mock-streak-dot filled" />
+                      <div className="mock-streak-dot filled" />
+                      <div className="mock-streak-dot filled" />
+                      <div className="mock-streak-dot filled" />
+                      <div className="mock-streak-dot filled" />
+                      <div className="mock-streak-dot" />
+                      <div className="mock-streak-dot" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={360}>
+              <div className="story-card story-card-mixed">
+                <span className="story-tag" style={{ color:'var(--purple)' }}>Foundation</span>
+                <h3 className="story-title">Built on who you are</h3>
+                <p className="story-text">
+                  Three ancient systems, calculated from your birth data, woven into one
+                  contemporary profile you can actually use.
+                </p>
+                <div className="story-preview">
+                  <div className="mock-pillars">
+                    <span className="mock-pillar"><span className="mock-pillar-icon">◎</span> Human Design</span>
+                    <span className="mock-pillar"><span className="mock-pillar-icon">✦</span> Astrology</span>
+                    <span className="mock-pillar"><span className="mock-pillar-icon">⚡</span> Numerology</span>
+                  </div>
+                </div>
               </div>
             </Reveal>
 
           </div>
         </section>
 
-        {/* ── SECTION 3 — HOW IT WORKS (3 STEPS) ── */}
+        {/* ── TRUST SECTION ── */}
+        <section style={s.trust} className="trust-section">
+          <Reveal>
+            <div className="trust-banner">
+              <p className="trust-banner-title">
+                No subscription. No card. Your profile is free.
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="trust-indicators">
+              <div className="trust-indicator"><span className="trust-indicator-icon">🔒</span> Private &amp; secure</div>
+              <div className="trust-indicator"><span className="trust-indicator-icon">⚡</span> Ready in 2 minutes</div>
+              <div className="trust-indicator"><span className="trust-indicator-icon">🌍</span> 10 languages</div>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* ── HOW IT WORKS ── */}
         <section style={s.section}>
           <Reveal as="h2" style={s.sectionTitle}>How it works</Reveal>
           <div style={s.threeGrid}>
@@ -200,62 +249,77 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── SECTION 4 — TRANSPARENT PRICING ── */}
+        {/* ── PRICING (premium dark card + free card) ── */}
         <section style={s.pricingSection}>
           <Reveal as="h2" style={s.pricingTitle}>Clear pricing. No surprises.</Reveal>
-          <div style={s.pricingGrid}>
+          <Reveal as="p" style={s.sectionSub} delay={80}>
+            Start free. Upgrade only if it's worth it.
+          </Reveal>
 
+          <div style={s.pricingGrid}>
             <Reveal delay={0}>
-              <div style={s.priceCard} className="landing-card">
-                <span className="tag tag-purple" style={{marginBottom:'16px', display:'inline-block'}}>Profile</span>
-                <p style={s.priceAmount} className="gradient-text-warm">Free</p>
-                <p style={s.pricePeriod}>&nbsp;</p>
+              <div className="price-card-free landing-card">
+                <span className="tag tag-purple" style={{marginBottom:'18px', display:'inline-block'}}>Profile</span>
+                <p className="price-amount-free">Free</p>
+                <p style={{ fontSize:'13px', color:'var(--text-light)', marginTop:'4px' }}>Yours to keep</p>
                 <p style={s.priceDesc}>
-                  Your personal profile — Human Design, astrology, and numerology
-                  combined into one document. Includes your alignment plan. Yours to keep.
+                  Your full personal profile — Human Design, astrology, and numerology
+                  combined into one document. Includes your alignment plan.
                 </p>
-                <Link href="/onboarding" style={s.priceBtn}>
+                <Link href="/onboarding" style={s.priceBtnGhost} className="btn-lift">
                   Get Your Profile →
                 </Link>
               </div>
             </Reveal>
 
             <Reveal delay={140}>
-              <div style={{...s.priceCard, border:'2px solid var(--purple)'}} className="landing-card">
-                <span className="tag tag-orange" style={{marginBottom:'16px', display:'inline-block'}}>Full Path</span>
-                <div style={s.priceRow}>
-                  <p style={s.priceAmount} className="gradient-text-animated">€8</p>
-                  <p style={s.pricePeriod}>/month</p>
+              <div className="price-premium">
+                <span className="price-premium-tag">Full Path</span>
+                <div>
+                  <span className="price-premium-amount">€8</span>
+                  <span className="price-premium-period">/month</span>
                 </div>
-                <p style={s.priceAnnual}>or €80/year (save €16)</p>
-                <p style={s.priceDesc}>
-                  Everything in the profile, plus daily check-ins, weekly reviews,
-                  pattern detection, alignment tracking, and the full accountability system.
-                </p>
-                <Link href="/subscribe" style={{...s.priceBtn, background:'var(--purple)'}} className="btn-glow-pulse">
-                  Start Your Path →
+                <p className="price-premium-annual">or €80/year — 2 months free</p>
+
+                <div className="price-premium-features">
+                  {[
+                    "Everything in the free profile",
+                    "Daily 2-minute check-in ritual",
+                    "Weekly pattern detection & reviews",
+                    "Streaks, score, and gentle accountability",
+                    "Available in 10 languages",
+                  ].map((feat, i) => (
+                    <div key={i} className="price-feature">
+                      <span className="price-check">✓</span>
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Link href="/subscribe" className="cta-premium" style={{ background:'linear-gradient(135deg, #d4a574 0%, #f5d976 50%, #d4a574 100%)' }}>
+                  Start Your Path <span className="arrow" aria-hidden="true">→</span>
                 </Link>
+
+                <p style={{ marginTop:'18px', fontSize:'12px', color:'rgba(255,255,255,0.55)' }}>
+                  🛡 30-day money-back guarantee · Cancel anytime
+                </p>
               </div>
             </Reveal>
-
           </div>
-          <Reveal as="p" style={s.pricingNote} delay={200}>
-            <span style={{marginRight:'6px'}}>🛡</span>
-            No asterisks. No hidden fees. Cancel anytime. 30-day money-back guarantee.
-          </Reveal>
         </section>
 
-        {/* ── SECTION 5 — FINAL CTA ── */}
+        {/* ── FINAL CTA ── */}
         <section style={s.ctaSection}>
           <Reveal as="h2" style={s.ctaTitle}>
             The most honest relationship you will
             <br />
-            <span className="gradient-text-animated">ever have is the one with yourself.</span>
+            <span className="gradient-text-fast">ever have is the one with yourself.</span>
           </Reveal>
           <Reveal delay={150} style={{display:'inline-block'}}>
-            <Link href="/onboarding" style={s.heroCta} className="btn-glow-pulse">
-              Start Here →
+            <Link href="/onboarding" className="cta-premium cta-premium-large">
+              Start Here <span className="arrow" aria-hidden="true">→</span>
             </Link>
+            <span className="cta-subtext">Free. No card. 30 seconds.</span>
           </Reveal>
         </section>
 
@@ -272,59 +336,50 @@ export default function Home() {
 
 const s = {
   // Layout
-  wrap: { maxWidth:'960px', margin:'0 auto', padding:'0 24px' },
+  wrap: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px' },
 
   // Nav
-  nav: { position:'sticky', top:0, zIndex:100, background:'rgba(250,250,248,0.92)', backdropFilter:'blur(12px)', borderBottom:'1px solid var(--border)' },
-  navInner: { maxWidth:'960px', margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', alignItems:'center', height:'60px' },
-  logo: { fontSize:'18px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
-  navCta: { padding:'8px 20px', background:'var(--purple)', color:'#fff', borderRadius:'8px', fontSize:'14px', fontWeight:'500' },
+  nav: { position:'sticky', top:0, zIndex:100, background:'rgba(250,250,248,0.85)', backdropFilter:'blur(14px)', borderBottom:'1px solid rgba(232, 232, 240, 0.6)' },
+  navInner: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', alignItems:'center', height:'64px' },
+  logo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
+  navCta: { display:'inline-block', padding:'9px 22px', background:'var(--purple)', color:'#fff', borderRadius:'10px', fontSize:'14px', fontWeight:'600', boxShadow:'0 4px 14px rgba(124, 92, 191, 0.25)' },
 
-  // Hero
-  hero: { position:'relative', textAlign:'center', padding:'100px 0 80px', overflow:'hidden' },
+  // Hero — large, generous
+  hero: { position:'relative', textAlign:'center', padding:'clamp(80px, 14vw, 140px) 0 clamp(70px, 12vw, 110px)', overflow:'hidden' },
   heroInner: { position:'relative', zIndex:1 },
-  heroTitle: { fontSize:'clamp(40px, 7vw, 72px)', fontWeight:'600', color:'var(--text)', lineHeight:'1.1', marginBottom:'24px', letterSpacing:'-0.5px', fontFamily:'Cormorant Garamond, serif' },
-  heroSub: { fontSize:'18px', color:'var(--text-muted)', lineHeight:'1.75', maxWidth:'520px', margin:'0 auto 36px', fontWeight:'300' },
-  heroCta: { display:'inline-block', padding:'16px 36px', background:'var(--purple)', color:'#fff', borderRadius:'12px', fontSize:'17px', fontWeight:'500', boxShadow:'0 6px 30px rgba(124,92,191,0.3)' },
+  heroTitle: { fontSize:'clamp(44px, 8vw, 76px)', fontWeight:'600', color:'var(--text)', lineHeight:'1.05', marginBottom:'28px', letterSpacing:'-1px', fontFamily:'Cormorant Garamond, serif' },
+  heroSub: { fontSize:'clamp(16px, 2vw, 19px)', color:'var(--text-muted)', lineHeight:'1.7', maxWidth:'560px', margin:'0 auto 40px', fontWeight:'300' },
 
-  // Sections
-  section: { marginBottom:'80px' },
-  sectionTitle: { fontSize:'clamp(28px, 4vw, 42px)', fontWeight:'600', color:'var(--text)', marginBottom:'32px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.2', textAlign:'center' },
+  // Sections — generous vertical padding
+  section: { padding:'clamp(50px, 8vw, 90px) 0' },
+  sectionTitle: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', letterSpacing:'-0.4px', textAlign:'center' },
+  sectionSub: { fontSize:'17px', color:'var(--text-muted)', lineHeight:'1.65', maxWidth:'520px', margin:'0 auto', textAlign:'center', fontWeight:'300' },
 
-  // 3-column grid (responsive)
-  threeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'20px' },
+  // Trust
+  trust: { padding:'clamp(20px, 3vw, 40px) 0 clamp(40px, 6vw, 80px)' },
 
-  // Cards (Section 2)
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', padding:'28px', border:'1px solid var(--border)', boxShadow:'var(--shadow)' },
-  cardIcon: { display:'inline-flex', alignItems:'center', justifyContent:'center', width:'44px', height:'44px', borderRadius:'12px', fontSize:'20px', marginBottom:'16px' },
-  cardTitle: { fontSize:'18px', fontWeight:'600', color:'var(--text)', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
-  cardText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7' },
+  // 3-column grid
+  threeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'22px', marginTop:'40px' },
 
-  // Steps (Section 3)
-  stepCard: { background:'var(--surface)', borderRadius:'var(--radius)', padding:'28px', border:'1px solid var(--border)', boxShadow:'var(--shadow)' },
-  stepNum: { fontSize:'36px', fontWeight:'700', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px', display:'block' },
-  stepTitle: { fontSize:'17px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', fontFamily:'Cormorant Garamond, serif' },
+  // Steps
+  stepCard: { background:'var(--surface)', borderRadius:'20px', padding:'32px', border:'1px solid var(--border)', boxShadow:'var(--shadow)' },
+  stepNum: { fontSize:'42px', fontWeight:'700', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px', display:'block', lineHeight:1 },
+  stepTitle: { fontSize:'18px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', fontFamily:'Cormorant Garamond, serif' },
   stepText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7' },
 
-  // Pricing (Section 4)
-  pricingSection: { marginBottom:'80px' },
-  pricingTitle: { fontSize:'clamp(28px, 4vw, 42px)', fontWeight:'600', color:'var(--text)', marginBottom:'32px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.2', textAlign:'center' },
-  pricingGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:'20px', maxWidth:'680px', margin:'0 auto' },
-  priceCard: { background:'var(--surface)', borderRadius:'var(--radius)', padding:'clamp(20px, 4vw, 32px)', border:'1px solid var(--border)', boxShadow:'var(--shadow)', textAlign:'center' },
-  priceRow: { display:'flex', alignItems:'baseline', justifyContent:'center', gap:'4px' },
-  priceAmount: { fontSize:'56px', fontWeight:'700', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
-  pricePeriod: { fontSize:'16px', color:'var(--text-muted)', marginBottom:'4px' },
-  priceAnnual: { fontSize:'13px', color:'var(--green)', fontWeight:'500', marginBottom:'16px' },
-  priceDesc: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7', marginBottom:'24px', marginTop:'12px' },
-  priceBtn: { display:'inline-block', padding:'14px 28px', background:'var(--text)', color:'#fff', borderRadius:'10px', fontSize:'15px', fontWeight:'500' },
-  pricingNote: { textAlign:'center', fontSize:'13px', color:'var(--text-light)', marginTop:'20px' },
+  // Pricing
+  pricingSection: { padding:'clamp(60px, 10vw, 100px) 0', position:'relative' },
+  pricingTitle: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', marginBottom:'14px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', letterSpacing:'-0.4px', textAlign:'center' },
+  pricingGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:'24px', maxWidth:'780px', margin:'40px auto 0', alignItems:'stretch' },
+  priceDesc: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7', margin:'18px 0 26px' },
+  priceBtnGhost: { display:'inline-block', padding:'14px 30px', background:'var(--text)', color:'#fff', borderRadius:'12px', fontSize:'15px', fontWeight:'500', alignSelf:'center', marginTop:'auto' },
 
-  // Final CTA
-  ctaSection: { textAlign:'center', padding:'60px 0 40px' },
-  ctaTitle: { fontSize:'clamp(26px, 3.5vw, 40px)', fontWeight:'600', color:'var(--text)', marginBottom:'32px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.25' },
+  // Final CTA — generous
+  ctaSection: { textAlign:'center', padding:'clamp(60px, 10vw, 110px) 0 clamp(40px, 6vw, 70px)' },
+  ctaTitle: { fontSize:'clamp(28px, 4vw, 42px)', fontWeight:'600', color:'var(--text)', marginBottom:'40px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.2', letterSpacing:'-0.3px' },
 
   // Footer
-  footer: { borderTop:'1px solid var(--border)', padding:'40px 0', textAlign:'center', background:'linear-gradient(180deg, transparent 0%, rgba(124, 92, 191, 0.03) 100%)' },
-  footerLogo: { fontSize:'18px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', marginBottom:'6px', color:'var(--text)' },
+  footer: { borderTop:'1px solid var(--border)', padding:'48px 0', textAlign:'center', background:'linear-gradient(180deg, transparent 0%, rgba(124, 92, 191, 0.04) 100%)', marginTop:'40px' },
+  footerLogo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px', color:'var(--text)' },
   footerText: { fontSize:'13px', color:'var(--text-muted)' },
 }
