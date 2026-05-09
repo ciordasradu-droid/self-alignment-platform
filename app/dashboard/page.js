@@ -19,6 +19,15 @@ import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUn
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
+// 25 drifting "stars" — purely decorative, positioned via CSS :nth-child
+function CosmicStars() {
+  return (
+    <div className="cosmic-stars" aria-hidden="true">
+      {Array.from({ length: 25 }).map((_, i) => <span key={i} />)}
+    </div>
+  )
+}
+
 function PersonalYearBanner({ personalYear, lang }) {
   if (!personalYear) return null
   return (
@@ -319,6 +328,7 @@ function DashboardContent() {
   return (
     <>
       <div className="cosmic-bg" />
+      <CosmicStars />
       <main style={s.wrap} className="dashboard-cards-stagger">
 
         <div style={s.header}>

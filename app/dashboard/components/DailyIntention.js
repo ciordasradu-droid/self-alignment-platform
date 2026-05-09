@@ -23,8 +23,10 @@ export default function DailyIntention({ lang = "en", hdType = "Generator", onSe
   const handleSelect = (i) => { setSelected(i); if (onSelect) onSelect(i) }
   if (selected) return (
     <div style={s.card} className="anim-scale-in">
-      <p style={s.doneLabel}>{t.done}</p>
-      <p style={s.doneText}>{selected}</p>
+      <div className="intention-selected">
+        <p style={s.doneLabel}>{t.done}</p>
+        <p style={s.doneText}>{selected}</p>
+      </div>
     </div>
   )
   return (
@@ -33,7 +35,7 @@ export default function DailyIntention({ lang = "en", hdType = "Generator", onSe
       <p style={s.subtitle}>{t.subtitle}</p>
       <div style={s.options}>
         {rotated.map((opt, i) => (
-          <button key={i} onClick={() => handleSelect(opt)} style={s.optBtn} className="intention-btn">{opt}</button>
+          <button key={i} onClick={() => handleSelect(opt)} style={s.optBtn} className="intention-card">{opt}</button>
         ))}
       </div>
     </div>
@@ -43,8 +45,8 @@ const s = {
   card: { background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)", padding: "24px", marginBottom: "24px", boxShadow: "var(--shadow)" },
   title: { fontSize: "18px", fontWeight: "600", color: "var(--text)", fontFamily: "Cormorant Garamond, serif", marginBottom: "4px" },
   subtitle: { fontSize: "13px", color: "var(--text-muted)", marginBottom: "16px" },
-  options: { display: "flex", flexDirection: "column", gap: "10px" },
-  optBtn: { padding: "14px 20px", paddingLeft: "22px", borderRadius: "12px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "15px", textAlign: "left", cursor: "pointer", lineHeight: "1.4" },
-  doneLabel: { fontSize: "12px", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700", marginBottom: "10px", textAlign: "center" },
-  doneText: { fontSize: "20px", color: "var(--text)", textAlign: "center", fontStyle: "italic", fontFamily: "Cormorant Garamond, serif", lineHeight: "1.5", padding: "8px 12px", textShadow: "0 0 24px rgba(124, 92, 191, 0.18)" }
+  options: { display: "flex", flexDirection: "column", gap: "12px" },
+  optBtn: { padding: "16px 22px", borderRadius: "12px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "15px", textAlign: "left", cursor: "pointer", lineHeight: "1.4" },
+  doneLabel: { fontSize: "12px", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700", marginBottom: "14px", textAlign: "center" },
+  doneText: { fontSize: "24px", color: "var(--text)", textAlign: "center", fontStyle: "italic", fontFamily: "Cormorant Garamond, serif", lineHeight: "1.45", padding: "8px 12px", textShadow: "0 0 28px rgba(212, 165, 116, 0.35)" }
 }

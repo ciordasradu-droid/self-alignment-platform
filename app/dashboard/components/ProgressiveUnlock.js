@@ -121,7 +121,7 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
               {/* Timeline line */}
               <div style={s.timelineCol}>
                 <div
-                  className={unlocked ? 'unlock-dot-active' : ''}
+                  className={unlocked ? 'unlock-dot-active unlock-sparkle' : ''}
                   style={{
                     ...s.dot,
                     background: unlocked ? 'var(--purple)' : 'var(--border)',
@@ -129,10 +129,13 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
                   }}
                 />
                 {!isLast && (
-                  <div style={{
-                    ...s.line,
-                    background: unlocked ? 'var(--gradient-timeline)' : 'var(--border)',
-                  }} />
+                  <div
+                    className={unlocked ? 'unlock-line-flow' : ''}
+                    style={{
+                      ...s.line,
+                      background: unlocked ? 'var(--gradient-timeline)' : 'var(--border)',
+                    }}
+                  />
                 )}
               </div>
 

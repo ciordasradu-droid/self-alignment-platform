@@ -1,16 +1,16 @@
 "use client"
 
 const LABELS = {
-  en: { current: "Current streak", longest: "Longest streak", day1: "Good start. Come back tomorrow.", days2: " days in. Keep going.", days7: " days strong. Real momentum.", days30: " days. Remarkable consistency.", dayLetters: ["M","T","W","T","F","S","S"] },
-  ro: { current: "Streak actual", longest: "Cel mai lung streak", day1: "Bun inceput. Revino maine.", days2: " zile consecutive. Continua.", days7: " zile puternice. Impuls real.", days30: " zile. Consistenta remarcabila.", dayLetters: ["L","M","M","J","V","S","D"] },
-  es: { current: "Racha actual", longest: "Racha mas larga", day1: "Buen inicio. Vuelve manana.", days2: " dias. Sigue asi.", days7: " dias fuertes. Impulso real.", days30: " dias. Consistencia notable.", dayLetters: ["L","M","X","J","V","S","D"] },
-  fr: { current: "Serie actuelle", longest: "Plus longue serie", day1: "Bon debut. Reviens demain.", days2: " jours. Continue.", days7: " jours forts. Vrai elan.", days30: " jours. Consistance remarquable.", dayLetters: ["L","M","M","J","V","S","D"] },
-  de: { current: "Aktuelle Serie", longest: "Langste Serie", day1: "Guter Start. Komm morgen wieder.", days2: " Tage dran. Weiter so.", days7: " Tage stark. Echtes Momentum.", days30: " Tage. Bemerkenswerte Konsistenz.", dayLetters: ["M","D","M","D","F","S","S"] },
-  it: { current: "Serie attuale", longest: "Serie piu lunga", day1: "Buon inizio. Torna domani.", days2: " giorni. Continua cosi.", days7: " giorni forti. Vero slancio.", days30: " giorni. Consistenza notevole.", dayLetters: ["L","M","M","G","V","S","D"] },
-  pt: { current: "Sequencia atual", longest: "Maior sequencia", day1: "Bom inicio. Volta amanha.", days2: " dias. Continua.", days7: " dias fortes. Impulso real.", days30: " dias. Consistencia notavel.", dayLetters: ["S","T","Q","Q","S","S","D"] },
-  nl: { current: "Huidige reeks", longest: "Langste reeks", day1: "Goed begin. Kom morgen terug.", days2: " dagen. Ga zo door.", days7: " dagen sterk. Echt momentum.", days30: " dagen. Opmerkelijke consistentie.", dayLetters: ["M","D","W","D","V","Z","Z"] },
-  pl: { current: "Aktualna seria", longest: "Najdluzsza seria", day1: "Dobry poczatek. Wroc jutro.", days2: " dni. Tak trzymaj.", days7: " dni. Prawdziwy impet.", days30: " dni. Niezwykla konsekwencja.", dayLetters: ["P","W","S","C","P","S","N"] },
-  hu: { current: "Jelenlegi sorozat", longest: "Leghosszabb sorozat", day1: "Jo kezdes. Gyere vissza holnap.", days2: " nap. Folytasd.", days7: " nap erosen. Igazi lendület.", days30: " nap. Figyelemre melto kitartas.", dayLetters: ["H","K","Sz","Cs","P","Sz","V"] }
+  en: { current: "Current streak", longest: "Longest streak", day1: "The beginning is the hardest part.", days2: "Momentum is building.", days7: "A full week. Real consistency.", days30: "Remarkable. Keep going.", dayLetters: ["M","T","W","T","F","S","S"] },
+  ro: { current: "Streak actual", longest: "Cel mai lung streak", day1: "Începutul e cel mai greu.", days2: "Se construiește impulsul.", days7: "O săptămână completă!", days30: "Remarcabil. Continuă.", dayLetters: ["L","M","M","J","V","S","D"] },
+  es: { current: "Racha actual", longest: "Racha mas larga", day1: "El principio es lo mas dificil.", days2: "Se construye el impulso.", days7: "Una semana completa.", days30: "Notable. Sigue asi.", dayLetters: ["L","M","X","J","V","S","D"] },
+  fr: { current: "Serie actuelle", longest: "Plus longue serie", day1: "Le debut est le plus dur.", days2: "L elan se construit.", days7: "Une semaine complete.", days30: "Remarquable. Continue.", dayLetters: ["L","M","M","J","V","S","D"] },
+  de: { current: "Aktuelle Serie", longest: "Langste Serie", day1: "Der Anfang ist am schwersten.", days2: "Schwung baut sich auf.", days7: "Eine ganze Woche.", days30: "Bemerkenswert. Weiter so.", dayLetters: ["M","D","M","D","F","S","S"] },
+  it: { current: "Serie attuale", longest: "Serie piu lunga", day1: "L inizio e la parte piu dura.", days2: "Lo slancio si costruisce.", days7: "Una settimana intera.", days30: "Notevole. Continua.", dayLetters: ["L","M","M","G","V","S","D"] },
+  pt: { current: "Sequencia atual", longest: "Maior sequencia", day1: "O comeco e a parte mais dificil.", days2: "O impulso esta a crescer.", days7: "Uma semana inteira.", days30: "Notavel. Continua.", dayLetters: ["S","T","Q","Q","S","S","D"] },
+  nl: { current: "Huidige reeks", longest: "Langste reeks", day1: "Het begin is het moeilijkst.", days2: "Het momentum bouwt op.", days7: "Een hele week.", days30: "Opmerkelijk. Ga door.", dayLetters: ["M","D","W","D","V","Z","Z"] },
+  pl: { current: "Aktualna seria", longest: "Najdluzsza seria", day1: "Poczatek jest najtrudniejszy.", days2: "Impet sie buduje.", days7: "Caly tydzien.", days30: "Niezwykle. Tak trzymaj.", dayLetters: ["P","W","S","C","P","S","N"] },
+  hu: { current: "Jelenlegi sorozat", longest: "Leghosszabb sorozat", day1: "A kezdes a legnehezebb.", days2: "Epul a lendulet.", days7: "Egy egesz het.", days30: "Figyelemre melto. Folytasd.", dayLetters: ["H","K","Sz","Cs","P","Sz","V"] }
 }
 
 export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "en" }) {
@@ -19,10 +19,11 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
   const adjustedToday = today === 0 ? 6 : today - 1
 
   const getMessage = () => {
-    if (streak === 1) return t.day1
-    if (streak >= 2 && streak < 7) return streak + t.days2
-    if (streak >= 7 && streak < 30) return streak + t.days7
-    if (streak >= 30) return streak + t.days30
+    if (streak === 0) return ""
+    if (streak === 1) return `1 — ${t.day1}`
+    if (streak >= 2 && streak < 7) return `${streak} — ${t.days2}`
+    if (streak >= 7 && streak < 30) return `${streak} — ${t.days7}`
+    if (streak >= 30) return `${streak} — ${t.days30}`
     return ""
   }
 
@@ -30,11 +31,9 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
     <div style={styles.card} className="anim-fade-in">
       <div style={styles.row}>
         <div style={styles.stat}>
-          <p
-            style={styles.streakNum}
-            className={streak > 0 ? "gradient-text-amber streak-active" : ""}
-          >
-            {streak}
+          <p style={styles.streakNum}>
+            {streak > 0 && <span className="streak-fire" aria-hidden="true">🔥</span>}
+            <span className={streak > 0 ? "gradient-text-amber" : ""}>{streak}</span>
           </p>
           <p style={styles.streakLabel}>{t.current}</p>
         </div>
@@ -48,6 +47,7 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
           const filled = i <= adjustedToday
           const isToday = i === adjustedToday
           const cls = [
+            filled ? `day-dot-fill day-fill-${i + 1}` : "",
             filled ? "day-dot-active" : "",
             isToday ? "day-dot-today" : ""
           ].filter(Boolean).join(" ")
@@ -74,9 +74,9 @@ const styles = {
   card: { background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)", padding: "24px", marginBottom: "24px", boxShadow: "var(--shadow)" },
   row: { display: "flex", gap: "24px", marginBottom: "20px" },
   stat: { flex: 1, textAlign: "center" },
-  streakNum: { fontSize: "36px", fontWeight: "600", color: "var(--text)", fontFamily: "Cormorant Garamond, serif" },
-  streakLabel: { fontSize: "13px", color: "var(--text-muted)", marginTop: "4px" },
+  streakNum: { fontSize: "40px", fontWeight: "600", color: "var(--text)", fontFamily: "Cormorant Garamond, serif", lineHeight: 1.1, display: "inline-flex", alignItems: "center", gap: "4px" },
+  streakLabel: { fontSize: "13px", color: "var(--text-muted)", marginTop: "6px" },
   weekRow: { display: "flex", justifyContent: "space-between", marginBottom: "16px" },
   dayDot: { width: "36px", height: "36px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" },
-  message: { fontSize: "14px", color: "var(--text-muted)", textAlign: "center" }
+  message: { fontSize: "14px", color: "var(--text-muted)", textAlign: "center", fontStyle: "italic" }
 }

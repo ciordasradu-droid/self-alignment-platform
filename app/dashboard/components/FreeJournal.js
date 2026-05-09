@@ -74,9 +74,17 @@ export default function FreeJournal({ lang = 'en' }) {
             placeholder={t.placeholder}
             rows={8}
             style={s.textarea}
+            className="journal-paper"
           />
           <div style={s.actions}>
-            <button onClick={handleSave} style={s.saveBtn}>
+            <button
+              onClick={handleSave}
+              style={{
+                ...s.saveBtn,
+                background: saved ? 'var(--green)' : 'var(--purple)'
+              }}
+              className={`journal-save-btn${saved ? ' saved' : ''}`}
+            >
               {saved ? `✓ ${t.saved}` : t.save}
             </button>
           </div>

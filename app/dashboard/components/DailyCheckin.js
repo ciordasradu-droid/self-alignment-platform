@@ -3,6 +3,23 @@
 import { useState, useEffect } from "react"
 import { getDailyCheckinQuestions } from "../../../lib/checkinQuestions"
 
+const RATING_EMOJI = ["😔", "😐", "🙂", "😊", "✨"]
+
+const CONFETTI = [
+  { left: 14, color: 'var(--amber)',  tx: -65, ty: -92,  rot: 22,  delay: 150 },
+  { left: 18, color: 'var(--purple)', tx: -45, ty: -110, rot: -30, delay: 0 },
+  { left: 22, color: 'var(--green)',  tx: -55, ty: -100, rot: 50,  delay: 130 },
+  { left: 28, color: 'var(--amber)',  tx: -25, ty: -130, rot: 15,  delay: 60 },
+  { left: 38, color: 'var(--green)',  tx: -10, ty: -120, rot: -20, delay: 30 },
+  { left: 48, color: 'var(--purple)', tx: 5,   ty: -140, rot: 40,  delay: 80 },
+  { left: 52, color: 'var(--amber)',  tx: -5,  ty: -135, rot: -45, delay: 110 },
+  { left: 58, color: 'var(--green)',  tx: 15,  ty: -125, rot: 25,  delay: 50 },
+  { left: 66, color: 'var(--purple)', tx: 30,  ty: -110, rot: -15, delay: 90 },
+  { left: 76, color: 'var(--amber)',  tx: 45,  ty: -130, rot: 35,  delay: 40 },
+  { left: 82, color: 'var(--purple)', tx: 55,  ty: -100, rot: -50, delay: 100 },
+  { left: 88, color: 'var(--green)',  tx: 65,  ty: -90,  rot: -25, delay: 70 },
+]
+
 const LABELS = {
   en: {
     title: "Daily Check-in",
@@ -14,6 +31,7 @@ const LABELS = {
     saving: "Saving...",
     done: "Check-in complete.",
     tomorrow: "Come back tomorrow.",
+    celebrate: "You checked in. That matters.",
     anchor_low: "Not at all",
     anchor_high: "Completely"
   },
@@ -27,6 +45,7 @@ const LABELS = {
     saving: "Se salvează...",
     done: "Check-in complet.",
     tomorrow: "Revino mâine.",
+    celebrate: "Ai făcut check-in. Asta contează.",
     anchor_low: "Deloc",
     anchor_high: "Total"
   },
@@ -141,6 +160,7 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
   const [answers, setAnswers] = useState({})
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(checkinDone)
+  const [justSubmitted, setJustSubmitted] = useState(false)
   const [lang, setLang] = useState("en")
 
   useEffect(() => {
@@ -180,6 +200,8 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
 
     try {
       setSubmitted(true)
+      setJustSubmitted(true)
+      setTimeout(() => setJustSubmitted(false), 1800)
       onComplete(alignmentScore, answers)
     } catch (err) {
       console.error(err)
@@ -190,12 +212,34 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
 
   if (submitted) {
     return (
-      <div style={styles.card} className="anim-scale-in">
-        <div style={styles.doneBox}>
-          <div className="checkmark-celebrate anim-check-in" aria-hidden="true">✓</div>
-          <p style={styles.doneText}>{t.done}</p>
-          <p style={styles.doneSubtext}>{t.tomorrow}</p>
-        </div>
+      <div
+        style={styles.card}
+        className={`celebrate-wrap anim-scale-in${justSubmitted ? " celebrate-glow" : ""}`}
+      >
+        {justSubmitted && (
+          <div className="confetti-layer" aria-hidden="true">
+            {CONFETTI.map((c, i) => (
+              <span
+                key={i}
+                className="confetti-particle"
+                style={{
+                  left: `${c.left}%`,
+                  background: c.color,
+                  animationDelay: `${c.delay}ms`,
+                  '--tx': `${c.tx}px`,
+                  '--ty': `${c.ty}px`,
+                  '--rot': `${c.rot}deg`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+        <svg className="check-svg" width="68" height="68" viewBox="0 0 24 24" aria-hidden="true">
+          <circle className="check-circle-bg" cx="12" cy="12" r="11" />
+          <path className="check-path" d="M7 12.5 L10.5 16 L17 9" />
+        </svg>
+        <p style={styles.celebrateText}>{t.celebrate}</p>
+        <p style={styles.doneSubtext}>{t.tomorrow}</p>
       </div>
     )
   }
@@ -218,10 +262,6 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
       {questions.map((q) => {
         const cat = categoryMeta[q.category] || categoryMeta.mirroring
         const catLabel = t[q.category] || q.category
-        const colorClass = cat.color === "var(--purple)" ? "rating-btn-purple"
-          : cat.color === "var(--green)" ? "rating-btn-green"
-          : cat.color === "var(--orange)" ? "rating-btn-orange"
-          : ""
         return (
           <div key={q.id} style={styles.questionBlock}>
             <div style={styles.categoryRow}>
@@ -229,32 +269,21 @@ export default function DailyCheckin({ onComplete, checkinDone }) {
               <span style={{ ...styles.categoryLabel, color: cat.color }}>{catLabel}</span>
             </div>
             <p style={styles.questionText}>{q.question}</p>
-            <div style={styles.scaleWrap}>
-              <div style={styles.anchorRow}>
-                <span style={styles.anchorLabel}>{t.anchor_low}</span>
-                <span style={styles.anchorLabel}>{t.anchor_high}</span>
-              </div>
-              <div style={styles.ratingRow}>
-                {[1, 2, 3, 4, 5].map((val) => {
-                  const selected = answers[q.id] === val
-                  return (
-                    <button
-                      key={val}
-                      onClick={() => handleAnswer(q.id, val)}
-                      className={`rating-btn ${colorClass} ${selected ? "anim-pulse-once" : ""}`}
-                      style={{
-                        ...styles.ratingBtn,
-                        background: selected ? cat.color : "var(--bg)",
-                        color: selected ? "#fff" : "var(--text)",
-                        borderColor: selected ? cat.color : "var(--border)",
-                        boxShadow: selected ? `0 0 18px ${cat.color === "var(--purple)" ? "var(--purple-glow-soft)" : cat.color === "var(--green)" ? "var(--green-glow-soft)" : "var(--orange-glow-soft)"}` : "none"
-                      }}
-                    >
-                      {val}
-                    </button>
-                  )
-                })}
-              </div>
+            <div className="rating-slider">
+              {[1, 2, 3, 4, 5].map((val) => {
+                const selected = answers[q.id] === val
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => handleAnswer(q.id, val)}
+                    className={`rating-emoji rating-emoji-${val}${selected ? " selected" : ""}`}
+                    aria-label={`${val}`}
+                  >
+                    <span aria-hidden="true">{RATING_EMOJI[val - 1]}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )
@@ -292,5 +321,6 @@ const styles = {
   submitButton: { width: "100%", padding: "15px", color: "#fff", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "500", boxShadow: "0 4px 20px rgba(124,92,191,0.3)" },
   doneBox: { textAlign: "center", padding: "24px 0" },
   doneText: { fontSize: "18px", fontWeight: "600", marginBottom: "8px", color: "var(--text)" },
-  doneSubtext: { fontSize: "14px", color: "var(--text-muted)" }
+  doneSubtext: { fontSize: "14px", color: "var(--text-muted)" },
+  celebrateText: { fontSize: "20px", fontWeight: 600, color: "var(--text)", fontFamily: "Cormorant Garamond, serif", marginBottom: "8px", lineHeight: 1.4 }
 }

@@ -13,6 +13,11 @@ const LABELS = {
   hu: { title: "Igazodasi pontszam", strong: "Eros igazodas", moderate: "Mersekeltigazodas", low: "Alacsony igazodas", based: "Az utolso 7 check-in alapjan" }
 }
 
+const SIZE = 180
+const STROKE = 8
+const RADIUS = (SIZE - STROKE) / 2
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS
+
 export default function AlignmentScore({ score = 0, lang = "en" }) {
   const t = LABELS[lang] || LABELS.en
 
@@ -22,12 +27,35 @@ export default function AlignmentScore({ score = 0, lang = "en" }) {
     return t.low
   }
 
+  const clamped = Math.max(0, Math.min(100, score))
+  const dashoffset = CIRCUMFERENCE * (1 - clamped / 100)
+
   return (
     <div style={styles.card} className="anim-fade-in">
       <h2 style={styles.cardTitle}>{t.title}</h2>
-      <div style={styles.scoreWrap}>
-        <p style={styles.scoreNum} className="gradient-text-warm">{score}</p>
-        <p style={styles.scoreMax}>/100</p>
+      <div className="score-ring-wrap">
+        <svg className="score-ring-svg" width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
+          <defs>
+            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7C5CBF" />
+              <stop offset="50%" stopColor="#d4a574" />
+              <stop offset="100%" stopColor="#E8824A" />
+            </linearGradient>
+          </defs>
+          <circle className="score-ring-track" cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} />
+          <circle
+            className="score-ring-progress"
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
+            strokeDasharray={CIRCUMFERENCE}
+            strokeDashoffset={dashoffset}
+          />
+        </svg>
+        <div className="score-ring-center">
+          <span className="score-number">{score}</span>
+          <span className="score-of-100">/100</span>
+        </div>
       </div>
       <p style={styles.scoreLabel}>{getLabel()}</p>
       <p style={styles.scoreSubtext}>{t.based}</p>
@@ -37,10 +65,7 @@ export default function AlignmentScore({ score = 0, lang = "en" }) {
 
 const styles = {
   card: { background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)", padding: "24px", marginBottom: "24px", textAlign: "center", boxShadow: "var(--shadow)" },
-  cardTitle: { fontSize: "16px", fontWeight: "600", color: "var(--text)", marginBottom: "16px" },
-  scoreWrap: { display: "flex", alignItems: "baseline", justifyContent: "center", gap: "4px" },
-  scoreNum: { fontSize: "48px", fontWeight: "600", color: "var(--text)", fontFamily: "Cormorant Garamond, serif" },
-  scoreMax: { fontSize: "18px", color: "var(--text-muted)" },
+  cardTitle: { fontSize: "16px", fontWeight: "600", color: "var(--text)", marginBottom: "8px" },
   scoreLabel: { fontSize: "15px", fontWeight: "500", color: "var(--purple)", marginTop: "8px" },
   scoreSubtext: { fontSize: "13px", color: "var(--text-muted)", marginTop: "4px" }
 }
