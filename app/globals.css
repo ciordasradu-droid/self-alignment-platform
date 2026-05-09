@@ -905,6 +905,83 @@ input:focus, textarea:focus, select:focus {
 .cosmic-stars span:nth-child(25) { top: 82%; left: 58%; animation-duration: 28s; animation-delay: 19s; background: var(--purple); }
 
 /* ============================================================
+   LANDING PAGE — animated gradient title, CTA glow, reveal-on-scroll
+   ============================================================ */
+
+/* Animated gradient text — slow purple → amber → purple shift (8s cycle) */
+.gradient-text-animated {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 50%, var(--purple) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradient-flow 8s ease-in-out infinite;
+}
+
+/* CTA button warm glow pulse — draws attention without flashing */
+@keyframes btn-glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 6px 30px rgba(124, 92, 191, 0.30),
+      0 0 0 0 rgba(124, 92, 191, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 6px 30px rgba(124, 92, 191, 0.45),
+      0 0 0 10px rgba(124, 92, 191, 0);
+  }
+}
+.btn-glow-pulse {
+  animation: btn-glow-pulse 2.6s var(--ease-soft) infinite;
+  transition: transform 0.18s var(--ease-out);
+}
+.btn-glow-pulse:hover { transform: translateY(-2px); }
+.btn-glow-pulse:active { transform: translateY(0) scale(0.98); }
+
+/* IntersectionObserver-driven reveal (used on landing) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  will-change: opacity, transform;
+}
+.reveal-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mandala on light backgrounds (the existing .mandala-bg uses screen blend for dark cards) */
+.mandala-bg-light {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.06;
+}
+
+/* Landing card hover — color-themed left accent stays static (set via inline style),
+   shadow warms on hover */
+.landing-card {
+  transition: transform 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out);
+  will-change: transform;
+}
+.landing-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 6px 18px rgba(124, 92, 191, 0.10),
+    0 18px 40px rgba(124, 92, 191, 0.14);
+}
+
+/* City suggestions dropdown polish (onboarding) */
+.city-suggestion {
+  transition: background-color 0.18s ease, color 0.18s ease, padding-left 0.22s var(--ease-out);
+}
+.city-suggestion:hover {
+  background: var(--purple-light) !important;
+  color: var(--purple);
+  padding-left: 22px !important;
+}
+
+/* ============================================================
    PROGRESSIVE UNLOCK — flowing gradient line + sparkle
    ============================================================ */
 

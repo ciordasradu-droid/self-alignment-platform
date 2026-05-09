@@ -113,7 +113,7 @@ export default function Onboarding() {
           <span className="tag tag-purple">Free Profile</span>
         </div>
 
-        <div style={s.card}>
+        <div style={s.card} className="anim-fade-in">
           <div style={s.cardHeader}>
             <h1 style={s.title}>{t(lang, 'onboarding_title')}</h1>
             <p style={s.subtitle}>{t(lang, 'onboarding_subtitle')}</p>
@@ -213,9 +213,9 @@ export default function Onboarding() {
               />
               <p style={s.hint}>{t(lang, 'city_hint')}</p>
               {showSuggestions && citySuggestions.length > 0 && (
-                <div style={s.suggestions}>
+                <div style={s.suggestions} className="anim-fade-in">
                   {citySuggestions.map((place, i) => (
-                    <div key={i} onMouseDown={() => handleCitySelect(place)} style={s.suggestion}>
+                    <div key={i} onMouseDown={() => handleCitySelect(place)} style={s.suggestion} className="city-suggestion">
                       <span style={s.suggestionIcon}>◦</span>
                       <span style={s.suggestionText}>{place.display_name}</span>
                     </div>
@@ -232,6 +232,7 @@ export default function Onboarding() {
             <button
               onClick={handleSubmit}
               disabled={loading}
+              className={loading ? '' : 'btn-glow-pulse'}
               style={{
                 ...s.btn,
                 background: loading ? '#ccc' : 'var(--purple)',
