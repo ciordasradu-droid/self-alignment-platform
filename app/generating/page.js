@@ -5,22 +5,38 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
+// Localized "still working" messages shown when a request hits the 180s timeout
+const TIMEOUT_MESSAGES = {
+  en: 'Taking longer than usual. Please wait...',
+  ro: 'Durează mai mult decât de obicei. Te rugăm să aștepți...'
+}
+
 // Safe fetch: guards against HTML error pages (504, 502, etc.) returned as non-JSON
-async function safeFetch(url, options) {
-  const response = await fetch(url, options)
-  const contentType = response.headers.get('content-type') || ''
+// Adds a 180s AbortController timeout to survive long server-side generations
+// without being killed by mobile browser default timeouts (~60-90s).
+async function safeFetch(url, options, timeoutMs = 180000) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal })
+    clearTimeout(timeoutId)
+    const contentType = response.headers.get('content-type') || ''
 
-  if (!response.ok || !contentType.includes('application/json')) {
-    // Vercel returned an HTML error page — extract status for a useful message
-    throw new Error(
-      `Request to ${url} failed (HTTP ${response.status}). ` +
-      (response.status === 504 ? 'The server took too long to respond. Please try again.' :
-       response.status === 502 ? 'Bad gateway. Please try again in a moment.' :
-       'Unexpected server error. Please try again.')
-    )
+    if (!response.ok || !contentType.includes('application/json')) {
+      // Vercel returned an HTML error page — extract status for a useful message
+      throw new Error(
+        `Request to ${url} failed (HTTP ${response.status}). ` +
+        (response.status === 504 ? 'The server took too long to respond. Please try again.' :
+         response.status === 502 ? 'Bad gateway. Please try again in a moment.' :
+         'Unexpected server error. Please try again.')
+      )
+    }
+
+    return response.json()
+  } catch (err) {
+    clearTimeout(timeoutId)
+    throw err
   }
-
-  return response.json()
 }
 
 function GeneratingContent() {
@@ -129,6 +145,11 @@ function GeneratingContent() {
       router.push('/profile')
 
     } catch (err) {
+      if (err.name === 'AbortError') {
+        const language = formData.language || 'en'
+        setError(TIMEOUT_MESSAGES[language] || TIMEOUT_MESSAGES.en)
+        return
+      }
       setError('Error: ' + err.message)
     }
   }

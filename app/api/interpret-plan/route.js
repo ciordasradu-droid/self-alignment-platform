@@ -20,19 +20,50 @@ async function callClaude(prompt, language = 'en', maxTokens = 4000) {
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}. No English words, no code-switching.`
     : ''
-  const message = await anthropic.messages.create({
+
+  const params = {
     model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
-    messages: [{ role: 'user', content: prompt + languageInstruction }]
-  })
+    messages: [{ role: 'user', content: prompt + languageInstruction }],
+    stream: true
+  }
 
-  if (message.stop_reason === 'max_tokens') {
+  async function streamAndCollect() {
+    const stream = await anthropic.messages.create(params)
+    let fullText = ''
+    let stopReason = null
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+        fullText += event.delta.text
+      } else if (event.type === 'message_delta' && event.delta?.stop_reason) {
+        stopReason = event.delta.stop_reason
+      }
+    }
+    return { fullText, stopReason }
+  }
+
+  let result
+  try {
+    result = await streamAndCollect()
+  } catch (err) {
+    const status = err?.status
+    if (status === 529 || (typeof status === 'number' && status >= 500 && status < 600)) {
+      console.warn(`[interpret-plan] Anthropic ${status}, retrying once after 2s...`)
+      await new Promise(r => setTimeout(r, 2000))
+      result = await streamAndCollect()
+    } else {
+      throw err
+    }
+  }
+
+  const { fullText, stopReason } = result
+  if (!fullText) throw new Error('No text response from Claude')
+
+  if (stopReason === 'max_tokens') {
     console.warn(`[interpret-plan] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
   }
 
-  const textBlock = message.content.find(block => block.type === 'text')
-  if (!textBlock || !textBlock.text) throw new Error('No text response from Claude')
-  const clean = textBlock.text.trim()
+  const clean = fullText.trim()
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/\s*```$/i, '')
