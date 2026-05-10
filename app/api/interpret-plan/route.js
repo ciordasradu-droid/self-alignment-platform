@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildAlignmentPlanPrompt, buildActionPlanPrompt } from '../../../lib/prompts/profile'
@@ -71,31 +71,82 @@ async function callClaude(prompt, language = 'en', maxTokens = 4000) {
   return JSON.parse(jsonrepair(clean))
 }
 
+// POST: kick off plan generation in the background via after(), return immediately.
+// Client polls GET ?id=... to discover when alignment_plan is populated.
 export async function POST(request) {
   try {
     const body = await request.json()
     const { interpreted_profile_id, calculated_data, sections, swot, language = 'en' } = body
 
-    const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
-    const alignmentPlan = await callClaude(planPrompt, language, 4000)
-
-    let actionPlan = []
-    try {
-      const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
-      const actionPlanRaw = await callClaude(actionPlanPrompt, language, 3000)
-      actionPlan = actionPlanRaw.practices || []
-    } catch (e) {
-      console.error('Action plan failed (non-fatal):', e.message)
+    if (!interpreted_profile_id) {
+      return NextResponse.json({ error: 'interpreted_profile_id required' }, { status: 400 })
     }
 
-    await supabase
-      .from('interpreted_profiles')
-      .update({ alignment_plan: alignmentPlan, action_plan: actionPlan })
-      .eq('id', interpreted_profile_id)
+    after(async () => {
+      try {
+        const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
+        const alignmentPlan = await callClaude(planPrompt, language, 4000)
 
-    return NextResponse.json({ success: true, alignment_plan: alignmentPlan, action_plan: actionPlan })
+        let actionPlan = []
+        try {
+          const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
+          const actionPlanRaw = await callClaude(actionPlanPrompt, language, 3000)
+          actionPlan = actionPlanRaw.practices || []
+        } catch (e) {
+          console.error('Action plan failed (non-fatal):', e.message)
+        }
+
+        await supabase
+          .from('interpreted_profiles')
+          .update({ alignment_plan: alignmentPlan, action_plan: actionPlan })
+          .eq('id', interpreted_profile_id)
+      } catch (err) {
+        console.error('[interpret-plan] background error:', err.message)
+        // Sentinel: GET treats alignment_plan.__error__ as a failed run
+        await supabase
+          .from('interpreted_profiles')
+          .update({ alignment_plan: { __error__: err.message || 'Unknown error' }, action_plan: [] })
+          .eq('id', interpreted_profile_id)
+      }
+    })
+
+    return NextResponse.json({ success: true, interpreted_profile_id })
   } catch (err) {
-    console.error('Interpret-plan error:', err.message)
+    console.error('Interpret-plan POST error:', err.message)
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
+}
+
+// GET: poll endpoint. Returns { status: 'pending' | 'complete' | 'failed' }
+// plus alignment_plan/action_plan when complete.
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+    const { data, error } = await supabase
+      .from('interpreted_profiles')
+      .select('alignment_plan, action_plan')
+      .eq('id', id)
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+
+    if (!data.alignment_plan) {
+      return NextResponse.json({ status: 'pending' })
+    }
+    if (data.alignment_plan.__error__) {
+      return NextResponse.json({ status: 'failed', error: data.alignment_plan.__error__ })
+    }
+    return NextResponse.json({
+      status: 'complete',
+      success: true,
+      alignment_plan: data.alignment_plan,
+      action_plan: data.action_plan || []
+    })
+  } catch (err) {
+    console.error('Interpret-plan GET error:', err.message)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

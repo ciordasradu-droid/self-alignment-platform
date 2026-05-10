@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -87,55 +87,106 @@ async function callClaude(prompt, language = 'en', maxTokens = 6000) {
   }
 }
 
+// POST: insert pending row, kick off Claude work in the background via after(),
+// return the id immediately. The client polls GET ?id=... to discover completion.
+// This avoids holding a long-lived browser→server connection that mobile networks drop.
 export async function POST(request) {
   try {
     const body = await request.json()
     const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
 
-    const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
-    const sections = await callClaude(profilePrompt, language, 10000)
-
-    const swot = {
-      strengths: sections.strengths?.slice(0, 4) || [],
-      weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
-      opportunities: sections.opportunities || [],
-      threats: sections.sabotage_tendencies?.slice(0, 4) || []
-    }
-
-    const { data, error } = await supabase
+    const { data: row, error: insertErr } = await supabase
       .from('interpreted_profiles')
       .insert([{
         calculated_profile_id: calculated_profile_id || null,
         user_id: user_id || null,
-        sections,
-        swot,
+        sections: null,
+        swot: null,
         alignment_plan: null,
         action_plan: null,
         prompt_version: 'v3',
         language
       }])
       .select()
+      .single()
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (insertErr) {
+      console.error('Supabase insert error:', insertErr)
+      return NextResponse.json({ error: insertErr.message }, { status: 500 })
     }
+
+    const interpretedProfileId = row.id
+
+    after(async () => {
+      try {
+        const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
+        const sections = await callClaude(profilePrompt, language, 10000)
+
+        const swot = {
+          strengths: sections.strengths?.slice(0, 4) || [],
+          weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
+          opportunities: sections.opportunities || [],
+          threats: sections.sabotage_tendencies?.slice(0, 4) || []
+        }
+
+        await supabase
+          .from('interpreted_profiles')
+          .update({ sections, swot })
+          .eq('id', interpretedProfileId)
+      } catch (err) {
+        const message = err instanceof TruncationError
+          ? 'Profile generation was too long, please try again'
+          : (err?.message || 'Unknown error')
+        console.error('[interpret] background error:', message)
+        // Sentinel: GET treats sections.__error__ as a failed run
+        await supabase
+          .from('interpreted_profiles')
+          .update({ sections: { __error__: message } })
+          .eq('id', interpretedProfileId)
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      interpreted_profile_id: data[0].id,
-      sections,
-      swot
+      interpreted_profile_id: interpretedProfileId
     })
   } catch (err) {
-    if (err instanceof TruncationError) {
-      console.error('Interpret truncation:', err.message)
-      return NextResponse.json(
-        { error: 'Profile generation was too long, please try again' },
-        { status: 502 }
-      )
+    console.error('Interpret POST error:', err.message)
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
+}
+
+// GET: poll endpoint. Returns { status: 'pending' | 'complete' | 'failed' }
+// plus sections/swot when complete or error message when failed.
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+    const { data, error } = await supabase
+      .from('interpreted_profiles')
+      .select('id, sections, swot')
+      .eq('id', id)
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+
+    if (!data.sections) {
+      return NextResponse.json({ status: 'pending' })
     }
-    console.error('Interpret error:', err.message)
+    if (data.sections.__error__) {
+      return NextResponse.json({ status: 'failed', error: data.sections.__error__ })
+    }
+    return NextResponse.json({
+      status: 'complete',
+      success: true,
+      interpreted_profile_id: data.id,
+      sections: data.sections,
+      swot: data.swot
+    })
+  } catch (err) {
+    console.error('Interpret GET error:', err.message)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

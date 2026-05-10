@@ -11,12 +11,8 @@ const TIMEOUT_MESSAGES = {
   ro: 'Durează mai mult decât de obicei. Te rugăm să aștepți...'
 }
 
-// Safe fetch: guards against HTML error pages (504, 502, etc.) returned as non-JSON.
-// 300s AbortController timeout — matches the server's maxDuration (300s) so the client
-// won't kill a request that the server is still legitimately processing. Server-side
-// streaming on the Anthropic call (in interpret/interpret-plan routes) keeps bytes
-// flowing during long generations so mobile browsers don't drop the connection.
-async function safeFetch(url, options, timeoutMs = 300000) {
+// Safe fetch for short request/response calls. Guards against HTML error pages.
+async function safeFetch(url, options, timeoutMs = 30000) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
   try {
@@ -25,7 +21,6 @@ async function safeFetch(url, options, timeoutMs = 300000) {
     const contentType = response.headers.get('content-type') || ''
 
     if (!response.ok || !contentType.includes('application/json')) {
-      // Vercel returned an HTML error page — extract status for a useful message
       throw new Error(
         `Request to ${url} failed (HTTP ${response.status}). ` +
         (response.status === 504 ? 'The server took too long to respond. Please try again.' :
@@ -39,6 +34,28 @@ async function safeFetch(url, options, timeoutMs = 300000) {
     clearTimeout(timeoutId)
     throw err
   }
+}
+
+// Poll a status endpoint every intervalMs until status !== 'pending' or maxMs elapses.
+// Mobile-friendly: each poll is a short request, so backgrounded tabs and flaky
+// connections recover naturally on the next interval instead of dying mid-stream.
+async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}) {
+  const start = Date.now()
+  while (Date.now() - start < maxMs) {
+    let data
+    try {
+      const res = await fetch(url, { cache: 'no-store' })
+      data = await res.json()
+    } catch (e) {
+      // Transient network error — wait and retry within the overall budget
+      await new Promise(r => setTimeout(r, intervalMs))
+      continue
+    }
+    if (data.status === 'complete') return data
+    if (data.status === 'failed') throw new Error(data.error || 'Generation failed')
+    await new Promise(r => setTimeout(r, intervalMs))
+  }
+  throw new Error('Generation timed out')
 }
 
 function GeneratingContent() {
@@ -95,8 +112,8 @@ function GeneratingContent() {
         return
       }
 
-      // Step 2 — generate profile + self perspective (~25s)
-      const interpretData = await safeFetch('/api/interpret', {
+      // Step 2 — start interpret (returns id immediately), then poll until complete
+      const startInterpret = await safeFetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,26 +124,35 @@ function GeneratingContent() {
           language
         })
       })
-      if (!interpretData.success) {
-        setError('Interpretation failed: ' + (interpretData.error || 'unknown error'))
+      if (!startInterpret.success) {
+        setError('Interpretation failed: ' + (startInterpret.error || 'unknown error'))
         return
       }
+      const interpretedProfileId = startInterpret.interpreted_profile_id
 
-      // Step 3 — generate alignment plan + action plan (~40-50s)
-      // plan is non-fatal — continue even if it fails
+      const interpretData = await pollUntilComplete(
+        `/api/interpret?id=${interpretedProfileId}`,
+        { intervalMs: 3000, maxMs: 240000 }
+      )
+
+      // Step 3 — start plan, then poll. Plan is non-fatal.
       let planData = {}
       try {
-        planData = await safeFetch('/api/interpret-plan', {
+        await safeFetch('/api/interpret-plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            interpreted_profile_id: interpretData.interpreted_profile_id,
+            interpreted_profile_id: interpretedProfileId,
             calculated_data: calcData.data,
             sections: interpretData.sections,
             swot: interpretData.swot,
             language
           })
         })
+        planData = await pollUntilComplete(
+          `/api/interpret-plan?id=${interpretedProfileId}`,
+          { intervalMs: 3000, maxMs: 240000 }
+        )
       } catch (planErr) {
         console.warn('interpret-plan failed (non-fatal):', planErr.message)
       }
@@ -139,7 +165,7 @@ function GeneratingContent() {
         action_plan: planData.action_plan || [],
         personal_year: calcData.data.numerology.personal_year,
         hd_data: calcData.data.human_design,
-        interpreted_profile_id: interpretData.interpreted_profile_id,
+        interpreted_profile_id: interpretedProfileId,
         language
       }
 
