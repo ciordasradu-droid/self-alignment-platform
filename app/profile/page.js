@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
@@ -36,34 +36,34 @@ const COMMITMENTS = {
     "I commit to honest self-observation, even when it's uncomfortable."
   ],
   ro: [
-    "Îmi asum responsabilitatea deplină pentru alegerile și consecințele mele.",
-    "Voi folosi acest profil ca pe o oglindă, nu ca pe o scuză.",
-    "Mă angajez la auto-observare sinceră, chiar și când este inconfortabil."
+    "ÃŽmi asum responsabilitatea deplinÄƒ pentru alegerile È™i consecinÈ›ele mele.",
+    "Voi folosi acest profil ca pe o oglindÄƒ, nu ca pe o scuzÄƒ.",
+    "MÄƒ angajez la auto-observare sincerÄƒ, chiar È™i cÃ¢nd este inconfortabil."
   ],
   es: [
     "Asumo plena responsabilidad por mis decisiones y sus consecuencias.",
-    "Usaré este perfil como un espejo, no como una excusa.",
-    "Me comprometo a la auto-observación honesta, incluso cuando sea incómodo."
+    "UsarÃ© este perfil como un espejo, no como una excusa.",
+    "Me comprometo a la auto-observaciÃ³n honesta, incluso cuando sea incÃ³modo."
   ],
   fr: [
-    "J'assume l'entière responsabilité de mes choix et de leurs conséquences.",
+    "J'assume l'entiÃ¨re responsabilitÃ© de mes choix et de leurs consÃ©quences.",
     "J'utiliserai ce profil comme un miroir, pas comme une excuse.",
-    "Je m'engage à une auto-observation honnête, même quand c'est inconfortable."
+    "Je m'engage Ã  une auto-observation honnÃªte, mÃªme quand c'est inconfortable."
   ],
   de: [
-    "Ich übernehme die volle Verantwortung für meine Entscheidungen und deren Folgen.",
+    "Ich Ã¼bernehme die volle Verantwortung fÃ¼r meine Entscheidungen und deren Folgen.",
     "Ich werde dieses Profil als Spiegel nutzen, nicht als Ausrede.",
     "Ich verpflichte mich zur ehrlichen Selbstbeobachtung, auch wenn es unangenehm ist."
   ],
   it: [
-    "Mi assumo la piena responsabilità delle mie scelte e delle loro conseguenze.",
-    "Userò questo profilo come uno specchio, non come una scusa.",
-    "Mi impegno all'auto-osservazione onesta, anche quando è scomoda."
+    "Mi assumo la piena responsabilitÃ  delle mie scelte e delle loro conseguenze.",
+    "UserÃ² questo profilo come uno specchio, non come una scusa.",
+    "Mi impegno all'auto-osservazione onesta, anche quando Ã¨ scomoda."
   ],
   pt: [
-    "Assumo total responsabilidade pelas minhas escolhas e suas consequências.",
-    "Usarei este perfil como um espelho, não como uma desculpa.",
-    "Comprometo-me à auto-observação honesta, mesmo quando é desconfortável."
+    "Assumo total responsabilidade pelas minhas escolhas e suas consequÃªncias.",
+    "Usarei este perfil como um espelho, nÃ£o como uma desculpa.",
+    "Comprometo-me Ã  auto-observaÃ§Ã£o honesta, mesmo quando Ã© desconfortÃ¡vel."
   ],
   nl: [
     "Ik neem volledige verantwoordelijkheid voor mijn keuzes en de gevolgen daarvan.",
@@ -71,14 +71,14 @@ const COMMITMENTS = {
     "Ik verbind me tot eerlijke zelfobservatie, ook als het ongemakkelijk is."
   ],
   pl: [
-    "Biorę pełną odpowiedzialność za swoje wybory i ich konsekwencje.",
-    "Będę używać tego profilu jako lustra, nie jako wymówki.",
-    "Zobowiązuję się do uczciwej samoobserwacji, nawet gdy jest niewygodna."
+    "BiorÄ™ peÅ‚nÄ… odpowiedzialnoÅ›Ä‡ za swoje wybory i ich konsekwencje.",
+    "BÄ™dÄ™ uÅ¼ywaÄ‡ tego profilu jako lustra, nie jako wymÃ³wki.",
+    "ZobowiÄ…zujÄ™ siÄ™ do uczciwej samoobserwacji, nawet gdy jest niewygodna."
   ],
   hu: [
-    "Teljes felelősséget vállalok döntéseimért és azok következményeiért.",
-    "Ezt a profilt tükörként fogom használni, nem kifogásként.",
-    "Elkötelezem magam az őszinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."
+    "Teljes felelÅ‘ssÃ©get vÃ¡llalok dÃ¶ntÃ©seimÃ©rt Ã©s azok kÃ¶vetkezmÃ©nyeiÃ©rt.",
+    "Ezt a profilt tÃ¼kÃ¶rkÃ©nt fogom hasznÃ¡lni, nem kifogÃ¡skÃ©nt.",
+    "ElkÃ¶telezem magam az Å‘szinte Ã¶nmegfigyelÃ©s mellett, mÃ©g akkor is, ha kÃ©nyelmetlen."
   ],
 }
 
@@ -120,7 +120,7 @@ function CommitmentGate({ lang, onAccept }) {
                   background: checked[i] ? 'var(--purple)' : 'transparent',
                   borderColor: checked[i] ? 'var(--purple)' : 'var(--border)'
                 }}>
-                  {checked[i] && <span style={g.checkmark}>✓</span>}
+                  {checked[i] && <span style={g.checkmark}>âœ“</span>}
                 </div>
                 <p style={{...g.commitmentText, color: checked[i] ? 'var(--purple)' : 'var(--text)'}}>
                   {item}
@@ -163,7 +163,7 @@ function HDCard({ hdData, lang }) {
   if (!hdData) return null
   const expl = getExplanations(lang)
 
-  // Translated display values — THIS IS THE FIX for "Wait to respond" / "Sacral"
+  // Translated display values â€” THIS IS THE FIX for "Wait to respond" / "Sacral"
   const translatedType = translateHd('types', hdData.type, lang)
   const translatedStrategy = translateHd('strategies', hdData.strategy, lang)
   const translatedAuthority = translateHd('authorities', hdData.authority, lang)
@@ -250,7 +250,7 @@ function ProfileContent() {
   if (!profile) return (
     <div style={s.center}>
       <p style={{marginBottom:'20px'}}>No profile found.</p>
-      <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
+      <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile â†’</a>
     </div>
   )
 
@@ -297,7 +297,7 @@ function ProfileContent() {
             <div style={s.personalYearRight}>
               <p style={s.personalYearFocus}>{personal_year.focus}</p>
               <div style={s.personalYearWarning}>
-                <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
+                <span style={{color:'var(--orange)', marginRight:'6px'}}>âš </span>
                 <span>{personal_year.warning}</span>
               </div>
             </div>
@@ -307,7 +307,7 @@ function ProfileContent() {
         <HDCard hdData={hd_data} lang={lang} />
 
         <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ {t(lang, 'blueprint')}</div>
+          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>âœ¦ {t(lang, 'blueprint')}</div>
           <p style={s.bodyText}>{sections?.blueprint}</p>
         </div>
 
@@ -316,7 +316,7 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'strengths')}</div>
             <ul style={s.list}>
               {sections?.strengths?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>âœ¦</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -324,7 +324,7 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'vulnerabilities')}</div>
             <ul style={s.list}>
               {sections?.vulnerabilities?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>🌱</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>ðŸŒ±</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -335,7 +335,7 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'energy_patterns')}</div>
             <ul style={s.list}>
               {sections?.energy_patterns?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>â—¦</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -343,7 +343,7 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'sabotage')}</div>
             <ul style={s.list}>
               {sections?.sabotage_tendencies?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>â—¦</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -354,7 +354,7 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'decision')}</div>
             <ul style={s.list}>
               {sections?.decision_making?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>â—¦</span>{item}</li>
               ))}
             </ul>
           </div>
@@ -362,19 +362,19 @@ function ProfileContent() {
             <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'work')}</div>
             <ul style={s.list}>
               {sections?.work_discipline?.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>â—¦</span>{item}</li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* Self Perspective — opportunities + threats only */}
+        {/* Self Perspective â€” opportunities + threats only */}
         <div style={s.card}>
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
           <div style={s.swotGrid}>
             {[
-              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
-              { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' },
+              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'âœ¦' },
+              { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'â—¦' },
             ].map((q, i) => (
               <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
                 <p style={{...s.swotTitle, color: q.color}}>{q.title}</p>
@@ -399,7 +399,7 @@ function ProfileContent() {
                 <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>âœ¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -407,7 +407,7 @@ function ProfileContent() {
                 <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.directional_clarity?.eliminate?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>â—¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -423,7 +423,7 @@ function ProfileContent() {
                 <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.structured_plan?.weekly_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>â—¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -431,7 +431,7 @@ function ProfileContent() {
                 <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.structured_plan?.daily_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>â—¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -445,7 +445,7 @@ function ProfileContent() {
                 <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>âœ¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -453,7 +453,7 @@ function ProfileContent() {
                 <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>âœ•</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -461,7 +461,7 @@ function ProfileContent() {
                 <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
                 <ul style={s.list}>
                   {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>âœ¦</span>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -500,12 +500,12 @@ const s = {
   personalYearWarning: { display:'flex', alignItems:'flex-start', fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:'1.6' },
   card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'28px', marginBottom:'20px', boxShadow:'var(--shadow)' },
   cardLabel: (bg, color) => ({ display:'inline-block', padding:'6px 14px', background:bg, color:color, borderRadius:'20px', fontSize:'13px', fontWeight:'600', marginBottom:'16px', letterSpacing:'0.3px' }),
-  grid2: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:'20px', marginBottom:'20px' },
+  grid2: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:'20px', marginBottom:'20px' },
   grid3: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px' },
   list: { listStyle:'none', padding:0, margin:0 },
   listItem: { fontSize:'14px', lineHeight:'1.6', color:'var(--text)', padding:'7px 0', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'flex-start' },
   bodyText: { fontSize:'15px', lineHeight:'1.75', color:'var(--text)', marginBottom:'8px' },
-  swotGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:'16px' },
+  swotGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:'16px' },
   swotBox: { background:'var(--bg)', borderRadius:'10px', padding:'16px' },
   swotTitle: { fontSize:'13px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'12px' },
   planLayer: { borderBottom:'1px solid var(--border)', paddingBottom:'24px', marginBottom:'24px' },

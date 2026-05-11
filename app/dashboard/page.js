@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, Suspense } from 'react'
 import DailyCheckin from './components/DailyCheckin'
@@ -19,7 +19,7 @@ import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUn
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
-// 25 drifting "stars" — purely decorative, positioned via CSS :nth-child
+// 25 drifting "stars" â€” purely decorative, positioned via CSS :nth-child
 function CosmicStars() {
   return (
     <div className="cosmic-stars" aria-hidden="true">
@@ -42,7 +42,7 @@ function PersonalYearBanner({ personalYear, lang }) {
       <div style={py.right}>
         <p style={py.focus}>{personalYear.focus}</p>
         <p style={py.warning}>
-          <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
+          <span style={{color:'var(--orange)', marginRight:'6px'}}>âš </span>
           {personalYear.warning}
         </p>
       </div>
@@ -122,7 +122,7 @@ function InviteSection({ userId, lang }) {
         </div>
       </div>
       <div style={inv.bonus}>
-        <p style={inv.bonusText}>✦ {t(lang, 'invite_bonus')}</p>
+        <p style={inv.bonusText}>âœ¦ {t(lang, 'invite_bonus')}</p>
       </div>
     </div>
   )
@@ -138,7 +138,7 @@ const inv = {
   copyBtn: { padding:'8px 16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'500', cursor:'pointer', flexShrink:0, minHeight:'44px' },
   stats: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' },
   stat: { background:'var(--bg)', borderRadius:'10px', padding:'16px', textAlign:'center' },
-  statNum: { display:'block', fontSize:'28px', fontWeight:'700', color:'var(--purple)', fontFamily:'Cormorant Garamond, serif', marginBottom:'4px' },
+  statNum: { display:'block', fontSize:'28px', fontWeight:'700', color:'var(--purple)', fontFamily:'Nunito, system-ui, sans-serif', marginBottom:'4px' },
   statLabel: { fontSize:'12px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px' },
   bonus: { background:'var(--green-light)', borderRadius:'10px', padding:'14px 16px' },
   bonusText: { fontSize:'13px', color:'var(--green)', lineHeight:'1.6' }
@@ -168,7 +168,7 @@ function RecalibrationMode({ onComplete, personalYear, lang }) {
           <p style={rec.thingsLabel}>{t(lang, 'three_things')}</p>
           {t(lang, 'recal_items').map((item, i) => (
             <div key={i} style={rec.thingItem}>
-              <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>◎</span>
+              <span style={{color:'var(--orange)', marginRight:'12px', fontSize:'18px'}}>â—Ž</span>
               <p style={rec.thingText}>{item}</p>
             </div>
           ))}
@@ -221,7 +221,7 @@ function ShadowAlert({ score, lang }) {
   return (
     <div style={al.card}>
       <div style={al.header}>
-        <span style={{color:'var(--orange)'}}>◦</span>
+        <span style={{color:'var(--orange)'}}>â—¦</span>
         <p style={al.title}>{t(lang, 'pattern_detected')}</p>
       </div>
       <p style={al.message}>{message}</p>
@@ -229,7 +229,7 @@ function ShadowAlert({ score, lang }) {
         <p style={al.actionLabel}>{t(lang, 'one_thing')}</p>
         {t(lang, 'shadow_actions').map((action, i) => (
           <div key={i} style={al.actionItem}>
-            <span style={{color:'var(--orange)', marginRight:'8px'}}>→</span>
+            <span style={{color:'var(--orange)', marginRight:'8px'}}>â†’</span>
             {action}
           </div>
         ))}

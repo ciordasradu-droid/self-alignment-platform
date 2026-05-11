@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
   /* Core palette */
@@ -29,7 +29,7 @@
   --orange-glow-soft: rgba(232, 130, 74, 0.14);
   --amber-glow: rgba(212, 165, 116, 0.30);
 
-  /* Layered shadows — gives cards depth without flat borders */
+  /* Layered shadows â€” gives cards depth without flat borders */
   --shadow-sm: 0 1px 4px rgba(124, 92, 191, 0.05);
   --shadow: 0 1px 3px rgba(124, 92, 191, 0.04), 0 4px 16px rgba(124, 92, 191, 0.08);
   --shadow-md: 0 2px 8px rgba(124, 92, 191, 0.06), 0 8px 24px rgba(124, 92, 191, 0.10);
@@ -104,7 +104,7 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px var(--purple-glow-soft);
 }
 
-/* ---------- Cosmic background — slow gentle breathing ---------- */
+/* ---------- Cosmic background â€” slow gentle breathing ---------- */
 .cosmic-bg {
   position: fixed;
   top: 0;
@@ -140,7 +140,7 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 /* ============================================================
-   KEYFRAMES — short, subtle, GPU-friendly (transform/opacity)
+   KEYFRAMES â€” short, subtle, GPU-friendly (transform/opacity)
    ============================================================ */
 
 @keyframes fade-in {
@@ -219,7 +219,7 @@ input:focus, textarea:focus, select:focus {
 .anim-check-in { animation: check-in 0.5s var(--ease-bounce) both; }
 .anim-dot-pulse { animation: dot-pulse 2.6s var(--ease-soft) infinite; }
 
-/* Stagger helpers for sequential reveals (80ms steps — dramatic & noticeable) */
+/* Stagger helpers for sequential reveals (80ms steps â€” dramatic & noticeable) */
 .stagger-1 { animation-delay: 0.08s; }
 .stagger-2 { animation-delay: 0.16s; }
 .stagger-3 { animation-delay: 0.24s; }
@@ -245,7 +245,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   INTERACTION CLASSES — hover lift, tap feedback
+   INTERACTION CLASSES â€” hover lift, tap feedback
    ============================================================ */
 
 .card-hover {
@@ -323,7 +323,7 @@ input:focus, textarea:focus, select:focus {
   transform: translateX(2px) scale(0.99);
 }
 
-/* Stats row (dashboard) — gentle hover lift on each stat card */
+/* Stats row (dashboard) â€” gentle hover lift on each stat card */
 .stats-row > div {
   transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
 }
@@ -336,7 +336,7 @@ input:focus, textarea:focus, select:focus {
    STATE HELPERS
    ============================================================ */
 
-/* Selected state aura — apply with category color via inline style if needed */
+/* Selected state aura â€” apply with category color via inline style if needed */
 .aura-purple { box-shadow: 0 0 18px var(--purple-glow); }
 .aura-green  { box-shadow: 0 0 18px var(--green-glow); }
 .aura-orange { box-shadow: 0 0 18px var(--orange-glow); }
@@ -369,7 +369,7 @@ input:focus, textarea:focus, select:focus {
   filter: drop-shadow(0 0 14px var(--orange-glow));
 }
 
-/* Day dots — filled day & today */
+/* Day dots â€” filled day & today */
 .day-dot-active {
   animation: dot-pulse 2.8s var(--ease-soft) infinite;
 }
@@ -394,7 +394,7 @@ input:focus, textarea:focus, select:focus {
   filter: blur(0.4px) saturate(0.7);
 }
 
-/* Done state — celebratory checkmark badge */
+/* Done state â€” celebratory checkmark badge */
 .checkmark-celebrate {
   display: flex;
   align-items: center;
@@ -416,7 +416,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   DASHBOARD STAGGER — direct children fade-in sequentially
+   DASHBOARD STAGGER â€” direct children fade-in sequentially
    ============================================================ */
 
 .dashboard-cards-stagger > * {
@@ -436,7 +436,7 @@ input:focus, textarea:focus, select:focus {
 .dashboard-cards-stagger > *:nth-child(n+12) { animation-delay: 0.96s; }
 
 /* ============================================================
-   FEELING CHECK-IN — 8 emotion gradients, circular cards
+   FEELING CHECK-IN â€” 8 emotion gradients, circular cards
    ============================================================ */
 
 .feeling-grid {
@@ -499,14 +499,14 @@ input:focus, textarea:focus, select:focus {
 .feeling-card.selected .feeling-label { color: var(--text); font-weight: 600; }
 
 /* 8 emotion gradient backgrounds, indexed by position */
-.feeling-bg-0 { background: linear-gradient(135deg, #7dc7a8 0%, #4a9b7f 100%); } /* satisfied — green-teal */
-.feeling-bg-1 { background: linear-gradient(135deg, #e8824a 0%, #c44d4d 100%); } /* frustrated — red-orange */
-.feeling-bg-2 { background: linear-gradient(135deg, #f5d976 0%, #e8a945 100%); } /* energized — yellow-amber */
-.feeling-bg-3 { background: linear-gradient(135deg, #b0bcc8 0%, #6b7e93 100%); } /* exhausted — gray-blue */
-.feeling-bg-4 { background: linear-gradient(135deg, #9d7cd6 0%, #5a4994 100%); } /* in-flow — purple-indigo */
-.feeling-bg-5 { background: linear-gradient(135deg, #f29555 0%, #d4513c 100%); } /* forcing — orange-red */
-.feeling-bg-6 { background: linear-gradient(135deg, #f5b8c4 0%, #e08a9c 100%); } /* content — pink-rose */
-.feeling-bg-7 { background: linear-gradient(135deg, #f0c97a 0%, #d99454 100%); } /* restless — amber-yellow */
+.feeling-bg-0 { background: linear-gradient(135deg, #7dc7a8 0%, #4a9b7f 100%); } /* satisfied â€” green-teal */
+.feeling-bg-1 { background: linear-gradient(135deg, #e8824a 0%, #c44d4d 100%); } /* frustrated â€” red-orange */
+.feeling-bg-2 { background: linear-gradient(135deg, #f5d976 0%, #e8a945 100%); } /* energized â€” yellow-amber */
+.feeling-bg-3 { background: linear-gradient(135deg, #b0bcc8 0%, #6b7e93 100%); } /* exhausted â€” gray-blue */
+.feeling-bg-4 { background: linear-gradient(135deg, #9d7cd6 0%, #5a4994 100%); } /* in-flow â€” purple-indigo */
+.feeling-bg-5 { background: linear-gradient(135deg, #f29555 0%, #d4513c 100%); } /* forcing â€” orange-red */
+.feeling-bg-6 { background: linear-gradient(135deg, #f5b8c4 0%, #e08a9c 100%); } /* content â€” pink-rose */
+.feeling-bg-7 { background: linear-gradient(135deg, #f0c97a 0%, #d99454 100%); } /* restless â€” amber-yellow */
 
 @keyframes ring-bloom {
   0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9), 0 0 0 0 rgba(124, 92, 191, 0.5); }
@@ -546,7 +546,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   CHECK-IN RATING — emoji slider
+   CHECK-IN RATING â€” emoji slider
    ============================================================ */
 
 .rating-slider {
@@ -606,7 +606,7 @@ input:focus, textarea:focus, select:focus {
 .rating-emoji-5.selected { border-color: #4a9b7f; background: #e8f7f2; box-shadow: 0 8px 22px rgba(74, 155, 127, 0.45); }
 
 /* ============================================================
-   DAILY THOUGHT — animated gradient border + mandala bg
+   DAILY THOUGHT â€” animated gradient border + mandala bg
    ============================================================ */
 
 .gradient-border-glow {
@@ -637,7 +637,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   INTENTION — gradient left border, dramatic hover, breathing selected
+   INTENTION â€” gradient left border, dramatic hover, breathing selected
    ============================================================ */
 
 .intention-card {
@@ -668,7 +668,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   ALIGNMENT SCORE — circular ring + animated gradient text
+   ALIGNMENT SCORE â€” circular ring + animated gradient text
    ============================================================ */
 
 .score-ring-wrap {
@@ -699,7 +699,7 @@ input:focus, textarea:focus, select:focus {
 .score-number {
   font-size: 56px;
   font-weight: 700;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   line-height: 1;
   background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 50%, var(--orange) 100%);
   background-size: 200% 200%;
@@ -716,7 +716,7 @@ input:focus, textarea:focus, select:focus {
 .score-of-100 { font-size: 14px; color: var(--text-muted); }
 
 /* ============================================================
-   STREAK — fire emoji flicker + sequential day fill
+   STREAK â€” fire emoji flicker + sequential day fill
    ============================================================ */
 
 .streak-fire {
@@ -750,7 +750,7 @@ input:focus, textarea:focus, select:focus {
 .day-fill-7 { animation-delay: 0.65s; }
 
 /* ============================================================
-   CELEBRATION — SVG checkmark draw + confetti
+   CELEBRATION â€” SVG checkmark draw + confetti
    ============================================================ */
 
 .celebrate-wrap {
@@ -811,7 +811,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   JOURNAL — paper feel + warm focus glow
+   JOURNAL â€” paper feel + warm focus glow
    ============================================================ */
 
 .journal-paper {
@@ -851,7 +851,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   COSMIC STARS — drifting dots in background
+   COSMIC STARS â€” drifting dots in background
    ============================================================ */
 
 .cosmic-stars {
@@ -905,10 +905,10 @@ input:focus, textarea:focus, select:focus {
 .cosmic-stars span:nth-child(25) { top: 82%; left: 58%; animation-duration: 28s; animation-delay: 19s; background: var(--purple); }
 
 /* ============================================================
-   LANDING PAGE — animated gradient title, CTA glow, reveal-on-scroll
+   LANDING PAGE â€” animated gradient title, CTA glow, reveal-on-scroll
    ============================================================ */
 
-/* Animated gradient text — slow purple → amber → purple shift (8s cycle) */
+/* Animated gradient text â€” slow purple â†’ amber â†’ purple shift (8s cycle) */
 .gradient-text-animated {
   background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 50%, var(--purple) 100%);
   background-size: 200% 200%;
@@ -919,7 +919,7 @@ input:focus, textarea:focus, select:focus {
   animation: gradient-flow 8s ease-in-out infinite;
 }
 
-/* CTA button warm glow pulse — draws attention without flashing */
+/* CTA button warm glow pulse â€” draws attention without flashing */
 @keyframes btn-glow-pulse {
   0%, 100% {
     box-shadow:
@@ -958,7 +958,7 @@ input:focus, textarea:focus, select:focus {
   opacity: 0.06;
 }
 
-/* Landing card hover — color-themed left accent stays static (set via inline style),
+/* Landing card hover â€” color-themed left accent stays static (set via inline style),
    shadow warms on hover */
 .landing-card {
   transition: transform 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out);
@@ -982,10 +982,10 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   PREMIUM LANDING — hero orb, story cards, premium CTA, trust
+   PREMIUM LANDING â€” hero orb, story cards, premium CTA, trust
    ============================================================ */
 
-/* Hero — drifting glowing orb behind the title (depth + life) */
+/* Hero â€” drifting glowing orb behind the title (depth + life) */
 .hero-orb {
   position: absolute;
   top: 50%;
@@ -1009,7 +1009,7 @@ input:focus, textarea:focus, select:focus {
   66%      { transform: translate(calc(-50% - 26px), calc(-50% + 18px)) scale(0.94); }
 }
 
-/* Faster animated gradient text — purple → gold → purple, 6s */
+/* Faster animated gradient text â€” purple â†’ gold â†’ purple, 6s */
 .gradient-text-fast {
   background: linear-gradient(135deg, var(--purple) 0%, #d4a574 50%, var(--purple) 100%);
   background-size: 220% 220%;
@@ -1020,7 +1020,7 @@ input:focus, textarea:focus, select:focus {
   animation: gradient-flow 6s ease-in-out infinite;
 }
 
-/* Premium CTA button — 56px, gradient bg, constant glow + pulse, sliding arrow */
+/* Premium CTA button â€” 56px, gradient bg, constant glow + pulse, sliding arrow */
 .cta-premium {
   display: inline-flex;
   align-items: center;
@@ -1080,7 +1080,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   STORY CARDS — large gradient cards with rich previews inside
+   STORY CARDS â€” large gradient cards with rich previews inside
    ============================================================ */
 
 .story-grid {
@@ -1187,7 +1187,7 @@ input:focus, textarea:focus, select:focus {
 .mock-line-3 { width: 82%; opacity: 0.22; filter: blur(0.6px); }
 .mock-line-4 { width: 60%; opacity: 0.18; filter: blur(0.9px); }
 
-/* Mock rating preview (used in story card 2) — uses real emoji slider styling */
+/* Mock rating preview (used in story card 2) â€” uses real emoji slider styling */
 .mock-rating {
   display: flex;
   justify-content: space-between;
@@ -1573,7 +1573,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   LANDING PAGE — animated gradient title, CTA glow, reveal-on-scroll
+   LANDING PAGE â€” animated gradient title, CTA glow, reveal-on-scroll
    ============================================================ */
 
 .unlock-line-flow {
@@ -1607,7 +1607,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================================
-   REDUCED MOTION — respect user preference
+   REDUCED MOTION â€” respect user preference
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
