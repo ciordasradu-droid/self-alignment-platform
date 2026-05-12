@@ -626,7 +626,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .typewriter-word {
-  display: inline-block;
+  display: inline;
   opacity: 0;
   animation: word-fade-in 0.35s var(--ease-out) forwards;
 }
