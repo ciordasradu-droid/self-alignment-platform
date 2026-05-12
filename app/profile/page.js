@@ -36,34 +36,34 @@ const COMMITMENTS = {
     "I commit to honest self-observation, even when it's uncomfortable."
   ],
   ro: [
-    "ÃŽmi asum responsabilitatea deplinÄƒ pentru alegerile È™i consecinÈ›ele mele.",
-    "Voi folosi acest profil ca pe o oglindÄƒ, nu ca pe o scuzÄƒ.",
-    "MÄƒ angajez la auto-observare sincerÄƒ, chiar È™i cÃ¢nd este inconfortabil."
+    "Îmi asum responsabilitatea deplină pentru alegerile și consecințele mele.",
+    "Voi folosi acest profil ca pe o oglindă, nu ca pe o scuză.",
+    "Mă angajez la auto-observare sinceră, chiar și când este inconfortabil."
   ],
   es: [
     "Asumo plena responsabilidad por mis decisiones y sus consecuencias.",
-    "UsarÃ© este perfil como un espejo, no como una excusa.",
-    "Me comprometo a la auto-observaciÃ³n honesta, incluso cuando sea incÃ³modo."
+    "Usaré este perfil como un espejo, no como una excusa.",
+    "Me comprometo a la auto-observación honesta, incluso cuando sea incómodo."
   ],
   fr: [
-    "J'assume l'entiÃ¨re responsabilitÃ© de mes choix et de leurs consÃ©quences.",
+    "J'assume l'entière responsabilité de mes choix et de leurs conséquences.",
     "J'utiliserai ce profil comme un miroir, pas comme une excuse.",
-    "Je m'engage Ã  une auto-observation honnÃªte, mÃªme quand c'est inconfortable."
+    "Je m'engage à une auto-observation honnête, même quand c'est inconfortable."
   ],
   de: [
-    "Ich Ã¼bernehme die volle Verantwortung fÃ¼r meine Entscheidungen und deren Folgen.",
+    "Ich übernehme die volle Verantwortung für meine Entscheidungen und deren Folgen.",
     "Ich werde dieses Profil als Spiegel nutzen, nicht als Ausrede.",
     "Ich verpflichte mich zur ehrlichen Selbstbeobachtung, auch wenn es unangenehm ist."
   ],
   it: [
-    "Mi assumo la piena responsabilitÃ  delle mie scelte e delle loro conseguenze.",
-    "UserÃ² questo profilo come uno specchio, non come una scusa.",
-    "Mi impegno all'auto-osservazione onesta, anche quando Ã¨ scomoda."
+    "Mi assumo la piena responsabilità delle mie scelte e delle loro conseguenze.",
+    "Userò questo profilo come uno specchio, non come una scusa.",
+    "Mi impegno all'auto-osservazione onesta, anche quando è scomoda."
   ],
   pt: [
-    "Assumo total responsabilidade pelas minhas escolhas e suas consequÃªncias.",
-    "Usarei este perfil como um espelho, nÃ£o como uma desculpa.",
-    "Comprometo-me Ã  auto-observaÃ§Ã£o honesta, mesmo quando Ã© desconfortÃ¡vel."
+    "Assumo total responsabilidade pelas minhas escolhas e suas consequências.",
+    "Usarei este perfil como um espelho, não como uma desculpa.",
+    "Comprometo-me à auto-observação honesta, mesmo quando é desconfortável."
   ],
   nl: [
     "Ik neem volledige verantwoordelijkheid voor mijn keuzes en de gevolgen daarvan.",
@@ -72,13 +72,13 @@ const COMMITMENTS = {
   ],
   pl: [
     "BiorÄ™ peÅ‚nÄ… odpowiedzialnoÅ›Ä‡ za swoje wybory i ich konsekwencje.",
-    "BÄ™dÄ™ uÅ¼ywaÄ‡ tego profilu jako lustra, nie jako wymÃ³wki.",
+    "BÄ™dÄ™ uÅ¼ywaÄ‡ tego profilu jako lustra, nie jako wymówki.",
     "ZobowiÄ…zujÄ™ siÄ™ do uczciwej samoobserwacji, nawet gdy jest niewygodna."
   ],
   hu: [
-    "Teljes felelÅ‘ssÃ©get vÃ¡llalok dÃ¶ntÃ©seimÃ©rt Ã©s azok kÃ¶vetkezmÃ©nyeiÃ©rt.",
-    "Ezt a profilt tÃ¼kÃ¶rkÃ©nt fogom hasznÃ¡lni, nem kifogÃ¡skÃ©nt.",
-    "ElkÃ¶telezem magam az Å‘szinte Ã¶nmegfigyelÃ©s mellett, mÃ©g akkor is, ha kÃ©nyelmetlen."
+    "Teljes felelÅ‘sséget vállalok döntéseimért és azok következményeiért.",
+    "Ezt a profilt tükörként fogom használni, nem kifogásként.",
+    "Elkötelezem magam az Å‘szinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."
   ],
 }
 
