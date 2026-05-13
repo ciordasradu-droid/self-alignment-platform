@@ -71,14 +71,14 @@ const COMMITMENTS = {
     "Ik verbind me tot eerlijke zelfobservatie, ook als het ongemakkelijk is."
   ],
   pl: [
-    "BiorÄ™ peÅ‚nÄ… odpowiedzialnoÅ›Ä‡ za swoje wybory i ich konsekwencje.",
-    "BÄ™dÄ™ uÅ¼ywaÄ‡ tego profilu jako lustra, nie jako wymówki.",
-    "ZobowiÄ…zujÄ™ siÄ™ do uczciwej samoobserwacji, nawet gdy jest niewygodna."
+    "Biorę pełną odpowiedzialność za swoje wybory i ich konsekwencje.",
+    "Będę używać tego profilu jako lustra, nie jako wymówki.",
+    "Zobowiązuję się do uczciwej samoobserwacji, nawet gdy jest niewygodna."
   ],
   hu: [
-    "Teljes felelÅ‘sséget vállalok döntéseimért és azok következményeiért.",
+    "Teljes felelősséget vállalok döntéseimért és azok következményeiért.",
     "Ezt a profilt tükörként fogom használni, nem kifogásként.",
-    "Elkötelezem magam az Å‘szinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."
+    "Elkötelezem magam az őszinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."
   ],
 }
 
