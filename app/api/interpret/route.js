@@ -1,4 +1,4 @@
-import { NextResponse, after } from 'next/server'
+﻿import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
@@ -104,7 +104,7 @@ export async function POST(request) {
         swot: null,
         alignment_plan: null,
         action_plan: null,
-        prompt_version: 'v3',
+        prompt_version: 'v4',
         language
       }])
       .select()
@@ -126,7 +126,7 @@ export async function POST(request) {
           strengths: sections.strengths?.slice(0, 4) || [],
           weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
           opportunities: sections.opportunities || [],
-          threats: sections.sabotage_tendencies?.slice(0, 4) || []
+          threats: sections.warning_signals?.slice(0, 4).map(w => typeof w === 'object' ? w.signal : w) || []
         }
 
         await supabase

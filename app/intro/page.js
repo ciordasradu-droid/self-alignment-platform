@@ -1,572 +1,541 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { generateProfilePDF } from '../../lib/generatePDF'
+import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
-const QUESTIONS = {
-  en: [
-    {
-      id: 'self_knowledge',
-      question: 'How well do you know yourself?',
-      subtitle: 'Your patterns, your energy, what drives you and what holds you back.',
-      options: [
-        { value: 1, label: 'Not at all', emoji: '😶' },
-        { value: 2, label: 'A little', emoji: '🤔' },
-        { value: 3, label: 'Somewhat', emoji: '🙂' },
-        { value: 4, label: 'Quite well', emoji: '😊' },
-        { value: 5, label: 'Very well', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Do you consciously work on yourself?',
-      subtitle: 'Habits, reflection, personal growth — intentionally, not just when forced.',
-      options: [
-        { value: 'yes', label: 'Yes, consistently', emoji: '✦' },
-        { value: 'sometimes', label: 'Sometimes', emoji: '🌱' },
-        { value: 'not_really', label: 'Not really', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'How often do you keep promises to yourself?',
-      subtitle: 'The ones only you know about — habits, commitments, changes you said you\'d make.',
-      options: [
-        { value: 'always', label: 'Almost always', emoji: '✦' },
-        { value: 'sometimes', label: 'Sometimes', emoji: '🌱' },
-        { value: 'rarely', label: 'Rarely', emoji: '😔' },
-      ]
-    }
-  ],
-  ro: [
-    {
-      id: 'self_knowledge',
-      question: 'Cât de bine te cunoști pe tine însuți?',
-      subtitle: 'Tiparele tale, energia ta, ce te motivează și ce te oprește.',
-      options: [
-        { value: 1, label: 'Deloc', emoji: '😶' },
-        { value: 2, label: 'Puțin', emoji: '🤔' },
-        { value: 3, label: 'Oarecum', emoji: '🙂' },
-        { value: 4, label: 'Destul de bine', emoji: '😊' },
-        { value: 5, label: 'Foarte bine', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Lucrezi conștient la tine?',
-      subtitle: 'Obiceiuri, reflecție, creștere personală — intenționat, nu doar când ești forțat.',
-      options: [
-        { value: 'yes', label: 'Da, consistent', emoji: '✦' },
-        { value: 'sometimes', label: 'Uneori', emoji: '🌱' },
-        { value: 'not_really', label: 'Nu prea', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Cât de des îți ții promisiunile față de tine?',
-      subtitle: 'Cele pe care le știi doar tu — obiceiuri, angajamente, schimbări pe care ai zis că le vei face.',
-      options: [
-        { value: 'always', label: 'Aproape întotdeauna', emoji: '✦' },
-        { value: 'sometimes', label: 'Uneori', emoji: '🌱' },
-        { value: 'rarely', label: 'Rar', emoji: '😔' },
-      ]
-    }
-  ],
-  es: [
-    {
-      id: 'self_knowledge',
-      question: '¿Qué tan bien te conoces a ti mismo?',
-      subtitle: 'Tus patrones, tu energía, qué te motiva y qué te detiene.',
-      options: [
-        { value: 1, label: 'Para nada', emoji: '😶' },
-        { value: 2, label: 'Un poco', emoji: '🤔' },
-        { value: 3, label: 'Algo', emoji: '🙂' },
-        { value: 4, label: 'Bastante bien', emoji: '😊' },
-        { value: 5, label: 'Muy bien', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: '¿Trabajas conscientemente en ti mismo?',
-      subtitle: 'Hábitos, reflexión, crecimiento personal — intencionalmente, no solo cuando te obligan.',
-      options: [
-        { value: 'yes', label: 'Sí, consistentemente', emoji: '✦' },
-        { value: 'sometimes', label: 'A veces', emoji: '🌱' },
-        { value: 'not_really', label: 'No realmente', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: '¿Con qué frecuencia cumples las promesas que te haces?',
-      subtitle: 'Las que solo tú conoces — hábitos, compromisos, cambios que dijiste que harías.',
-      options: [
-        { value: 'always', label: 'Casi siempre', emoji: '✦' },
-        { value: 'sometimes', label: 'A veces', emoji: '🌱' },
-        { value: 'rarely', label: 'Rara vez', emoji: '😔' },
-      ]
-    }
-  ],
-  fr: [
-    {
-      id: 'self_knowledge',
-      question: 'À quel point te connais-tu toi-même ?',
-      subtitle: 'Tes schémas, ton énergie, ce qui te motive et ce qui te retient.',
-      options: [
-        { value: 1, label: 'Pas du tout', emoji: '😶' },
-        { value: 2, label: 'Un peu', emoji: '🤔' },
-        { value: 3, label: 'Assez', emoji: '🙂' },
-        { value: 4, label: 'Assez bien', emoji: '😊' },
-        { value: 5, label: 'Très bien', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Travailles-tu consciemment sur toi-même ?',
-      subtitle: 'Habitudes, réflexion, croissance personnelle — intentionnellement, pas seulement quand tu y es forcé.',
-      options: [
-        { value: 'yes', label: 'Oui, régulièrement', emoji: '✦' },
-        { value: 'sometimes', label: 'Parfois', emoji: '🌱' },
-        { value: 'not_really', label: 'Pas vraiment', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'À quelle fréquence tiens-tu tes promesses envers toi-même ?',
-      subtitle: 'Celles que toi seul connais — habitudes, engagements, changements que tu t\'étais promis de faire.',
-      options: [
-        { value: 'always', label: 'Presque toujours', emoji: '✦' },
-        { value: 'sometimes', label: 'Parfois', emoji: '🌱' },
-        { value: 'rarely', label: 'Rarement', emoji: '😔' },
-      ]
-    }
-  ],
-  de: [
-    {
-      id: 'self_knowledge',
-      question: 'Wie gut kennst du dich selbst?',
-      subtitle: 'Deine Muster, deine Energie, was dich antreibt und was dich zurückhält.',
-      options: [
-        { value: 1, label: 'Gar nicht', emoji: '😶' },
-        { value: 2, label: 'Ein wenig', emoji: '🤔' },
-        { value: 3, label: 'Etwas', emoji: '🙂' },
-        { value: 4, label: 'Ziemlich gut', emoji: '😊' },
-        { value: 5, label: 'Sehr gut', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Arbeitest du bewusst an dir selbst?',
-      subtitle: 'Gewohnheiten, Reflexion, persönliches Wachstum — absichtlich, nicht nur wenn du dazu gezwungen bist.',
-      options: [
-        { value: 'yes', label: 'Ja, konsequent', emoji: '✦' },
-        { value: 'sometimes', label: 'Manchmal', emoji: '🌱' },
-        { value: 'not_really', label: 'Nicht wirklich', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Wie oft hältst du Versprechen, die du dir selbst gibst?',
-      subtitle: 'Die, die nur du kennst — Gewohnheiten, Verpflichtungen, Änderungen, die du dir vorgenommen hast.',
-      options: [
-        { value: 'always', label: 'Fast immer', emoji: '✦' },
-        { value: 'sometimes', label: 'Manchmal', emoji: '🌱' },
-        { value: 'rarely', label: 'Selten', emoji: '😔' },
-      ]
-    }
-  ],
-  it: [
-    {
-      id: 'self_knowledge',
-      question: 'Quanto ti conosci bene?',
-      subtitle: 'I tuoi schemi, la tua energia, cosa ti motiva e cosa ti trattiene.',
-      options: [
-        { value: 1, label: 'Per niente', emoji: '😶' },
-        { value: 2, label: 'Un po\'', emoji: '🤔' },
-        { value: 3, label: 'Abbastanza', emoji: '🙂' },
-        { value: 4, label: 'Abbastanza bene', emoji: '😊' },
-        { value: 5, label: 'Molto bene', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Lavori consciamente su te stesso?',
-      subtitle: 'Abitudini, riflessione, crescita personale — intenzionalmente, non solo quando sei costretto.',
-      options: [
-        { value: 'yes', label: 'Sì, in modo coerente', emoji: '✦' },
-        { value: 'sometimes', label: 'A volte', emoji: '🌱' },
-        { value: 'not_really', label: 'Non proprio', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Quanto spesso mantieni le promesse che fai a te stesso?',
-      subtitle: 'Quelle che solo tu conosci — abitudini, impegni, cambiamenti che ti eri promesso di fare.',
-      options: [
-        { value: 'always', label: 'Quasi sempre', emoji: '✦' },
-        { value: 'sometimes', label: 'A volte', emoji: '🌱' },
-        { value: 'rarely', label: 'Raramente', emoji: '😔' },
-      ]
-    }
-  ],
-  pt: [
-    {
-      id: 'self_knowledge',
-      question: 'Quão bem você se conhece?',
-      subtitle: 'Seus padrões, sua energia, o que te motiva e o que te impede.',
-      options: [
-        { value: 1, label: 'De jeito nenhum', emoji: '😶' },
-        { value: 2, label: 'Um pouco', emoji: '🤔' },
-        { value: 3, label: 'Razoavelmente', emoji: '🙂' },
-        { value: 4, label: 'Bastante bem', emoji: '😊' },
-        { value: 5, label: 'Muito bem', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Você trabalha conscientemente em si mesmo?',
-      subtitle: 'Hábitos, reflexão, crescimento pessoal — intencionalmente, não apenas quando forçado.',
-      options: [
-        { value: 'yes', label: 'Sim, consistentemente', emoji: '✦' },
-        { value: 'sometimes', label: 'Às vezes', emoji: '🌱' },
-        { value: 'not_really', label: 'Não muito', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Com que frequência você cumpre promessas a si mesmo?',
-      subtitle: 'As que só você sabe — hábitos, compromissos, mudanças que você disse que faria.',
-      options: [
-        { value: 'always', label: 'Quase sempre', emoji: '✦' },
-        { value: 'sometimes', label: 'Às vezes', emoji: '🌱' },
-        { value: 'rarely', label: 'Raramente', emoji: '😔' },
-      ]
-    }
-  ],
-  nl: [
-    {
-      id: 'self_knowledge',
-      question: 'Hoe goed ken je jezelf?',
-      subtitle: 'Je patronen, je energie, wat je drijft en wat je tegenhoudt.',
-      options: [
-        { value: 1, label: 'Helemaal niet', emoji: '😶' },
-        { value: 2, label: 'Een beetje', emoji: '🤔' },
-        { value: 3, label: 'Enigszins', emoji: '🙂' },
-        { value: 4, label: 'Vrij goed', emoji: '😊' },
-        { value: 5, label: 'Heel goed', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Werk je bewust aan jezelf?',
-      subtitle: 'Gewoonten, reflectie, persoonlijke groei — bewust, niet alleen als je gedwongen wordt.',
-      options: [
-        { value: 'yes', label: 'Ja, consequent', emoji: '✦' },
-        { value: 'sometimes', label: 'Soms', emoji: '🌱' },
-        { value: 'not_really', label: 'Niet echt', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Hoe vaak houd je beloftes aan jezelf?',
-      subtitle: 'De beloftes die alleen jij kent — gewoonten, verbintenissen, veranderingen die je jezelf had beloofd.',
-      options: [
-        { value: 'always', label: 'Bijna altijd', emoji: '✦' },
-        { value: 'sometimes', label: 'Soms', emoji: '🌱' },
-        { value: 'rarely', label: 'Zelden', emoji: '😔' },
-      ]
-    }
-  ],
-  pl: [
-    {
-      id: 'self_knowledge',
-      question: 'Jak dobrze znasz siebie?',
-      subtitle: 'Twoje wzorce, energia, co cię motywuje i co cię powstrzymuje.',
-      options: [
-        { value: 1, label: 'Wcale', emoji: '😶' },
-        { value: 2, label: 'Trochę', emoji: '🤔' },
-        { value: 3, label: 'Częściowo', emoji: '🙂' },
-        { value: 4, label: 'Całkiem dobrze', emoji: '😊' },
-        { value: 5, label: 'Bardzo dobrze', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Czy świadomie pracujesz nad sobą?',
-      subtitle: 'Nawyki, refleksja, rozwój osobisty — celowo, nie tylko gdy jesteś zmuszony.',
-      options: [
-        { value: 'yes', label: 'Tak, konsekwentnie', emoji: '✦' },
-        { value: 'sometimes', label: 'Czasami', emoji: '🌱' },
-        { value: 'not_really', label: 'Nie bardzo', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Jak często dotrzymujesz obietnic samemu sobie?',
-      subtitle: 'Tych, które zna tylko ty — nawyki, zobowiązania, zmiany, które obiecałeś sobie wprowadzić.',
-      options: [
-        { value: 'always', label: 'Prawie zawsze', emoji: '✦' },
-        { value: 'sometimes', label: 'Czasami', emoji: '🌱' },
-        { value: 'rarely', label: 'Rzadko', emoji: '😔' },
-      ]
-    }
-  ],
-  hu: [
-    {
-      id: 'self_knowledge',
-      question: 'Mennyire ismered magad?',
-      subtitle: 'A mintáid, az energiád, mi motivál és mi tart vissza.',
-      options: [
-        { value: 1, label: 'Egyáltalán nem', emoji: '😶' },
-        { value: 2, label: 'Kicsit', emoji: '🤔' },
-        { value: 3, label: 'Valamennyire', emoji: '🙂' },
-        { value: 4, label: 'Elég jól', emoji: '😊' },
-        { value: 5, label: 'Nagyon jól', emoji: '✦' },
-      ]
-    },
-    {
-      id: 'conscious_work',
-      question: 'Tudatosan dolgozol magadon?',
-      subtitle: 'Szokások, reflexió, személyes fejlődés — szándékosan, nem csak amikor kénytelen vagy.',
-      options: [
-        { value: 'yes', label: 'Igen, következetesen', emoji: '✦' },
-        { value: 'sometimes', label: 'Néha', emoji: '🌱' },
-        { value: 'not_really', label: 'Nem igazán', emoji: '😔' },
-      ]
-    },
-    {
-      id: 'promises',
-      question: 'Milyen gyakran tartod be a magadnak tett ígéreteket?',
-      subtitle: 'Azokat, amelyeket csak te tudsz — szokások, kötelezettségek, változások, amelyeket megígértél magadnak.',
-      options: [
-        { value: 'always', label: 'Majdnem mindig', emoji: '✦' },
-        { value: 'sometimes', label: 'Néha', emoji: '🌱' },
-        { value: 'rarely', label: 'Ritkán', emoji: '😔' },
-      ]
-    }
-  ]
+import { headerBoxExplanations as roExpl, hdTerms as roHd } from '../../lib/prompts/terminology/ro'
+import { headerBoxExplanations as enExpl, hdTerms as enHd } from '../../lib/prompts/terminology/en'
+import { headerBoxExplanations as esExpl, hdTerms as esHd } from '../../lib/prompts/terminology/es'
+import { headerBoxExplanations as frExpl, hdTerms as frHd } from '../../lib/prompts/terminology/fr'
+import { headerBoxExplanations as deExpl, hdTerms as deHd } from '../../lib/prompts/terminology/de'
+import { headerBoxExplanations as itExpl, hdTerms as itHd } from '../../lib/prompts/terminology/it'
+import { headerBoxExplanations as ptExpl, hdTerms as ptHd } from '../../lib/prompts/terminology/pt'
+import { headerBoxExplanations as nlExpl, hdTerms as nlHd } from '../../lib/prompts/terminology/nl'
+import { headerBoxExplanations as plExpl, hdTerms as plHd } from '../../lib/prompts/terminology/pl'
+import { headerBoxExplanations as huExpl, hdTerms as huHd } from '../../lib/prompts/terminology/hu'
+
+const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl }
+const HD_TERMS = { ro: roHd, en: enHd, es: esHd, fr: frHd, de: deHd, it: itHd, pt: ptHd, nl: nlHd, pl: plHd, hu: huHd }
+
+function getExplanations(lang) { return EXPLANATIONS[lang] || EXPLANATIONS['en'] }
+function getHdTerms(lang) { return HD_TERMS[lang] || HD_TERMS['en'] }
+function translateHd(category, value, lang) {
+  const terms = getHdTerms(lang)
+  return terms?.[category]?.[value] || value
 }
 
-const RESPONSES = {
-  en: {
-    low: "That's honest. Most people don't even ask this question.\nYour profile will show you exactly where to start.",
-    medium: "You're on the path. The profile will sharpen what you already sense about yourself.",
-    high: "Good. Now let's make it precise. Your profile will confirm what you know and reveal what you don't."
-  },
-  ro: {
-    low: "Asta e onest. Majoritatea oamenilor nici nu pun această întrebare.\nProfilul tău îți va arăta exact de unde să începi.",
-    medium: "Ești pe drum. Profilul va clarifica ceea ce deja simți despre tine.",
-    high: "Bine. Acum hai să fie precis. Profilul va confirma ce știi și va dezvălui ce nu știi."
-  },
-  es: {
-    low: "Eso es honesto. La mayoría de las personas ni siquiera hacen esta pregunta.\nTu perfil te mostrará exactamente por dónde empezar.",
-    medium: "Estás en el camino. El perfil aclarará lo que ya intuyes sobre ti mismo.",
-    high: "Bien. Ahora hagámoslo preciso. El perfil confirmará lo que sabes y revelará lo que no."
-  },
-  fr: {
-    low: "C'est honnête. La plupart des gens ne posent même pas cette question.\nTon profil te montrera exactement où commencer.",
-    medium: "Tu es sur la bonne voie. Le profil affinera ce que tu ressens déjà sur toi-même.",
-    high: "Bien. Maintenant rendons cela précis. Le profil confirmera ce que tu sais et révélera ce que tu ne sais pas."
-  },
-  de: {
-    low: "Das ist ehrlich. Die meisten Menschen stellen sich diese Frage nicht einmal.\nDein Profil zeigt dir genau, wo du anfangen sollst.",
-    medium: "Du bist auf dem Weg. Das Profil wird schärfen, was du bereits über dich selbst spürst.",
-    high: "Gut. Jetzt machen wir es präzise. Das Profil bestätigt, was du weißt und enthüllt, was du nicht weißt."
-  },
-  it: {
-    low: "È onesto. La maggior parte delle persone non si pone nemmeno questa domanda.\nIl tuo profilo ti mostrerà esattamente da dove iniziare.",
-    medium: "Sei sulla strada giusta. Il profilo affinerà ciò che già percepisci di te stesso.",
-    high: "Bene. Ora rendiamolo preciso. Il profilo confermerà ciò che sai e rivelerà ciò che non sai."
-  },
-  pt: {
-    low: "Isso é honesto. A maioria das pessoas nem faz essa pergunta.\nSeu perfil mostrará exatamente por onde começar.",
-    medium: "Você está no caminho. O perfil vai apurar o que você já sente sobre si mesmo.",
-    high: "Bem. Agora vamos tornar isso preciso. O perfil confirmará o que você sabe e revelará o que não sabe."
-  },
-  nl: {
-    low: "Dat is eerlijk. De meeste mensen stellen deze vraag niet eens.\nJouw profiel laat je precies zien waar je moet beginnen.",
-    medium: "Je bent op de goede weg. Het profiel zal aanscherpen wat je al aanvoelt over jezelf.",
-    high: "Goed. Laten we het nu preciezer maken. Het profiel bevestigt wat je weet en onthult wat je niet weet."
-  },
-  pl: {
-    low: "To szczere. Większość ludzi nawet nie zadaje sobie tego pytania.\nTwój profil pokaże ci dokładnie, od czego zacząć.",
-    medium: "Jesteś na właściwej drodze. Profil sprecyzuje to, co już czujesz o sobie.",
-    high: "Dobrze. Teraz uczyńmy to precyzyjnym. Profil potwierdzi to, co wiesz i ujawni to, czego nie wiesz."
-  },
-  hu: {
-    low: "Ez őszinte. A legtöbb ember ezt a kérdést sem teszi fel magának.\nA profilod megmutatja, hol kezdj el.",
-    medium: "Jó úton jársz. A profil pontosítja, amit már érzel magadról.",
-    high: "Jó. Most tegyük pontossá. A profil megerősíti, amit tudsz, és feltárja, amit nem."
-  }
+const COMMITMENTS = {
+  en: ["I take full responsibility for my choices and their consequences.", "I will use this profile as a mirror, not an excuse.", "I commit to honest self-observation, even when it's uncomfortable."],
+  ro: ["Îmi asum responsabilitatea deplină pentru alegerile și consecințele mele.", "Voi folosi acest profil ca pe o oglindă, nu ca pe o scuză.", "Mă angajez la auto-observare sinceră, chiar și când este inconfortabil."],
+  es: ["Asumo plena responsabilidad por mis decisiones y sus consecuencias.", "Usaré este perfil como un espejo, no como una excusa.", "Me comprometo a la auto-observación honesta, incluso cuando sea incómodo."],
+  fr: ["J'assume l'entière responsabilité de mes choix et de leurs conséquences.", "J'utiliserai ce profil comme un miroir, pas comme une excuse.", "Je m'engage à une auto-observation honnête, même quand c'est inconfortable."],
+  de: ["Ich übernehme die volle Verantwortung für meine Entscheidungen und deren Folgen.", "Ich werde dieses Profil als Spiegel nutzen, nicht als Ausrede.", "Ich verpflichte mich zur ehrlichen Selbstbeobachtung, auch wenn es unangenehm ist."],
+  it: ["Mi assumo la piena responsabilità delle mie scelte e delle loro conseguenze.", "Userò questo profilo come uno specchio, non come una scusa.", "Mi impegno all'auto-osservazione onesta, anche quando è scomoda."],
+  pt: ["Assumo total responsabilidade pelas minhas escolhas e suas consequências.", "Usarei este perfil como um espelho, não como uma desculpa.", "Comprometo-me à auto-observação honesta, mesmo quando é desconfortável."],
+  nl: ["Ik neem volledige verantwoordelijkheid voor mijn keuzes en de gevolgen daarvan.", "Ik zal dit profiel gebruiken als een spiegel, niet als een excuus.", "Ik verbind me tot eerlijke zelfobservatie, ook als het ongemakkelijk is."],
+  pl: ["Biorę pełną odpowiedzialność za swoje wybory i ich konsekwencje.", "Będę używać tego profilu jako lustra, nie jako wymówki.", "Zobowiązuję się do uczciwej samoobserwacji, nawet gdy jest niewygodna."],
+  hu: ["Teljes felelősséget vállalok döntéseimért és azok következményeiért.", "Ezt a profilt tükörként fogom használni, nem kifogásként.", "Elkötelezem magam az őszinte önmegfigyelés mellett, még akkor is, ha kényelmetlen."],
 }
 
-function getScore(answers) {
-  const sk = answers.self_knowledge || 0
-  const cw = answers.conscious_work === 'yes' ? 3 : answers.conscious_work === 'sometimes' ? 2 : 1
-  const p = answers.promises === 'always' ? 3 : answers.promises === 'sometimes' ? 2 : 1
-  return sk + cw + p
-}
-
-function getResponse(answers, lang) {
-  const score = getScore(answers)
-  const r = RESPONSES[lang] || RESPONSES['en']
-  if (score <= 5) return r.low
-  if (score <= 8) return r.medium
-  return r.high
-}
-
-export default function IntroPage() {
-  const router = useRouter()
-  const [lang, setLang] = useState('en')
-  const [step, setStep] = useState(0) // 0 = lang select, 1-3 = questions, 4 = response
-  const [answers, setAnswers] = useState({})
-
-  const questions = QUESTIONS[lang] || QUESTIONS['en']
-  const currentQ = questions[step - 1]
-
-  const handleAnswer = (value) => {
-    const newAnswers = { ...answers, [currentQ.id]: value }
-    setAnswers(newAnswers)
-    if (step < 3) {
-      setStep(step + 1)
-    } else {
-      setStep(4)
-    }
-  }
-
-  const handleContinue = () => {
-    router.push(`/onboarding?lang=${lang}`)
-  }
-
-  if (step === 0) {
-    return (
-      <>
-        <div className="cosmic-bg" />
-        <main style={s.wrap}>
-          <div style={s.card}>
-            <div style={s.eyebrow}>
-              <span className="tag tag-purple">✦ Self Alignment</span>
-            </div>
-            <h1 style={s.title}>Before we begin.</h1>
-            <p style={s.subtitle}>Three quick questions. No right or wrong answers. Just honesty.</p>
-            <p style={s.langLabel}>Choose your language:</p>
-            <div style={s.langGrid}>
-              {[
-                { code:'en', label:'English', flag:'🇬🇧' },
-                { code:'ro', label:'Română', flag:'🇷🇴' },
-                { code:'es', label:'Español', flag:'🇪🇸' },
-                { code:'fr', label:'Français', flag:'🇫🇷' },
-                { code:'de', label:'Deutsch', flag:'🇩🇪' },
-                { code:'it', label:'Italiano', flag:'🇮🇹' },
-                { code:'pt', label:'Português', flag:'🇵🇹' },
-                { code:'nl', label:'Nederlands', flag:'🇳🇱' },
-                { code:'pl', label:'Polski', flag:'🇵🇱' },
-                { code:'hu', label:'Magyar', flag:'🇭🇺' },
-              ].map(l => (
-                <button
-                  key={l.code}
-                  onClick={() => { setLang(l.code); setStep(1) }}
-                  style={s.langBtn}
-                >
-                  <span style={s.langFlag}>{l.flag}</span>
-                  <span style={s.langName}>{l.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </main>
-      </>
-    )
-  }
-
-  if (step === 4) {
-    const response = getResponse(answers, lang)
-    return (
-      <>
-        <div className="cosmic-bg" />
-        <main style={s.wrap}>
-          <div style={s.card}>
-            <div style={s.progressRow}>
-              {[1,2,3].map(i => (
-                <div key={i} style={{...s.progressDot, background:'var(--purple)'}} />
-              ))}
-            </div>
-            <div style={{fontSize:'48px', marginBottom:'24px', textAlign:'center'}}>✦</div>
-            <p style={s.response}>{response}</p>
-            <button onClick={handleContinue} style={s.continueBtn}>
-              {lang === 'ro' ? 'Generează Profilul Meu →' :
-               lang === 'es' ? 'Generar Mi Perfil →' :
-               lang === 'fr' ? 'Générer Mon Profil →' :
-               lang === 'de' ? 'Mein Profil Generieren →' :
-               lang === 'it' ? 'Genera Il Mio Profilo →' :
-               lang === 'pt' ? 'Gerar Meu Perfil →' :
-               lang === 'nl' ? 'Genereer Mijn Profiel →' :
-               lang === 'pl' ? 'Wygeneruj Mój Profil →' :
-               lang === 'hu' ? 'Profil Létrehozása →' :
-               'Generate My Profile →'}
-            </button>
-            <p style={s.micro}>Takes 30 seconds. Free.</p>
-          </div>
-        </main>
-      </>
-    )
-  }
+function CommitmentGate({ lang, onAccept }) {
+  const commitments = COMMITMENTS[lang] || COMMITMENTS['en']
+  const [checked, setChecked] = useState(commitments.map(() => false))
+  const allChecked = checked.every(c => c)
+  const toggle = (i) => { const u = [...checked]; u[i] = !u[i]; setChecked(u) }
 
   return (
     <>
       <div className="cosmic-bg" />
-      <main style={s.wrap}>
-        <div style={s.card}>
-          <div style={s.progressRow}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{
-                ...s.progressDot,
-                background: i <= step ? 'var(--purple)' : 'var(--border)'
-              }} />
+      <main style={g.wrap}>
+        <div style={g.card}>
+          <span className="tag tag-purple" style={{marginBottom:'20px', display:'inline-block'}}>{t(lang, 'before_you_begin')}</span>
+          <h1 style={g.title}>{t(lang, 'your_agreements')}</h1>
+          <p style={g.subtitle}>{t(lang, 'agreements_subtitle')}</p>
+          <div style={g.commitments}>
+            {commitments.map((item, i) => (
+              <div key={i} onClick={() => toggle(i)} style={{...g.commitmentItem, background: checked[i] ? 'var(--purple-light)' : 'var(--bg)', borderColor: checked[i] ? 'var(--purple)' : 'var(--border)', cursor:'pointer'}}>
+                <div style={{...g.checkbox, background: checked[i] ? 'var(--purple)' : 'transparent', borderColor: checked[i] ? 'var(--purple)' : 'var(--border)'}}>
+                  {checked[i] && <span style={g.checkmark}>✓</span>}
+                </div>
+                <p style={{...g.commitmentText, color: checked[i] ? 'var(--purple)' : 'var(--text)'}}>{item}</p>
+              </div>
             ))}
           </div>
-          <p style={s.qNum}>{step} / 3</p>
-          <h2 style={s.question}>{currentQ.question}</h2>
-          <p style={s.qSubtitle}>{currentQ.subtitle}</p>
-          <div style={s.options}>
-            {currentQ.options.map((opt, i) => (
-              <button
-                key={i}
-                onClick={() => handleAnswer(opt.value)}
-                style={s.optionBtn}
-              >
-                <span style={s.optionEmoji}>{opt.emoji}</span>
-                <span style={s.optionLabel}>{opt.label}</span>
-              </button>
-            ))}
-          </div>
+          <button onClick={onAccept} disabled={!allChecked} style={{...g.btn, background: allChecked ? 'var(--purple)' : '#ccc', cursor: allChecked ? 'pointer' : 'not-allowed', boxShadow: allChecked ? '0 4px 20px rgba(124,92,191,0.3)' : 'none'}}>
+            {allChecked ? t(lang, 'ready_btn') : t(lang, 'check_all')}
+          </button>
         </div>
       </main>
     </>
   )
 }
 
+const g = {
+  wrap: { maxWidth:'560px', margin:'0 auto', padding:'60px 24px 80px' },
+  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'40px', boxShadow:'var(--shadow)' },
+  title: { fontSize:'32px', fontWeight:'600', color:'var(--text)', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif' },
+  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.7', marginBottom:'32px' },
+  commitments: { marginBottom:'32px' },
+  commitmentItem: { display:'flex', alignItems:'flex-start', gap:'14px', padding:'16px', borderRadius:'10px', border:'1.5px solid', marginBottom:'12px', transition:'all 0.2s' },
+  checkbox: { width:'22px', height:'22px', borderRadius:'6px', border:'2px solid', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', marginTop:'1px' },
+  checkmark: { color:'#fff', fontSize:'13px', fontWeight:'700' },
+  commitmentText: { fontSize:'15px', lineHeight:'1.6', transition:'color 0.2s' },
+  btn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', transition:'all 0.2s' }
+}
+
+function HDCard({ hdData, lang }) {
+  if (!hdData) return null
+  const expl = getExplanations(lang)
+  const translatedType = translateHd('types', hdData.type, lang)
+  const translatedStrategy = translateHd('strategies', hdData.strategy, lang)
+  const translatedAuthority = translateHd('authorities', hdData.authority, lang)
+  const typeSubtitle = expl.type?.subtitles?.[hdData.type] || null
+  const profileSubtitle = expl.profile?.subtitle || null
+  const strategySubtitle = expl.strategy?.subtitles?.[hdData.strategy] || null
+  const authoritySubtitle = expl.authority?.subtitles?.[hdData.authority] || null
+
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--orange)', marginBottom:'20px'}}>
+      <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>Human Design</div>
+      <div style={s.grid2}>
+        <div style={hd.item}><p style={hd.label}>{t(lang, 'hd_type')}</p><p style={hd.value}>{translatedType}</p>{typeSubtitle && <p style={hd.subtitle}>{typeSubtitle}</p>}</div>
+        <div style={hd.item}><p style={hd.label}>{t(lang, 'hd_profile')}</p><p style={hd.value}>{hdData.profile}</p>{profileSubtitle && <p style={hd.subtitle}>{profileSubtitle}</p>}</div>
+        <div style={hd.item}><p style={hd.label}>{t(lang, 'hd_strategy')}</p><p style={hd.value}>{translatedStrategy}</p>{strategySubtitle && <p style={hd.subtitle}>{strategySubtitle}</p>}</div>
+        <div style={hd.item}><p style={hd.label}>{t(lang, 'hd_authority')}</p><p style={hd.value}>{translatedAuthority}</p>{authoritySubtitle && <p style={hd.subtitle}>{authoritySubtitle}</p>}</div>
+      </div>
+    </div>
+  )
+}
+
+const hd = {
+  item: { background:'var(--bg)', borderRadius:'10px', padding:'14px' },
+  label: { fontSize:'11px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:'var(--text-muted)', marginBottom:'6px' },
+  value: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'4px' },
+  subtitle: { fontSize:'12px', color:'var(--text-muted)', lineHeight:'1.5', marginTop:'4px', fontStyle:'italic' }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// v4 PROFILE SECTIONS
+// ═══════════════════════════════════════════════════════════════
+
+function ArchetypeCard({ archetype, lang }) {
+  if (!archetype) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--purple)', background:'linear-gradient(135deg, var(--surface) 0%, rgba(124,92,191,0.05) 100%)'}}>
+      <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ {t(lang, 'archetype') || 'Archetype'}</div>
+      <h2 style={{fontSize:'28px', fontWeight:'700', color:'var(--purple)', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px'}}>{archetype.name}</h2>
+      <p style={s.bodyText}>{archetype.description}</p>
+    </div>
+  )
+}
+
+function HowYouWorkCard({ howYouWork, lang }) {
+  if (!howYouWork) return null
+  const layers = [
+    { key: 'surface', label: t(lang, 'how_surface') || 'What others see', color: 'var(--text-muted)' },
+    { key: 'engine', label: t(lang, 'how_engine') || 'How you operate', color: 'var(--green)' },
+    { key: 'core', label: t(lang, 'how_core') || 'What drives you', color: 'var(--purple)' },
+  ]
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
+      <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>⚙ {t(lang, 'how_you_work') || 'How You Work'}</div>
+      {layers.map(({ key, label, color }) => howYouWork[key] && (
+        <div key={key} style={{marginBottom:'20px'}}>
+          <p style={{fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color, marginBottom:'8px'}}>{label}</p>
+          <p style={s.bodyText}>{howYouWork[key]}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function FrictionMapCard({ frictionMap, lang }) {
+  if (!frictionMap?.length) return null
+  const items = frictionMap.filter(f => typeof f === 'object' && f.tension)
+  if (!items.length) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
+      <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>⚡ {t(lang, 'friction_map') || 'Internal Friction'}</div>
+      {items.map((f, i) => (
+        <div key={i} style={{background:'var(--bg)', borderRadius:'10px', padding:'20px', marginBottom: i < items.length - 1 ? '16px' : 0}}>
+          <p style={{fontSize:'16px', fontWeight:'700', color:'var(--orange)', marginBottom:'12px'}}>{f.tension}</p>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'12px'}}>
+            <div style={{padding:'12px', background:'var(--surface)', borderRadius:'8px', borderLeft:'3px solid var(--purple)'}}>
+              <p style={{fontSize:'13px', lineHeight:'1.6', color:'var(--text)'}}>{f.pull_a}</p>
+            </div>
+            <div style={{padding:'12px', background:'var(--surface)', borderRadius:'8px', borderLeft:'3px solid var(--green)'}}>
+              <p style={{fontSize:'13px', lineHeight:'1.6', color:'var(--text)'}}>{f.pull_b}</p>
+            </div>
+          </div>
+          <p style={{fontSize:'14px', lineHeight:'1.6', color:'var(--text)', marginBottom:'8px'}}>{f.daily_experience}</p>
+          <p style={{fontSize:'14px', lineHeight:'1.6', color:'var(--green)', fontStyle:'italic'}}>{f.resolution}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function AlignedLifeCard({ alignedLife, lang }) {
+  if (!alignedLife) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--green)', background:'linear-gradient(135deg, var(--surface) 0%, rgba(72,187,120,0.05) 100%)'}}>
+      <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>✦ {t(lang, 'aligned_life') || 'Life When Aligned'}</div>
+      <p style={{...s.bodyText, fontSize:'16px', lineHeight:'1.8'}}>{alignedLife}</p>
+    </div>
+  )
+}
+
+function EnergyManualCard({ energyManual, lang }) {
+  if (!energyManual) return null
+  const sections = [
+    { key: 'peak', label: t(lang, 'energy_peak') || 'Peak Energy', icon: '⬆', color: 'var(--green)' },
+    { key: 'drain', label: t(lang, 'energy_drain') || 'Energy Drains', icon: '⬇', color: 'var(--orange)' },
+    { key: 'rhythm', label: t(lang, 'energy_rhythm') || 'Your Rhythm', icon: '◦', color: 'var(--purple)' },
+    { key: 'current_year', label: t(lang, 'energy_year') || 'This Year', icon: '◦', color: 'var(--text-muted)' },
+  ]
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
+      <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>⚡ {t(lang, 'energy_manual') || 'Energy Manual'}</div>
+      {sections.map(({ key, label, color }) => energyManual[key] && (
+        <div key={key} style={{marginBottom:'16px'}}>
+          <p style={{fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color, marginBottom:'6px'}}>{label}</p>
+          <p style={s.bodyText}>{energyManual[key]}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function WarningSignalsCard({ warningSignals, lang }) {
+  if (!warningSignals?.length) return null
+  const items = warningSignals.filter(w => typeof w === 'object' && w.signal)
+  if (!items.length) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
+      <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>⚠ {t(lang, 'warning_signals') || 'Warning Signals'}</div>
+      {items.map((w, i) => (
+        <div key={i} style={{background:'var(--bg)', borderRadius:'10px', padding:'16px', marginBottom: i < items.length - 1 ? '12px' : 0}}>
+          <p style={{fontSize:'15px', fontWeight:'600', color:'var(--orange)', marginBottom:'8px'}}>{w.signal}</p>
+          <p style={{fontSize:'14px', lineHeight:'1.6', color:'var(--text)', marginBottom:'8px'}}>{w.pattern}</p>
+          <p style={{fontSize:'14px', lineHeight:'1.6', color:'var(--green)', fontWeight:'500'}}>→ {w.exit}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DecisionSystemCard({ decisionSystem, lang }) {
+  if (!decisionSystem?.length) return null
+  return (
+    <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
+      <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>🧭 {t(lang, 'decision_system') || 'Decision System'}</div>
+      {decisionSystem.map((item, i) => (
+        <p key={i} style={{...s.bodyText, marginBottom: i < decisionSystem.length - 1 ? '16px' : '8px'}}>{item}</p>
+      ))}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHARED SECTIONS (work for both v3 and v4)
+// ═══════════════════════════════════════════════════════════════
+
+function ListSection({ items, label, labelBg, labelColor, icon, iconColor, borderColor }) {
+  if (!items?.length) return null
+  return (
+    <div style={{...s.card, borderLeft:`4px solid ${borderColor}`}}>
+      <div style={s.cardLabel(labelBg, labelColor)}>{label}</div>
+      <ul style={s.list}>
+        {items.map((item, i) => (
+          <li key={i} style={s.listItem}><span style={{color: iconColor, marginRight:'8px'}}>{icon}</span>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN PROFILE CONTENT
+// ═══════════════════════════════════════════════════════════════
+
+function ProfileContent() {
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [committed, setCommitted] = useState(false)
+
+  useEffect(() => {
+    localStorage.removeItem('profile')
+    const userId = getUserId()
+    fetch(`/api/profile?user_id=${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const profilePayload = {
+            sections: data.sections, swot: data.swot, alignment_plan: data.alignment_plan,
+            full_name: data.full_name, personal_year: data.personal_year,
+            hd_data: data.hd_data, language: data.language
+          }
+          localStorage.setItem('profile', JSON.stringify(profilePayload))
+          setProfile(profilePayload)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        const stored = localStorage.getItem('profile')
+        if (stored) setProfile(JSON.parse(stored))
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <div style={s.center}>Loading...</div>
+  if (!profile) return (
+    <div style={s.center}>
+      <p style={{marginBottom:'20px'}}>No profile found.</p>
+      <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
+    </div>
+  )
+
+  const lang = profile.language || 'en'
+  if (!committed) return <CommitmentGate lang={lang} onAccept={() => setCommitted(true)} />
+
+  const { sections, swot, alignment_plan, full_name, personal_year, hd_data } = profile
+  const isV4 = !!sections?.archetype
+  const handleDownloadPDF = () => generateProfilePDF(profile)
+
+  return (
+    <>
+      <div className="cosmic-bg" />
+      <main style={s.wrap}>
+
+        <div style={s.header}>
+          <div>
+            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>{t(lang, 'profile_tag')}</span>
+            <h1 style={s.title}>{t(lang, 'profile_title')}</h1>
+            {full_name && <p style={s.subtitle}>{t(lang, 'profile_generated_for')} {full_name}</p>}
+          </div>
+          <button onClick={handleDownloadPDF} style={s.dlBtn}>{t(lang, 'download_pdf')}</button>
+        </div>
+
+        {personal_year && (
+          <div style={s.personalYearCard}>
+            <div style={s.personalYearLeft}>
+              <span style={s.personalYearNum}>{personal_year.personal_year}</span>
+              <div>
+                <p style={s.personalYearLabel}>{t(lang, 'current_phase')}</p>
+                <p style={s.personalYearTheme}>{personal_year.theme}</p>
+              </div>
+            </div>
+            <div style={s.personalYearRight}>
+              <p style={s.personalYearFocus}>{personal_year.focus}</p>
+              <div style={s.personalYearWarning}>
+                <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
+                <span>{personal_year.warning}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <HDCard hdData={hd_data} lang={lang} />
+
+        {/* ═══ v4 LAYOUT ═══ */}
+        {isV4 ? (
+          <>
+            <ArchetypeCard archetype={sections.archetype} lang={lang} />
+            <HowYouWorkCard howYouWork={sections.how_you_work} lang={lang} />
+            <FrictionMapCard frictionMap={sections.friction_map} lang={lang} />
+            <AlignedLifeCard alignedLife={sections.aligned_life} lang={lang} />
+            <DecisionSystemCard decisionSystem={sections.decision_system} lang={lang} />
+            <EnergyManualCard energyManual={sections.energy_manual} lang={lang} />
+            <WarningSignalsCard warningSignals={sections.warning_signals} lang={lang} />
+
+            <div style={s.grid2}>
+              <ListSection items={sections.strengths} label={t(lang, 'strengths')} labelBg="var(--green-light)" labelColor="var(--green)" icon="✦" iconColor="var(--green)" borderColor="var(--green)" />
+              <ListSection items={sections.vulnerabilities} label={t(lang, 'vulnerabilities')} labelBg="var(--orange-light)" labelColor="var(--orange)" icon="🌱" iconColor="var(--orange)" borderColor="var(--orange)" />
+            </div>
+
+            <div style={s.card}>
+              <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'opportunities') || 'Opportunities'}</div>
+              <ul style={s.list}>
+                {sections.opportunities?.map((item, i) => (
+                  <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            {sections.commitments?.length > 0 && (
+              <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
+                <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'commitments') || 'Commitments'}</div>
+                {sections.commitments.map((item, i) => (
+                  <p key={i} style={{...s.bodyText, marginBottom:'12px', paddingLeft:'16px', borderLeft:'3px solid var(--border)'}}>{item}</p>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          /* ═══ v3 FALLBACK LAYOUT ═══ */
+          <>
+            <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
+              <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ {t(lang, 'blueprint')}</div>
+              <p style={s.bodyText}>{sections?.blueprint}</p>
+            </div>
+
+            <div style={s.grid2}>
+              <ListSection items={sections?.strengths} label={t(lang, 'strengths')} labelBg="var(--green-light)" labelColor="var(--green)" icon="✦" iconColor="var(--green)" borderColor="var(--green)" />
+              <ListSection items={sections?.vulnerabilities} label={t(lang, 'vulnerabilities')} labelBg="var(--orange-light)" labelColor="var(--orange)" icon="🌱" iconColor="var(--orange)" borderColor="var(--orange)" />
+            </div>
+
+            <div style={s.grid2}>
+              <ListSection items={sections?.energy_patterns} label={t(lang, 'energy_patterns')} labelBg="var(--purple-light)" labelColor="var(--purple)" icon="◦" iconColor="var(--purple)" borderColor="var(--purple)" />
+              <ListSection items={sections?.sabotage_tendencies} label={t(lang, 'sabotage')} labelBg="var(--orange-light)" labelColor="var(--orange)" icon="◦" iconColor="var(--orange)" borderColor="var(--orange)" />
+            </div>
+
+            <div style={s.grid2}>
+              <ListSection items={sections?.decision_making} label={t(lang, 'decision')} labelBg="var(--green-light)" labelColor="var(--green)" icon="◦" iconColor="var(--green)" borderColor="var(--green)" />
+              <ListSection items={sections?.work_discipline} label={t(lang, 'work')} labelBg="var(--purple-light)" labelColor="var(--purple)" icon="◦" iconColor="var(--purple)" borderColor="var(--purple)" />
+            </div>
+
+            <div style={s.card}>
+              <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
+              <div style={s.swotGrid}>
+                {[
+                  { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
+                  { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' },
+                ].map((q, i) => (
+                  <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
+                    <p style={{...s.swotTitle, color: q.color}}>{q.title}</p>
+                    <ul style={s.list}>
+                      {q.items?.map((item, j) => (
+                        <li key={j} style={s.listItem}><span style={{color: q.color, marginRight:'6px'}}>{q.icon}</span>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ═══ ALIGNMENT PLAN (shared, both v3 and v4) ═══ */}
+        {alignment_plan && !alignment_plan.__error__ && (
+          <div style={s.card}>
+            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
+
+            <div style={s.planLayer}>
+              <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
+              <p style={s.bodyText}>{alignment_plan.directional_clarity?.life_direction}</p>
+              <div style={s.grid2}>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan.directional_clarity?.prioritize?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan.directional_clarity?.eliminate?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div style={s.planLayer}>
+              <div style={s.layerBadge('var(--green)')}>{t(lang, 'layer2')}</div>
+              <p style={s.planLabel}>{t(lang, 'focus_30')}</p>
+              <p style={{...s.bodyText, marginBottom:'20px'}}>{alignment_plan.structured_plan?.thirty_day_focus}</p>
+              <div style={s.grid2}>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
+                  <ul style={s.list}>{alignment_plan.structured_plan?.weekly_template?.map((item, i) => (<li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>))}</ul>
+                </div>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
+                  <ul style={s.list}>{alignment_plan.structured_plan?.daily_template?.map((item, i) => (<li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>))}</ul>
+                </div>
+              </div>
+            </div>
+
+            <div style={{...s.planLayer, borderBottom:'none', marginBottom:0, paddingBottom:0}}>
+              <div style={s.layerBadge('var(--orange)')}>{t(lang, 'layer3')}</div>
+              <div style={s.grid3}>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
+                  <ul style={s.list}>{alignment_plan.behavioral_anchors?.keystone_habits?.map((item, i) => (<li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>))}</ul>
+                </div>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
+                  <ul style={s.list}>{alignment_plan.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (<li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>))}</ul>
+                </div>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
+                  <ul style={s.list}>{alignment_plan.behavioral_anchors?.non_negotiables?.map((item, i) => (<li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>))}</ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={s.ctaBox}>
+          <h2 style={s.ctaTitle}>{t(lang, 'cta_title')}</h2>
+          <p style={s.ctaText}>{t(lang, 'cta_text')}</p>
+          <div style={s.ctaBtns}>
+            <a href="/subscribe" style={s.ctaBtn}>{t(lang, 'cta_btn')}</a>
+            <a href="/dashboard" style={s.ctaBtnSecondary}>{t(lang, 'cta_dashboard')}</a>
+          </div>
+        </div>
+
+      </main>
+    </>
+  )
+}
+
 const s = {
-  wrap: { maxWidth:'520px', margin:'0 auto', padding:'60px 24px 80px' },
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'40px', boxShadow:'var(--shadow-lg)' },
-  eyebrow: { textAlign:'center', marginBottom:'20px' },
-  title: { fontSize:'36px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px', textAlign:'center' },
-  subtitle: { fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.7', marginBottom:'32px', textAlign:'center' },
-  langLabel: { fontSize:'13px', fontWeight:'600', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'16px' },
-  langGrid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' },
-  langBtn: { display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background:'var(--bg)', border:'1.5px solid var(--border)', borderRadius:'10px', cursor:'pointer', fontSize:'14px', fontWeight:'500', color:'var(--text)', transition:'all 0.15s' },
-  langFlag: { fontSize:'20px' },
-  langName: { fontSize:'14px', fontWeight:'500' },
-  progressRow: { display:'flex', gap:'8px', justifyContent:'center', marginBottom:'32px' },
-  progressDot: { width:'40px', height:'4px', borderRadius:'2px', transition:'background 0.3s' },
-  qNum: { fontSize:'12px', fontWeight:'600', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'16px', textAlign:'center' },
-  question: { fontSize:'26px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'10px', lineHeight:'1.3', textAlign:'center' },
-  qSubtitle: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'32px', textAlign:'center' },
-  options: { display:'flex', flexDirection:'column', gap:'10px' },
-  optionBtn: { display:'flex', alignItems:'center', gap:'14px', padding:'16px 20px', background:'var(--bg)', border:'1.5px solid var(--border)', borderRadius:'12px', cursor:'pointer', fontSize:'15px', fontWeight:'500', color:'var(--text)', textAlign:'left', transition:'all 0.15s' },
-  optionEmoji: { fontSize:'22px', flexShrink:0 },
-  optionLabel: { fontSize:'15px', fontWeight:'500' },
-  response: { fontSize:'18px', color:'var(--text)', lineHeight:'1.8', marginBottom:'32px', textAlign:'center', fontFamily:'Cormorant Garamond, serif', whiteSpace:'pre-line' },
-  continueBtn: { width:'100%', padding:'16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'500', cursor:'pointer', boxShadow:'0 4px 20px rgba(124,92,191,0.3)', marginBottom:'12px' },
-  micro: { textAlign:'center', fontSize:'12px', color:'var(--text-light)' }
+  wrap: { maxWidth:'800px', margin:'0 auto', padding:'40px 24px 80px' },
+  center: { textAlign:'center', padding:'80px 20px', fontSize:'18px' },
+  header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
+  title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
+  subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
+  dlBtn: { padding:'10px 20px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', fontWeight:'500', cursor:'pointer', color:'var(--text)' },
+  personalYearCard: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px', display:'flex', gap:'32px', alignItems:'flex-start', flexWrap:'wrap' },
+  personalYearLeft: { display:'flex', alignItems:'center', gap:'16px', flexShrink:0 },
+  personalYearNum: { fontSize:'64px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
+  personalYearLabel: { fontSize:'11px', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'4px' },
+  personalYearTheme: { fontSize:'18px', fontWeight:'600', color:'#fff' },
+  personalYearRight: { flex:1 },
+  personalYearFocus: { fontSize:'14px', color:'rgba(255,255,255,0.8)', lineHeight:'1.7', marginBottom:'12px' },
+  personalYearWarning: { display:'flex', alignItems:'flex-start', fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:'1.6' },
+  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'28px', marginBottom:'20px', boxShadow:'var(--shadow)' },
+  cardLabel: (bg, color) => ({ display:'inline-block', padding:'6px 14px', background:bg, color:color, borderRadius:'20px', fontSize:'13px', fontWeight:'600', marginBottom:'16px', letterSpacing:'0.3px' }),
+  grid2: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:'20px', marginBottom:'20px' },
+  grid3: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px' },
+  list: { listStyle:'none', padding:0, margin:0 },
+  listItem: { fontSize:'14px', lineHeight:'1.6', color:'var(--text)', padding:'7px 0', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'flex-start' },
+  bodyText: { fontSize:'15px', lineHeight:'1.75', color:'var(--text)', marginBottom:'8px' },
+  swotGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:'16px' },
+  swotBox: { background:'var(--bg)', borderRadius:'10px', padding:'16px' },
+  swotTitle: { fontSize:'13px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'12px' },
+  planLayer: { borderBottom:'1px solid var(--border)', paddingBottom:'24px', marginBottom:'24px' },
+  layerBadge: (color) => ({ display:'inline-block', padding:'5px 14px', background: color, color:'#fff', borderRadius:'20px', fontSize:'12px', fontWeight:'600', marginBottom:'16px', letterSpacing:'0.3px' }),
+  planLabel: { fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:'var(--text-muted)', marginBottom:'10px', marginTop:'16px' },
+  anchorBox: { background:'var(--bg)', borderRadius:'10px', padding:'16px' },
+  ctaBox: { background:'linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%)', borderRadius:'var(--radius)', padding:'40px', textAlign:'center', marginTop:'32px' },
+  ctaTitle: { fontSize:'28px', fontWeight:'600', color:'#fff', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
+  ctaText: { fontSize:'15px', color:'rgba(255,255,255,0.7)', marginBottom:'24px' },
+  ctaBtns: { display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' },
+  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'#fff', color:'var(--purple-dark)', borderRadius:'10px', fontSize:'15px', fontWeight:'600' },
+  ctaBtnSecondary: { display:'inline-block', padding:'13px 28px', background:'rgba(255,255,255,0.15)', color:'#fff', borderRadius:'10px', fontSize:'15px', fontWeight:'600', border:'1px solid rgba(255,255,255,0.3)' }
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign:'center', padding:'80px' }}>Loading...</div>}>
+      <ProfileContent />
+    </Suspense>
+  )
 }
