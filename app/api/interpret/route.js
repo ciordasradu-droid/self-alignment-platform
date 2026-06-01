@@ -21,7 +21,7 @@ class TruncationError extends Error {
   }
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 6000) {
+async function callClaude(prompt, language = 'en', maxTokens = 16000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const reinforcement = language === 'en'
     ? `\n\nFINAL REMINDER: Your entire response must be in English. No Spanish, no other languages. Every word must be English.`

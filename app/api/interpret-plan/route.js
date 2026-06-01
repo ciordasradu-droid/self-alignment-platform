@@ -1,4 +1,4 @@
-import { NextResponse, after } from 'next/server'
+﻿import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '../../../lib/supabase'
 import { buildAlignmentPlanPrompt, buildActionPlanPrompt } from '../../../lib/prompts/profile'
@@ -15,7 +15,7 @@ const LANGUAGE_NAMES = {
   pl: 'Polish', hu: 'Hungarian'
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 4000) {
+async function callClaude(prompt, language = 'en', maxTokens = 8000) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: Write your entire response in ${languageName}. All text, labels, and content must be in ${languageName}. No English words, no code-switching.`
@@ -60,7 +60,7 @@ async function callClaude(prompt, language = 'en', maxTokens = 4000) {
   if (!fullText) throw new Error('No text response from Claude')
 
   if (stopReason === 'max_tokens') {
-    console.warn(`[interpret-plan] Claude hit max_tokens (${maxTokens}) — output may be truncated.`)
+    console.warn(`[interpret-plan] Claude hit max_tokens (${maxTokens}) â€” output may be truncated.`)
   }
 
   const clean = fullText.trim()
