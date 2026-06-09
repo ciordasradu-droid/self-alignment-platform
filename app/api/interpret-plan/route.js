@@ -24,6 +24,7 @@ async function callClaude(prompt, language = 'en', maxTokens = 8000) {
   const params = {
     model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
+    temperature: 0.7,
     messages: [{ role: 'user', content: prompt + languageInstruction }],
     stream: true
   }
@@ -150,3 +151,4 @@ export async function GET(request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+
