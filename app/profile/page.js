@@ -39,13 +39,13 @@ function CommitmentGate({ lang, onAccept }) {
       <main style={{ maxWidth:'560px', margin:'80px auto', padding:'0 24px', textAlign:'center' }}>
         <div style={{ fontSize:'48px', marginBottom:'20px' }} aria-hidden="true">✦</div>
         <h1 style={{ fontSize:'clamp(26px, 6vw, 38px)', fontWeight:600, color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.2, marginBottom:'18px' }}>
-          {t(lang, 'gate_title')}
+          {t(lang, 'before_you_begin')}
         </h1>
         <p style={{ fontSize:'16px', lineHeight:1.7, color:'var(--text-muted)', marginBottom:'32px' }}>
-          {t(lang, 'gate_text')}
+          {t(lang, 'agreements_subtitle')}
         </p>
         <button onClick={onAccept} className="cta-premium cta-premium-large" style={{ cursor:'pointer' }}>
-          {t(lang, 'gate_btn')}
+          {t(lang, 'ready_btn')}
         </button>
       </main>
     </>
@@ -432,3 +432,5 @@ export default function ProfilePage() {
     </Suspense>
   )
 }
+
+
