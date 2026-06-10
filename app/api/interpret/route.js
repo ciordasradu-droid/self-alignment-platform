@@ -127,7 +127,7 @@ export async function POST(request) {
           strengths: sections.strengths?.slice(0, 4) || [],
           weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
           opportunities: sections.opportunities || [],
-          threats: sections.warning_signals?.slice(0, 4).map(w => typeof w === 'object' ? w.signal : w) || []
+          threats: []
         }
 
         await supabase
@@ -191,4 +191,5 @@ export async function GET(request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+
 

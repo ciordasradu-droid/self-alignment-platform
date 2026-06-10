@@ -279,8 +279,8 @@ function ProfileContent() {
           <div style={s.swotGrid}>
             {[
               { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
-              { title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' },
-            ].map((q, i) => (
+              ...(swot?.threats && swot.threats.length ? [{ title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' }] : []),
+            ].filter(q => q.items && q.items.length).map((q, i) => (
               <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
                 <p style={{...s.swotTitle, color: q.color}}>{q.title}</p>
                 <ul style={s.list}>
@@ -432,5 +432,7 @@ export default function ProfilePage() {
     </Suspense>
   )
 }
+
+
 
 
