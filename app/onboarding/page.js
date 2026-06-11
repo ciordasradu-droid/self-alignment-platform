@@ -1,21 +1,17 @@
 'use client'
 
+// Destinație: app/onboarding/page.js  (ÎNLOCUIEȘTE COMPLET)
+// Schimbări față de versiunea anterioară:
+// - limba vine din limba globală (lib/language.js), aleasă deja pe landing
+// - dacă userul o schimbă aici, se schimbă global (localStorage), nu doar local
+// - eticheta "Free Profile" tradusă (lib/landing.js)
+// - restul rămâne identic
+
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { t, UI } from '../../lib/translations'
-
-const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ro', label: 'Română' },
-  { code: 'es', label: 'Español' },
-  { code: 'fr', label: 'Français' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'it', label: 'Italiano' },
-  { code: 'pt', label: 'Português' },
-  { code: 'nl', label: 'Nederlands' },
-  { code: 'pl', label: 'Polski' },
-  { code: 'hu', label: 'Magyar' },
-]
+import { useLanguage, LANGUAGES } from '../../lib/language'
+import { lt } from '../../lib/landing'
 
 const READY_NOTE = {
   en: 'Your profile will be ready in 2-3 minutes',
@@ -41,7 +37,7 @@ function CosmicStars() {
 export default function Onboarding() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [lang, setLang] = useState('en')
+  const [lang, changeLanguage] = useLanguage()
   const [formData, setFormData] = useState({
     full_name: '',
     date_of_birth: '',
@@ -60,6 +56,11 @@ export default function Onboarding() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const debounceRef = useRef(null)
 
+  // Limba globală se reflectă mereu în datele formularului
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, language: lang }))
+  }, [lang])
+
   useEffect(() => {
     if (day && month && year && year.length === 4) {
       const paddedMonth = month.padStart(2, '0')
@@ -69,8 +70,7 @@ export default function Onboarding() {
   }, [day, month, year])
 
   const handleLanguageChange = (code) => {
-    setLang(code)
-    setFormData(prev => ({ ...prev, language: code }))
+    changeLanguage(code)
     setMonth('')
   }
 
@@ -118,7 +118,7 @@ export default function Onboarding() {
       return
     }
     setLoading(true)
-    const encoded = encodeURIComponent(JSON.stringify(formData))
+    const encoded = encodeURIComponent(JSON.stringify({ ...formData, language: lang }))
     router.push(`/generating?data=${encoded}`)
   }
 
@@ -133,7 +133,7 @@ export default function Onboarding() {
 
         <div style={s.header}>
           <a href="/" style={s.back} className="btn-lift">{t(lang, 'back')}</a>
-          <span className="tag tag-purple">Free Profile</span>
+          <span className="tag tag-purple">{lt(lang, 'free_tag')}</span>
         </div>
 
         <div className="onboarding-premium-card anim-fade-in">
@@ -141,9 +141,9 @@ export default function Onboarding() {
             <h1 className="onboarding-title-huge">{t(lang, 'onboarding_title')}</h1>
             <p style={s.subtitle}>{t(lang, 'onboarding_subtitle')}</p>
             <div style={s.tags}>
-              <span className="tag tag-purple">Astrology</span>
+              <span className="tag tag-purple">{lt(lang, 'pillar_astro')}</span>
               <span className="tag tag-green">Human Design</span>
-              <span className="tag tag-orange">Numerology</span>
+              <span className="tag tag-orange">{lt(lang, 'pillar_num')}</span>
             </div>
           </div>
 

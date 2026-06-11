@@ -1,7 +1,15 @@
 'use client'
 
+// Destinație: app/page.js  (ÎNLOCUIEȘTE COMPLET)
+// Schimbări față de versiunea anterioară:
+// - selector de limbă în nav (global, salvat în localStorage prin lib/language.js)
+// - toate textele landing-ului vin din lib/landing.js (10 limbi)
+// - structura, stilurile și animațiile rămân identice
+
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
+import { useLanguage, LANGUAGES } from '../lib/language'
+import { lt } from '../lib/landing'
 
 // ── Reveal: fades + slides up its children when scrolled into view ──
 function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' }) {
@@ -49,7 +57,7 @@ function CosmicStars() {
 }
 
 // ── Returning user banner ──
-function ReturningUserBanner() {
+function ReturningUserBanner({ lang }) {
   const [hasProfile, setHasProfile] = useState(false)
 
   useEffect(() => {
@@ -61,8 +69,8 @@ function ReturningUserBanner() {
 
   return (
     <div style={rb.banner} className="anim-fade-in">
-      <span style={rb.text}>✦ Welcome back — your profile is waiting</span>
-      <Link href="/profile" style={rb.link}>View My Profile →</Link>
+      <span style={rb.text}>{lt(lang, 'banner_back')}</span>
+      <Link href="/profile" style={rb.link}>{lt(lang, 'banner_view')}</Link>
     </div>
   )
 }
@@ -74,6 +82,8 @@ const rb = {
 }
 
 export default function Home() {
+  const [lang, changeLanguage] = useLanguage()
+
   return (
     <>
       <div className="cosmic-bg" />
@@ -83,52 +93,62 @@ export default function Home() {
       <nav style={s.nav}>
         <div style={s.navInner}>
           <p style={s.logo}>✦ Alignment</p>
-          <Link href="/onboarding" style={s.navCta} className="btn-lift">Start</Link>
+          <div style={s.navRight}>
+            <select
+              value={lang}
+              onChange={e => changeLanguage(e.target.value)}
+              style={s.langSelect}
+              aria-label="Language"
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.label}</option>
+              ))}
+            </select>
+            <Link href="/onboarding" style={s.navCta} className="btn-lift">{lt(lang, 'nav_start')}</Link>
+          </div>
         </div>
       </nav>
 
       <main style={s.wrap}>
 
-        <ReturningUserBanner />
+        <ReturningUserBanner lang={lang} />
 
         {/* ── HERO ── */}
         <section style={s.hero}>
           <div className="hero-orb" aria-hidden="true" />
           <div style={s.heroInner}>
             <h1 style={s.heroTitle} className="anim-fade-in">
-              When you align with yourself
+              {lt(lang, 'hero_title_1')}
               <br />
-              <span className="gradient-text-fast">everything else follows.</span>
+              <span className="gradient-text-fast">{lt(lang, 'hero_title_2')}</span>
             </h1>
             <p style={s.heroSub} className="anim-fade-in stagger-3">
-              Human Design. Astrology. Numerology. One profile that finally
-              tells you who you are — and a daily ritual to live it.
+              {lt(lang, 'hero_sub')}
             </p>
             <div className="anim-fade-in stagger-5" style={{ display:'inline-block' }}>
               <Link href="/onboarding" className="cta-premium cta-premium-large">
-                Start Here <span className="arrow" aria-hidden="true">→</span>
+                {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
               </Link>
-              <span className="cta-subtext">Free. No card. 30 seconds.</span>
+              <span className="cta-subtext">{lt(lang, 'hero_cta_note')}</span>
             </div>
           </div>
         </section>
 
         {/* ── VISUAL STORYTELLING ── */}
         <section style={s.section}>
-          <Reveal as="h2" style={s.sectionTitle}>What you actually get</Reveal>
+          <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'get_title')}</Reveal>
           <Reveal as="p" style={s.sectionSub} delay={80}>
-            Four pieces, designed to work together. Built around who you are — not generic advice.
+            {lt(lang, 'get_sub')}
           </Reveal>
 
           <div className="story-grid" style={{ marginTop: '36px' }}>
 
             <Reveal delay={0}>
               <div className="story-card story-card-purple">
-                <span className="story-tag">Profile</span>
-                <h3 className="story-title">Your unique profile</h3>
+                <span className="story-tag">{lt(lang, 'card_profile_tag')}</span>
+                <h3 className="story-title">{lt(lang, 'card_profile_title')}</h3>
                 <p className="story-text">
-                  Human Design, astrology, and numerology synthesized into one honest document.
-                  Personal. Specific. Yours.
+                  {lt(lang, 'card_profile_text')}
                 </p>
                 <div className="story-preview">
                   <div className="mock-profile">
@@ -144,11 +164,10 @@ export default function Home() {
 
             <Reveal delay={120}>
               <div className="story-card story-card-green">
-                <span className="story-tag" style={{ color:'var(--green)' }}>Daily Ritual</span>
-                <h3 className="story-title">2-minute daily ritual</h3>
+                <span className="story-tag" style={{ color:'var(--green)' }}>{lt(lang, 'card_ritual_tag')}</span>
+                <h3 className="story-title">{lt(lang, 'card_ritual_title')}</h3>
                 <p className="story-text">
-                  A short check-in. Real questions. Your alignment, tracked over time without ever
-                  feeling like a chore.
+                  {lt(lang, 'card_ritual_text')}
                 </p>
                 <div className="story-preview">
                   <div className="mock-rating" aria-hidden="true">
@@ -164,11 +183,10 @@ export default function Home() {
 
             <Reveal delay={240}>
               <div className="story-card story-card-amber">
-                <span className="story-tag" style={{ color:'var(--orange)' }}>Patterns</span>
-                <h3 className="story-title">Patterns that guide you</h3>
+                <span className="story-tag" style={{ color:'var(--orange)' }}>{lt(lang, 'card_patterns_tag')}</span>
+                <h3 className="story-title">{lt(lang, 'card_patterns_title')}</h3>
                 <p className="story-text">
-                  Streaks, weekly reviews, and pattern detection that learns from you — not from
-                  some generic app's idea of progress.
+                  {lt(lang, 'card_patterns_text')}
                 </p>
                 <div className="story-preview">
                   <div className="mock-streak">
@@ -192,17 +210,16 @@ export default function Home() {
 
             <Reveal delay={360}>
               <div className="story-card story-card-mixed">
-                <span className="story-tag" style={{ color:'var(--purple)' }}>Foundation</span>
-                <h3 className="story-title">Built on who you are</h3>
+                <span className="story-tag" style={{ color:'var(--purple)' }}>{lt(lang, 'card_foundation_tag')}</span>
+                <h3 className="story-title">{lt(lang, 'card_foundation_title')}</h3>
                 <p className="story-text">
-                  Three ancient systems, calculated from your birth data, woven into one
-                  contemporary profile you can actually use.
+                  {lt(lang, 'card_foundation_text')}
                 </p>
                 <div className="story-preview">
                   <div className="mock-pillars">
                     <span className="mock-pillar"><span className="mock-pillar-icon">◎</span> Human Design</span>
-                    <span className="mock-pillar"><span className="mock-pillar-icon">✦</span> Astrology</span>
-                    <span className="mock-pillar"><span className="mock-pillar-icon">⚡</span> Numerology</span>
+                    <span className="mock-pillar"><span className="mock-pillar-icon">✦</span> {lt(lang, 'pillar_astro')}</span>
+                    <span className="mock-pillar"><span className="mock-pillar-icon">⚡</span> {lt(lang, 'pillar_num')}</span>
                   </div>
                 </div>
               </div>
@@ -216,27 +233,27 @@ export default function Home() {
           <Reveal>
             <div className="trust-banner">
               <p className="trust-banner-title">
-                No subscription. No card. Your profile is free.
+                {lt(lang, 'trust_banner')}
               </p>
             </div>
           </Reveal>
           <Reveal delay={120}>
             <div className="trust-indicators">
-              <div className="trust-indicator"><span className="trust-indicator-icon">🔒</span> Private &amp; secure</div>
-              <div className="trust-indicator"><span className="trust-indicator-icon">⚡</span> Ready in 2 minutes</div>
-              <div className="trust-indicator"><span className="trust-indicator-icon">🌍</span> 10 languages</div>
+              <div className="trust-indicator"><span className="trust-indicator-icon">🔒</span> {lt(lang, 'trust_private')}</div>
+              <div className="trust-indicator"><span className="trust-indicator-icon">⚡</span> {lt(lang, 'trust_fast')}</div>
+              <div className="trust-indicator"><span className="trust-indicator-icon">🌍</span> {lt(lang, 'trust_langs')}</div>
             </div>
           </Reveal>
         </section>
 
         {/* ── HOW IT WORKS ── */}
         <section style={s.section}>
-          <Reveal as="h2" style={s.sectionTitle}>How it works</Reveal>
+          <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'how_title')}</Reveal>
           <div style={s.threeGrid}>
             {[
-              { n:'1', color:'var(--purple)', title:'Enter your birth data', text:'Name, date, time, and city of birth. This is how your unique profile is calculated.' },
-              { n:'2', color:'var(--green)', title:'Receive your profile', text:'In 2-3 minutes, your personal profile is generated — warm, honest, and structured.' },
-              { n:'3', color:'var(--orange)', title:'Start the path', text:'Read your profile. Start your plan. Check in daily. The rest unfolds from there.' },
+              { n:'1', color:'var(--purple)', title:lt(lang, 'step1_title'), text:lt(lang, 'step1_text') },
+              { n:'2', color:'var(--green)', title:lt(lang, 'step2_title'), text:lt(lang, 'step2_text') },
+              { n:'3', color:'var(--orange)', title:lt(lang, 'step3_title'), text:lt(lang, 'step3_text') },
             ].map((step, i) => (
               <Reveal key={i} delay={i * 120}>
                 <div style={{...s.stepCard, borderLeft:`4px solid ${step.color}`}} className="landing-card">
@@ -251,44 +268,37 @@ export default function Home() {
 
         {/* ── PRICING (premium dark card + free card) ── */}
         <section style={s.pricingSection}>
-          <Reveal as="h2" style={s.pricingTitle}>Clear pricing. No surprises.</Reveal>
+          <Reveal as="h2" style={s.pricingTitle}>{lt(lang, 'pricing_title')}</Reveal>
           <Reveal as="p" style={s.sectionSub} delay={80}>
-            Start free. Upgrade only if it's worth it.
+            {lt(lang, 'pricing_sub')}
           </Reveal>
 
           <div style={s.pricingGrid}>
             <Reveal delay={0}>
               <div className="price-card-free landing-card">
-                <span className="tag tag-purple" style={{marginBottom:'18px', display:'inline-block'}}>Profile</span>
-                <p className="price-amount-free">Free</p>
-                <p style={{ fontSize:'13px', color:'var(--text-light)', marginTop:'4px' }}>Yours to keep</p>
+                <span className="tag tag-purple" style={{marginBottom:'18px', display:'inline-block'}}>{lt(lang, 'price_free_tag')}</span>
+                <p className="price-amount-free">{lt(lang, 'price_free')}</p>
+                <p style={{ fontSize:'13px', color:'var(--text-light)', marginTop:'4px' }}>{lt(lang, 'price_free_note')}</p>
                 <p style={s.priceDesc}>
-                  Your full personal profile — Human Design, astrology, and numerology
-                  combined into one document. Includes your alignment plan.
+                  {lt(lang, 'price_free_desc')}
                 </p>
                 <Link href="/onboarding" style={s.priceBtnGhost} className="btn-lift">
-                  Get Your Profile →
+                  {lt(lang, 'price_free_btn')}
                 </Link>
               </div>
             </Reveal>
 
             <Reveal delay={140}>
               <div className="price-premium">
-                <span className="price-premium-tag">Full Path</span>
+                <span className="price-premium-tag">{lt(lang, 'price_premium_tag')}</span>
                 <div>
                   <span className="price-premium-amount">€8</span>
-                  <span className="price-premium-period">/month</span>
+                  <span className="price-premium-period">{lt(lang, 'price_month')}</span>
                 </div>
-                <p className="price-premium-annual">or €80/year — 2 months free</p>
+                <p className="price-premium-annual">{lt(lang, 'price_annual')}</p>
 
                 <div className="price-premium-features">
-                  {[
-                    "Everything in the free profile",
-                    "Daily 2-minute check-in ritual",
-                    "Weekly pattern detection & reviews",
-                    "Streaks, score, and gentle accountability",
-                    "Available in 10 languages",
-                  ].map((feat, i) => (
+                  {lt(lang, 'features').map((feat, i) => (
                     <div key={i} className="price-feature">
                       <span className="price-check">✓</span>
                       <span>{feat}</span>
@@ -297,11 +307,11 @@ export default function Home() {
                 </div>
 
                 <Link href="/subscribe" className="cta-premium" style={{ background:'linear-gradient(135deg, #d4a574 0%, #f5d976 50%, #d4a574 100%)' }}>
-                  Start Your Path <span className="arrow" aria-hidden="true">→</span>
+                  {lt(lang, 'price_premium_btn')} <span className="arrow" aria-hidden="true">→</span>
                 </Link>
 
                 <p style={{ marginTop:'18px', fontSize:'12px', color:'rgba(255,255,255,0.55)' }}>
-                  🛡 30-day money-back guarantee · Cancel anytime
+                  {lt(lang, 'guarantee')}
                 </p>
               </div>
             </Reveal>
@@ -311,22 +321,22 @@ export default function Home() {
         {/* ── FINAL CTA ── */}
         <section style={s.ctaSection}>
           <Reveal as="h2" style={s.ctaTitle}>
-            The most honest relationship you will
+            {lt(lang, 'final_1')}
             <br />
-            <span className="gradient-text-fast">ever have is the one with yourself.</span>
+            <span className="gradient-text-fast">{lt(lang, 'final_2')}</span>
           </Reveal>
           <Reveal delay={150} style={{display:'inline-block'}}>
             <Link href="/onboarding" className="cta-premium cta-premium-large">
-              Start Here <span className="arrow" aria-hidden="true">→</span>
+              {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
             </Link>
-            <span className="cta-subtext">Free. No card. 30 seconds.</span>
+            <span className="cta-subtext">{lt(lang, 'hero_cta_note')}</span>
           </Reveal>
         </section>
 
         {/* ── FOOTER ── */}
         <footer style={s.footer}>
           <p style={s.footerLogo}>✦ Alignment</p>
-          <p style={s.footerText}>Available in 10 languages. Built for people who are done with generic advice.</p>
+          <p style={s.footerText}>{lt(lang, 'footer_text')}</p>
         </footer>
 
       </main>
@@ -342,6 +352,8 @@ const s = {
   nav: { position:'sticky', top:0, zIndex:100, background:'rgba(250,250,248,0.85)', backdropFilter:'blur(14px)', borderBottom:'1px solid rgba(232, 232, 240, 0.6)' },
   navInner: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', alignItems:'center', height:'64px' },
   logo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
+  navRight: { display:'flex', alignItems:'center', gap:'10px' },
+  langSelect: { padding:'8px 10px', borderRadius:'10px', border:'1px solid var(--border)', background:'var(--surface)', fontSize:'13px', color:'var(--text)', cursor:'pointer', maxWidth:'130px' },
   navCta: { display:'inline-block', padding:'9px 22px', background:'var(--purple)', color:'#fff', borderRadius:'10px', fontSize:'14px', fontWeight:'600', boxShadow:'0 4px 14px rgba(124, 92, 191, 0.25)' },
 
   // Hero — large, generous
