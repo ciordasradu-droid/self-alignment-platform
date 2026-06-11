@@ -8,7 +8,7 @@ import { t } from '../../lib/translations'
 // Localized "still working" messages shown when a request hits the timeout
 const TIMEOUT_MESSAGES = {
   en: 'Taking longer than usual. Please wait...',
-  ro: 'DureazÄƒ mai mult decÃ¢t de obicei. Te rugÄƒm sÄƒ aÈ™tepÈ›i...'
+  ro: 'Durează mai mult decât de obicei. Te rugăm să aștepți...'
 }
 
 // Safe fetch for short request/response calls. Guards against HTML error pages.
@@ -47,7 +47,7 @@ async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}
       const res = await fetch(url, { cache: 'no-store' })
       data = await res.json()
     } catch (e) {
-      // Transient network error â€” wait and retry within the overall budget
+      // Transient network error — wait and retry within the overall budget
       await new Promise(r => setTimeout(r, intervalMs))
       continue
     }
@@ -93,7 +93,7 @@ function GeneratingContent() {
       const userId = getUserId()
       const language = formData.language || 'en'
 
-      // Step 1 â€” calculate chart data
+      // Step 1 — calculate chart data
       const calcData = await safeFetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +112,7 @@ function GeneratingContent() {
         return
       }
 
-      // Step 2 â€” start interpret (returns id immediately), then poll until complete
+      // Step 2 — start interpret (returns id immediately), then poll until complete
       const startInterpret = await safeFetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,7 +135,7 @@ function GeneratingContent() {
         { intervalMs: 1500, maxMs: 240000 }
       )
 
-      // Step 3 â€” start plan, then poll. Plan is non-fatal.
+      // Step 3 — start plan, then poll. Plan is non-fatal.
       let planData = {}
       try {
         await safeFetch('/api/interpret-plan', {
@@ -209,7 +209,7 @@ function GeneratingContent() {
             fontWeight: 600,
             fontSize: '15px'
           }}>
-            â† Go back
+            ← Go back
           </a>
         </div>
       </main>
@@ -220,7 +220,7 @@ function GeneratingContent() {
     <>
       <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
-        <div style={{ fontSize:'48px', marginBottom:'24px' }} aria-hidden="true">âœ¦</div>
+        <div style={{ fontSize:'48px', marginBottom:'24px' }} aria-hidden="true">✦</div>
         <h1 style={{
           fontSize:'26px',
           fontWeight:600,
