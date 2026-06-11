@@ -1,5 +1,15 @@
 ﻿'use client'
 
+// Destinație: app/profile/page.js  (ÎNLOCUIEȘTE COMPLET)
+// Schimbări față de versiunea anterioară:
+// - CommitmentGate afișează cele 3 acorduri personale REALE din profilul generat
+//   (alignment_plan.behavioral_anchors.non_negotiables), bifabile pe rând
+// - Butonul se activează doar cu toate acordurile bifate
+// - Acordurile bifate se salvează în localStorage ('my_agreements') pentru accountability
+// - Gate-ul apare o singură dată per profil (salvat în localStorage); la profil nou apare din nou
+// - Fallback: dacă profilul nu are acorduri (profil v3 vechi), gate-ul simplu de până acum
+// - Restul paginii rămâne identic
+
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
@@ -32,11 +42,20 @@ function translateHd(category, value, lang) {
   return value
 }
 
-function CommitmentGate({ lang, onAccept }) {
+function CommitmentGate({ lang, agreements, onAccept }) {
+  const hasAgreements = Array.isArray(agreements) && agreements.length > 0
+  const [checked, setChecked] = useState(hasAgreements ? agreements.map(() => false) : [])
+
+  const allChecked = !hasAgreements || (checked.length > 0 && checked.every(Boolean))
+
+  const toggle = (i) => {
+    setChecked(prev => prev.map((c, j) => (j === i ? !c : c)))
+  }
+
   return (
     <>
       <div className="cosmic-bg" />
-      <main style={{ maxWidth:'560px', margin:'80px auto', padding:'0 24px', textAlign:'center' }}>
+      <main style={{ maxWidth:'560px', margin:'60px auto', padding:'0 24px', textAlign:'center' }}>
         <div style={{ fontSize:'48px', marginBottom:'20px' }} aria-hidden="true">✦</div>
         <h1 style={{ fontSize:'clamp(26px, 6vw, 38px)', fontWeight:600, color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.2, marginBottom:'18px' }}>
           {t(lang, 'before_you_begin')}
@@ -44,9 +63,72 @@ function CommitmentGate({ lang, onAccept }) {
         <p style={{ fontSize:'16px', lineHeight:1.7, color:'var(--text-muted)', marginBottom:'32px' }}>
           {t(lang, 'agreements_subtitle')}
         </p>
-        <button onClick={onAccept} className="cta-premium cta-premium-large" style={{ cursor:'pointer' }}>
+
+        {hasAgreements && (
+          <div style={{ textAlign:'left', marginBottom:'32px' }}>
+            <p style={{ fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.8px', color:'var(--text-muted)', marginBottom:'14px', textAlign:'center' }}>
+              {t(lang, 'your_agreements')}
+            </p>
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+              {agreements.map((item, i) => {
+                const isOn = checked[i]
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => toggle(i)}
+                    aria-pressed={isOn}
+                    style={{
+                      display:'flex', alignItems:'flex-start', gap:'14px',
+                      width:'100%', textAlign:'left', cursor:'pointer',
+                      background:'var(--surface)',
+                      border: isOn ? '1.5px solid var(--purple)' : '1.5px solid var(--border)',
+                      borderRadius:'14px', padding:'16px 18px',
+                      boxShadow: isOn ? '0 4px 14px rgba(124, 92, 191, 0.15)' : 'var(--shadow)',
+                      transition:'border-color 0.2s, box-shadow 0.2s',
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        flexShrink:0, width:'24px', height:'24px', borderRadius:'50%',
+                        border: isOn ? 'none' : '2px solid var(--border)',
+                        background: isOn ? 'var(--purple)' : 'transparent',
+                        color:'#fff', display:'inline-flex', alignItems:'center', justifyContent:'center',
+                        fontSize:'14px', fontWeight:'700', marginTop:'1px',
+                        transition:'background 0.2s',
+                      }}
+                    >
+                      {isOn ? '✓' : ''}
+                    </span>
+                    <span style={{ fontSize:'15px', lineHeight:'1.65', color: isOn ? 'var(--text)' : 'var(--text-muted)', transition:'color 0.2s' }}>
+                      {item}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={onAccept}
+          disabled={!allChecked}
+          className="cta-premium cta-premium-large"
+          style={{
+            cursor: allChecked ? 'pointer' : 'not-allowed',
+            opacity: allChecked ? 1 : 0.45,
+            animation: allChecked ? undefined : 'none',
+          }}
+        >
           {t(lang, 'ready_btn')}
         </button>
+
+        {hasAgreements && !allChecked && (
+          <p style={{ fontSize:'13px', color:'var(--text-light)', marginTop:'14px' }}>
+            {t(lang, 'check_all')}
+          </p>
+        )}
       </main>
     </>
   )
@@ -196,12 +278,23 @@ function ProfileContent() {
           }
           localStorage.setItem('profile', JSON.stringify(profilePayload))
           setProfile(profilePayload)
+          try {
+            const gateKey = `gate_committed:${profilePayload.full_name || 'anon'}`
+            if (localStorage.getItem(gateKey) === 'true') setCommitted(true)
+          } catch (e) {}
         }
         setLoading(false)
       })
       .catch(() => {
         const stored = localStorage.getItem('profile')
-        if (stored) setProfile(JSON.parse(stored))
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          setProfile(parsed)
+          try {
+            const gateKey = `gate_committed:${parsed.full_name || 'anon'}`
+            if (localStorage.getItem(gateKey) === 'true') setCommitted(true)
+          } catch (e) {}
+        }
         setLoading(false)
       })
   }, [])
@@ -217,10 +310,27 @@ function ProfileContent() {
   const lang = profile.language || 'en'
 
   if (!committed) {
+    const gateAgreements = Array.isArray(profile.alignment_plan?.behavioral_anchors?.non_negotiables)
+      ? profile.alignment_plan.behavioral_anchors.non_negotiables.filter(Boolean).slice(0, 3)
+      : []
+
     return (
       <CommitmentGate
         lang={lang}
-        onAccept={() => setCommitted(true)}
+        agreements={gateAgreements}
+        onAccept={() => {
+          try {
+            const gateKey = `gate_committed:${profile.full_name || 'anon'}`
+            localStorage.setItem(gateKey, 'true')
+            if (gateAgreements.length > 0) {
+              localStorage.setItem('my_agreements', JSON.stringify({
+                items: gateAgreements,
+                accepted_at: new Date().toISOString()
+              }))
+            }
+          } catch (e) {}
+          setCommitted(true)
+        }}
       />
     )
   }
@@ -432,7 +542,3 @@ export default function ProfilePage() {
     </Suspense>
   )
 }
-
-
-
-
