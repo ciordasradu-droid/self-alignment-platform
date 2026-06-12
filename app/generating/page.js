@@ -1,5 +1,12 @@
 ﻿'use client'
 
+// Destinație: app/generating/page.js  (ÎNLOCUIEȘTE COMPLET)
+// Schimbare (fix bug plan gol): până acum, dacă POST-ul către interpret-plan
+// depășea 30s (normal — serverul are nevoie de 60-120s), clientul abandona tot
+// și NU mai făcea polling, deci planul rămânea null chiar dacă serverul îl
+// termina. Acum POST-ul are voie să fie abandonat, iar polling-ul rulează
+// oricum și prinde planul când e gata. Restul rămâne identic.
+
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getUserId } from '../../lib/userId'
@@ -136,22 +143,30 @@ function GeneratingContent() {
       )
 
       // Step 3 — start plan, then poll. Plan is non-fatal.
+      // The POST runs the full generation on the server (60-120s). Our client
+      // timeout may abort the request, but the server keeps working — so we
+      // IGNORE any POST error here and rely on polling to pick up the result.
       let planData = {}
       try {
-        await safeFetch('/api/interpret-plan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            interpreted_profile_id: interpretedProfileId,
-            calculated_data: calcData.data,
-            sections: interpretData.sections,
-            swot: interpretData.swot,
-            language
+        try {
+          await safeFetch('/api/interpret-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              interpreted_profile_id: interpretedProfileId,
+              calculated_data: calcData.data,
+              sections: interpretData.sections,
+              swot: interpretData.swot,
+              language
+            })
           })
-        })
+        } catch (postErr) {
+          // Expected for long generations (client-side 30s abort). Server continues.
+          console.warn('interpret-plan POST aborted/failed, polling anyway:', postErr.message)
+        }
         planData = await pollUntilComplete(
           `/api/interpret-plan?id=${interpretedProfileId}`,
-          { intervalMs: 1500, maxMs: 240000 }
+          { intervalMs: 3000, maxMs: 240000 }
         )
       } catch (planErr) {
         console.warn('interpret-plan failed (non-fatal):', planErr.message)

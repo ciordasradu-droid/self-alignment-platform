@@ -1,14 +1,12 @@
 ﻿'use client'
 
 // Destinație: app/profile/page.js  (ÎNLOCUIEȘTE COMPLET)
-// Schimbări față de versiunea anterioară:
-// - CommitmentGate afișează cele 3 acorduri personale REALE din profilul generat
-//   (alignment_plan.behavioral_anchors.non_negotiables), bifabile pe rând
-// - Butonul se activează doar cu toate acordurile bifate
-// - Acordurile bifate se salvează în localStorage ('my_agreements') pentru accountability
-// - Gate-ul apare o singură dată per profil (salvat în localStorage); la profil nou apare din nou
-// - Fallback: dacă profilul nu are acorduri (profil v3 vechi), gate-ul simplu de până acum
-// - Restul paginii rămâne identic
+// Schimbări față de versiunea cu gate-ul cu 3 acorduri (care rămâne):
+// - AUTO-VINDECARE: dacă profilul există dar planul lipsește (generare eșuată),
+//   pagina pornește singură regenerarea planului și face polling până e gata
+// - Secțiunea Plan de Aliniere NU se mai afișează goală: ori plan complet,
+//   ori un card mic "planul tău se scrie acum...", ori nimic
+// - Gate-ul primește acordurile și dacă planul sosește în timp ce userul e la gate
 
 import { useState, useEffect, Suspense } from 'react'
 import { generateProfilePDF } from '../../lib/generatePDF'
@@ -31,6 +29,20 @@ import { headerBoxExplanations as huExpl, hdTerms as huHd } from '../../lib/prom
 const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl }
 const HD_TERMS = { ro: roHd, en: enHd, es: esHd, fr: frHd, de: deHd, it: itHd, pt: ptHd, nl: nlHd, pl: plHd, hu: huHd }
 
+// Mesaj pentru cardul "planul se scrie acum" (regenerare automată în fundal)
+const PLAN_PENDING = {
+  en: 'Your alignment plan is being written right now. It will appear here in 1-2 minutes — you can keep reading your profile.',
+  ro: 'Planul tău de aliniere se scrie chiar acum. Va apărea aici în 1-2 minute — poți continua să-ți citești profilul.',
+  es: 'Tu plan de alineación se está escribiendo ahora mismo. Aparecerá aquí en 1-2 minutos — puedes seguir leyendo tu perfil.',
+  fr: "Ton plan d'alignement est en train d'être écrit. Il apparaîtra ici dans 1-2 minutes — tu peux continuer à lire ton profil.",
+  de: 'Dein Ausrichtungsplan wird gerade geschrieben. Er erscheint hier in 1-2 Minuten — du kannst dein Profil weiterlesen.',
+  it: 'Il tuo piano di allineamento viene scritto proprio ora. Apparirà qui tra 1-2 minuti — puoi continuare a leggere il tuo profilo.',
+  pt: 'O teu plano de alinhamento está a ser escrito agora. Aparecerá aqui em 1-2 minutos — podes continuar a ler o teu perfil.',
+  nl: 'Je uitlijningsplan wordt nu geschreven. Het verschijnt hier over 1-2 minuten — je kunt je profiel verder lezen.',
+  pl: 'Twój plan wyrównania jest właśnie pisany. Pojawi się tutaj za 1-2 minuty — możesz dalej czytać swój profil.',
+  hu: 'Az igazítási terved éppen most készül. 1-2 perc múlva megjelenik itt — közben olvashatod tovább a profilod.',
+}
+
 function getExplanations(lang) { return EXPLANATIONS[lang] || EXPLANATIONS['en'] }
 function getHdTerms(lang) { return HD_TERMS[lang] || HD_TERMS['en'] }
 
@@ -40,6 +52,25 @@ function translateHd(category, value, lang) {
   const map = terms?.[category]
   if (map && map[value]) return map[value]
   return value
+}
+
+// Polling simplu: întreabă endpoint-ul până când status != 'pending' sau expiră bugetul
+async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}) {
+  const start = Date.now()
+  while (Date.now() - start < maxMs) {
+    let data
+    try {
+      const res = await fetch(url, { cache: 'no-store' })
+      data = await res.json()
+    } catch (e) {
+      await new Promise(r => setTimeout(r, intervalMs))
+      continue
+    }
+    if (data.status === 'complete') return data
+    if (data.status === 'failed') throw new Error(data.error || 'Generation failed')
+    await new Promise(r => setTimeout(r, intervalMs))
+  }
+  throw new Error('Generation timed out')
 }
 
 function CommitmentGate({ lang, agreements, onAccept }) {
@@ -258,6 +289,52 @@ function ProfileContent() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [committed, setCommitted] = useState(false)
+  const [planPending, setPlanPending] = useState(false)
+
+  // Regenerează planul în fundal când lipsește (auto-vindecare).
+  // POST-ul poate fi abandonat de browser (30s) — serverul continuă;
+  // polling-ul prinde rezultatul când e scris în DB.
+  const healPlan = async (data) => {
+    if (!data.interpreted_profile_id || !data.calculated_data || !data.sections) return
+    setPlanPending(true)
+    try {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 25000)
+        await fetch('/api/interpret-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            interpreted_profile_id: data.interpreted_profile_id,
+            calculated_data: data.calculated_data,
+            sections: data.sections,
+            swot: data.swot,
+            language: data.language || 'en'
+          }),
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+      } catch (e) {
+        // așteptat la generări lungi — continuăm cu polling
+      }
+
+      const planData = await pollUntilComplete(
+        `/api/interpret-plan?id=${data.interpreted_profile_id}`,
+        { intervalMs: 3000, maxMs: 240000 }
+      )
+
+      setProfile(prev => {
+        if (!prev) return prev
+        const updated = { ...prev, alignment_plan: planData.alignment_plan }
+        try { localStorage.setItem('profile', JSON.stringify(updated)) } catch (e) {}
+        return updated
+      })
+    } catch (e) {
+      console.warn('Plan self-heal failed:', e.message)
+    } finally {
+      setPlanPending(false)
+    }
+  }
 
   useEffect(() => {
     localStorage.removeItem('profile')
@@ -274,7 +351,8 @@ function ProfileContent() {
             full_name: data.full_name,
             personal_year: data.personal_year,
             hd_data: data.hd_data,
-            language: data.language
+            language: data.language,
+            interpreted_profile_id: data.interpreted_profile_id
           }
           localStorage.setItem('profile', JSON.stringify(profilePayload))
           setProfile(profilePayload)
@@ -282,6 +360,11 @@ function ProfileContent() {
             const gateKey = `gate_committed:${profilePayload.full_name || 'anon'}`
             if (localStorage.getItem(gateKey) === 'true') setCommitted(true)
           } catch (e) {}
+
+          // Plan lipsă -> regenerare automată în fundal
+          if (!data.alignment_plan) {
+            healPlan(data)
+          }
         }
         setLoading(false)
       })
@@ -316,6 +399,7 @@ function ProfileContent() {
 
     return (
       <CommitmentGate
+        key={gateAgreements.length}
         lang={lang}
         agreements={gateAgreements}
         onAccept={() => {
@@ -337,6 +421,7 @@ function ProfileContent() {
 
   const { sections, swot, alignment_plan, full_name, personal_year, hd_data } = profile
   const useV4 = isV4(sections)
+  const hasPlan = !!(alignment_plan && alignment_plan.directional_clarity)
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
 
@@ -403,86 +488,102 @@ function ProfileContent() {
           </div>
         </div>
 
-        <div style={s.card}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
+        {/* PLAN DE ALINIERE — complet, în curs de generare, sau deloc (niciodată gol) */}
+        {hasPlan ? (
+          <div style={s.card}>
+            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
 
-          <div style={s.planLayer}>
-            <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
-            <p style={s.bodyText}>{alignment_plan?.directional_clarity?.life_direction}</p>
-            <div style={s.grid2}>
-              <div>
-                <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
-                  ))}
-                </ul>
+            <div style={s.planLayer}>
+              <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
+              <p style={s.bodyText}>{alignment_plan?.directional_clarity?.life_direction}</p>
+              <div style={s.grid2}>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.directional_clarity?.eliminate?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <div>
-                <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.directional_clarity?.eliminate?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
-                  ))}
-                </ul>
+            </div>
+
+            <div style={s.planLayer}>
+              <div style={s.layerBadge('var(--green)')}>{t(lang, 'layer2')}</div>
+              <p style={s.planLabel}>{t(lang, 'focus_30')}</p>
+              <p style={{...s.bodyText, marginBottom:'20px'}}>{alignment_plan?.structured_plan?.thirty_day_focus}</p>
+              <div style={s.grid2}>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.structured_plan?.weekly_template?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.structured_plan?.daily_template?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div style={{...s.planLayer, borderBottom:'none', marginBottom:0, paddingBottom:0}}>
+              <div style={s.layerBadge('var(--orange)')}>{t(lang, 'layer3')}</div>
+              <div style={s.grid3}>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div style={s.anchorBox}>
+                  <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
+                  <ul style={s.list}>
+                    {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-
-          <div style={s.planLayer}>
-            <div style={s.layerBadge('var(--green)')}>{t(lang, 'layer2')}</div>
-            <p style={s.planLabel}>{t(lang, 'focus_30')}</p>
-            <p style={{...s.bodyText, marginBottom:'20px'}}>{alignment_plan?.structured_plan?.thirty_day_focus}</p>
-            <div style={s.grid2}>
-              <div>
-                <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.structured_plan?.weekly_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.structured_plan?.daily_template?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
+        ) : planPending ? (
+          <div style={{...s.card, textAlign:'center', padding:'36px 28px'}}>
+            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
+            <div style={{ fontSize:'32px', marginBottom:'14px' }} aria-hidden="true">✦</div>
+            <p style={{ fontSize:'15px', lineHeight:'1.7', color:'var(--text-muted)', maxWidth:'420px', margin:'0 auto' }}>
+              {PLAN_PENDING[lang] || PLAN_PENDING.en}
+            </p>
+            <div style={{ marginTop:'18px', display:'flex', justifyContent:'center', gap:'6px' }} aria-hidden="true">
+              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.4 }} />
+              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.6 }} />
+              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.9 }} />
             </div>
           </div>
-
-          <div style={{...s.planLayer, borderBottom:'none', marginBottom:0, paddingBottom:0}}>
-            <div style={s.layerBadge('var(--orange)')}>{t(lang, 'layer3')}</div>
-            <div style={s.grid3}>
-              <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div style={s.anchorBox}>
-                <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
-                <ul style={s.list}>
-                  {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
-                    <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        ) : null}
 
         <div style={s.ctaBox}>
           <h2 style={s.ctaTitle}>{t(lang, 'cta_title')}</h2>

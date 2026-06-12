@@ -1,3 +1,8 @@
+// Destinație: app/api/profile/route.js  (ÎNLOCUIEȘTE COMPLET)
+// Schimbare: răspunsul include acum și interpreted_profile_id + calculated_data,
+// ca pagina de profil să poată regenera singură planul dacă lipsește.
+// Restul rămâne identic.
+
 export const maxDuration = 60
 
 import { NextResponse } from 'next/server'
@@ -29,6 +34,7 @@ export async function GET(request) {
     let hdData = null
     let personalYear = null
     let fullName = ''
+    let calculatedData = null
 
     if (data.calculated_profile_id) {
       const { data: calcData } = await supabase
@@ -41,14 +47,17 @@ export async function GET(request) {
         fullName = calcData.full_name || ''
         hdData = calcData.calculated_data?.human_design || null
         personalYear = calcData.calculated_data?.numerology?.personal_year || null
+        calculatedData = calcData.calculated_data || null
       }
     }
 
     return NextResponse.json({
       success: true,
+      interpreted_profile_id: data.id,
       sections: data.sections,
       swot: data.swot,
       alignment_plan: data.alignment_plan,
+      calculated_data: calculatedData,
       language: data.language || 'en',
       full_name: fullName,
       hd_data: hdData,
