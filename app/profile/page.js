@@ -590,7 +590,7 @@ function ProfileContent() {
           <p style={s.ctaText}>{t(lang, 'cta_text')}</p>
           <div style={s.ctaBtns}>
             <a href="/subscribe" style={s.ctaBtn}>{t(lang, 'cta_btn')}</a>
-            <a href="/dashboard" style={s.ctaBtnSecondary}>{t(lang, 'cta_dashboard')}</a>
+            <a href="/dashboard" style={s.ctaBtnSecondary}>{t(lang, 'cta_dashboard')}</a><a href="/compatibility" style={s.ctaBtnSecondary}>{lang === 'ro' ? 'Profil de compatibilitate →' : 'Compatibility profile →'}</a>
           </div>
         </div>
 

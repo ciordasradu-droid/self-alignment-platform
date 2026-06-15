@@ -218,6 +218,15 @@ function DashboardContent() {
           checkinDone={checkinDone}
         />
 
+        {/* compatibilitate — vizibil pentru testeri */}
+        <a href="/compatibility" style={dcompat.card} className="landing-card">
+          <div>
+            <p style={dcompat.title}>{lang === 'ro' ? 'Profil de compatibilitate' : 'Compatibility profile'}</p>
+            <p style={dcompat.sub}>{lang === 'ro' ? 'Vezi cum funcționezi cu cineva — iubit, prieten sau partener de afaceri.' : 'See how you work with someone — partner, friend or business.'}</p>
+          </div>
+          <span style={dcompat.arrow} aria-hidden="true">→</span>
+        </a>
+
         {/* prezență blândă, fără scor */}
         <StreakTracker streak={streak} longestStreak={longestStreak} lang={lang} />
 
@@ -257,6 +266,13 @@ const s = {
   title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
   homeLink: { fontSize:'14px', color:'var(--text-muted)', fontWeight:'500', marginTop:'8px', display:'inline-block', padding:'8px 12px', minHeight:'44px' },
+}
+
+const dcompat = {
+  card: { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', padding:'22px 24px', marginBottom:'24px', background:'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)', border:'1px solid rgba(124,92,191,0.2)', borderRadius:'var(--radius)', cursor:'pointer', textDecoration:'none' },
+  title: { fontSize:'17px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'4px' },
+  sub: { fontSize:'13px', color:'var(--text-muted)', lineHeight:'1.5' },
+  arrow: { fontSize:'22px', color:'var(--purple)', flexShrink:0 },
 }
 
 export default function DashboardPage() {
