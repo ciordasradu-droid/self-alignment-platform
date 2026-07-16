@@ -5,6 +5,7 @@
 // relației. Randează secțiunile în funcție de tip. Buton de share la final.
 
 import { useState, useEffect, Suspense } from 'react'
+import WaterLoader from '../../components/water/WaterLoader'
 import { useSearchParams } from 'next/navigation'
 import { useLanguage } from '../../../lib/language'
 import CompatibilitySections from '../CompatibilitySections'
@@ -61,7 +62,7 @@ function Result() {
     <>
       <div className="cosmic-bg" />
       <main style={s.center}>
-        <div style={{ fontSize:'40px', marginBottom:'18px' }} aria-hidden="true">✦</div>
+        <div style={{ marginBottom:'18px' }}><WaterLoader /></div>
         <h1 style={s.genTitle}>{lx(lang,'generating')}</h1>
         <p style={s.genSub}>{lx(lang,'generating_sub')}</p>
       </main>
@@ -104,7 +105,7 @@ const s = {
 
 export default function CompatibilityResultPage() {
   return (
-    <Suspense fallback={<div style={{textAlign:'center',padding:'80px'}}>...</div>}>
+    <Suspense fallback={<main style={{ padding:'120px 24px' }}><WaterLoader /></main>}>
       <Result />
     </Suspense>
   )

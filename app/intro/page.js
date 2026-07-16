@@ -528,7 +528,7 @@ const s = {
   ctaTitle: { fontSize:'28px', fontWeight:'600', color:'#fff', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
   ctaText: { fontSize:'15px', color:'rgba(255,255,255,0.7)', marginBottom:'24px' },
   ctaBtns: { display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' },
-  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'#fff', color:'var(--purple-dark)', borderRadius:'10px', fontSize:'15px', fontWeight:'600' },
+  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'var(--gold)', color:'#20142a', borderRadius:'999px', fontSize:'15px', fontWeight:'600' },
   ctaBtnSecondary: { display:'inline-block', padding:'13px 28px', background:'rgba(255,255,255,0.15)', color:'#fff', borderRadius:'10px', fontSize:'15px', fontWeight:'600', border:'1px solid rgba(255,255,255,0.3)' }
 }
 

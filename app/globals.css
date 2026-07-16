@@ -1,24 +1,39 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Core palette */
-  --purple: #7C5CBF;
-  --purple-light: #F0EBFF;
-  --purple-dark: #4A3280;
-  --green: #4A9B7F;
-  --green-light: #E8F7F2;
-  --orange: #E8824A;
-  --orange-light: #FFF0E8;
-  --amber: #d4a574;
+  /* ── APA — sistemul de operare vizual (legea 1) ──
+     Adâncime: indigo → prună. Lumina caldă (aurul) apare doar ÎN/PE apă. */
+  --water-deep:    #0b0e2a;
+  --water-mid:     #171438;
+  --water-plum:    #2e1b3d;
+  --water-plumwarm:#3d2140;
+  --water-surface: rgba(255, 255, 255, 0.06);
+  --water-line:    rgba(255, 255, 255, 0.14);
 
-  /* Surfaces */
-  --bg: #FAFAF8;
-  --surface: #FFFFFF;
-  --surface2: #F5F4F0;
-  --text: #1A1A2E;
-  --text-muted: #6B6B80;
-  --text-light: #A0A0B0;
-  --border: #E8E8F0;
+  /* Lumina în apă — soarele care răsare peste apă, niciodată glob propriu */
+  --gold:        #ffb066;
+  --gold-soft:   rgba(255, 176, 102, 0.34);
+  --gold-faint:  rgba(255, 176, 102, 0.14);
+  --pearl:       #e8eef5;
+
+  /* Core palette — recalibrată pentru adâncime */
+  --purple: #a892e8;
+  --purple-light: rgba(168, 146, 232, 0.16);
+  --purple-dark: #6a55b0;
+  --green: #6fd3ae;
+  --green-light: rgba(111, 211, 174, 0.14);
+  --orange: #ffa85c;
+  --orange-light: rgba(255, 168, 92, 0.14);
+  --amber: #ffc98a;
+
+  /* Surfaces — gheață topită peste apă (legea 5) */
+  --bg: #0b0e2a;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface2: rgba(255, 255, 255, 0.10);
+  --text: rgba(255, 255, 255, 0.94);
+  --text-muted: rgba(255, 255, 255, 0.64);
+  --text-light: rgba(255, 255, 255, 0.46);
+  --border: rgba(255, 255, 255, 0.14);
 
   /* Warm/cool glow tokens (for soft auras + selected states) */
   --purple-glow: rgba(124, 92, 191, 0.35);
@@ -29,11 +44,11 @@
   --orange-glow-soft: rgba(232, 130, 74, 0.14);
   --amber-glow: rgba(212, 165, 116, 0.30);
 
-  /* Layered shadows â€” gives cards depth without flat borders */
-  --shadow-sm: 0 1px 4px rgba(124, 92, 191, 0.05);
-  --shadow: 0 1px 3px rgba(124, 92, 191, 0.04), 0 4px 16px rgba(124, 92, 191, 0.08);
-  --shadow-md: 0 2px 8px rgba(124, 92, 191, 0.06), 0 8px 24px rgba(124, 92, 191, 0.10);
-  --shadow-lg: 0 4px 12px rgba(124, 92, 191, 0.08), 0 16px 40px rgba(124, 92, 191, 0.14);
+  /* Layered shadows â€” adâncime sub apă, nu umbre de hârtie */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.20);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-glow: 0 0 24px var(--purple-glow-soft);
   --shadow-glow-purple: 0 0 24px rgba(124, 92, 191, 0.20);
   --shadow-glow-green: 0 0 24px rgba(74, 155, 127, 0.20);
@@ -64,14 +79,25 @@
 
 html {
   scroll-behavior: smooth;
+  /* controalele native (select, date, time, scrollbar) trebuie să fie în apă */
+  color-scheme: dark;
+  background-color: var(--water-deep);
 }
 
+/* LEGEA 1 — orice ecran e ÎN apă. Corpul de apă e pe body, deci nicio pagină
+   nu poate exista în afara lui. */
 body {
   font-family: 'DM Sans', sans-serif;
-  background-color: var(--bg);
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background-color: var(--water-deep);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% 108%, var(--water-plumwarm) 0%, transparent 62%),
+    radial-gradient(ellipse 100% 70% at 50% 82%, var(--water-plum) 0%, transparent 58%),
+    linear-gradient(178deg, var(--water-deep) 0%, var(--water-mid) 48%, var(--water-plum) 100%);
+  background-attachment: fixed;
 }
 
 h1, h2, h3, h4 {
@@ -104,20 +130,174 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px var(--purple-glow-soft);
 }
 
-/* ---------- Cosmic background â€” slow gentle breathing ---------- */
+/* ---------- LEGEA 1 — lumina difuză + caustice subtile pe apă ----------
+   .cosmic-bg e deja prezent pe fiecare pagină, deci devine stratul de lumină. */
 .cosmic-bg {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(ellipse at 20% 20%, rgba(124, 92, 191, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(74, 155, 127, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(232, 130, 74, 0.04) 0%, transparent 40%);
+    radial-gradient(ellipse 90% 55% at 50% 100%, var(--gold-faint) 0%, transparent 60%),
+    radial-gradient(ellipse at 18% 22%, rgba(168, 146, 232, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 84% 74%, rgba(111, 211, 174, 0.06) 0%, transparent 50%);
   animation: cosmic-breathing 18s var(--ease-soft) infinite;
+}
+/* caustice — rețea de lumină refractată, foarte discretă */
+.cosmic-bg::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  opacity: 0.5;
+  background-image:
+    repeating-radial-gradient(circle at 30% 40%, transparent 0 38px, rgba(255,255,255,0.018) 38px 40px, transparent 40px 78px),
+    repeating-radial-gradient(circle at 72% 66%, transparent 0 52px, rgba(255,255,255,0.014) 52px 55px, transparent 55px 104px);
+  animation: caustics-drift 34s linear infinite alternate;
+}
+@keyframes caustics-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
+}
+
+/* ---------- LEGEA 2 — RIPPLE: feedback tactil universal ---------- */
+#water-ripples {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.water-ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  border: 1px solid var(--gold-soft);
+  box-shadow: 0 0 14px var(--gold-faint), inset 0 0 12px rgba(255, 255, 255, 0.08);
+  animation: ripple-spread 900ms var(--ease-out) forwards;
+}
+@keyframes ripple-spread {
+  0%   { transform: translate(-50%, -50%) scale(0);   opacity: 0.85; }
+  70%  { opacity: 0.30; }
+  100% { transform: translate(-50%, -50%) scale(1);   opacity: 0; }
+}
+
+/* ---------- LEGEA 5 — gheață topită (glassmorphism) ---------- */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px) saturate(120%);
+  box-shadow: var(--shadow);
+}
+/* cardurile existente devin apă în altă stare de agregare */
+.landing-card, .onboarding-premium-card, .price-card-free {
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+/* ---------- LEGEA 4 — așteptarea e apă, nu spinner ---------- */
+.water-loader {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto;
+}
+.water-loader i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-soft);
+  transform: scale(0);
+  animation: ripple-spread 2.6s var(--ease-out) infinite;
+}
+.water-loader i:nth-child(2) { animation-delay: 0.85s; }
+.water-loader i:nth-child(3) { animation-delay: 1.7s; }
+.water-loader b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin: -6.5px 0 0 -6.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fff 0%, var(--pearl) 70%, var(--gold) 100%);
+  box-shadow: 0 0 16px var(--gold-soft);
+  animation: gentle-pulse 2.6s var(--ease-soft) infinite;
+}
+
+/* ---------- Apa userului (WaterDrop) ---------- */
+@keyframes wd-float   { 0%, 100% { transform: translateY(0); }  50% { transform: translateY(-5px); } }
+@keyframes wd-breathe { 0%, 100% { transform: scale(1); }       50% { transform: scale(1.06); } }
+@keyframes wd-ring {
+  0%   { transform: scale(0.2); opacity: 0.8; }
+  100% { transform: scale(6);   opacity: 0; }
+}
+@keyframes wd-flow {
+  0%   { opacity: 0;   transform: translateY(-4px); }
+  40%  { opacity: 0.8; }
+  100% { opacity: 0;   transform: translateY(10px); }
+}
+
+/* One Breath — inspiră 1.5s / expiră 1.5s, o singură undă */
+@keyframes breath-3s {
+  0%   { transform: scale(0.35); opacity: 0.30; }
+  50%  { transform: scale(1);    opacity: 0.85; }
+  100% { transform: scale(0.35); opacity: 0; }
+}
+
+/* ---------- Slider de apă — gramatica gestului (dimineață + seară) ---------- */
+.water-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 26px;
+  background: transparent;
+  cursor: pointer;
+}
+.water-slider::-webkit-slider-runnable-track {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.28), var(--gold-soft));
+}
+.water-slider::-moz-range-track {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.28), var(--gold-soft));
+}
+.water-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; border: none;
+  width: 24px; height: 24px; border-radius: 50%; margin-top: -11px;
+  background: radial-gradient(circle at 38% 34%, #fff 0%, var(--pearl) 78%);
+  box-shadow: 0 0 14px var(--gold-soft);
+}
+.water-slider::-moz-range-thumb {
+  border: none; width: 24px; height: 24px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fff 0%, var(--pearl) 78%);
+  box-shadow: 0 0 14px var(--gold-soft);
+}
+
+/* ---------- Butoane-pastilă contur ---------- */
+.pill-btn {
+  padding: 15px 24px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  color: var(--text);
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background-color 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+.pill-btn:hover { background: rgba(255, 255, 255, 0.09); border-color: var(--gold-soft); }
+.pill-btn:disabled { opacity: 0.55; cursor: wait; }
+
+/* ---------- LEGEA 3 — navigarea curge ---------- */
+.flow-in { animation: flow-in 520ms var(--ease-out) both; }
+@keyframes flow-in {
+  0%   { opacity: 0; transform: translate3d(0, 10px, 0); filter: blur(6px); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0);    filter: blur(0); }
 }
 
 /* ---------- Tag utilities ---------- */
@@ -136,7 +316,7 @@ input:focus, textarea:focus, select:focus {
 
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 /* ============================================================
@@ -1117,10 +1297,14 @@ input:focus, textarea:focus, select:focus {
 }
 .story-card > * { position: relative; z-index: 1; }
 
-.story-card-purple { background: linear-gradient(135deg, #ebe3ff 0%, #f5e8d8 100%); }
-.story-card-green  { background: linear-gradient(135deg, #e8f7f2 0%, #f5e8d8 100%); }
-.story-card-amber  { background: linear-gradient(135deg, #f5e8d8 0%, #ffe1d8 100%); }
-.story-card-mixed  { background: linear-gradient(135deg, #ebe3ff 0%, #e8f7f2 100%); }
+.story-card-purple { background: linear-gradient(135deg, rgba(168,146,232,0.16) 0%, rgba(255,176,102,0.10) 100%); }
+.story-card-green  { background: linear-gradient(135deg, rgba(111,211,174,0.14) 0%, rgba(255,176,102,0.10) 100%); }
+.story-card-amber  { background: linear-gradient(135deg, rgba(255,176,102,0.14) 0%, rgba(255,120,90,0.10) 100%); }
+.story-card-mixed  { background: linear-gradient(135deg, rgba(168,146,232,0.14) 0%, rgba(111,211,174,0.10) 100%); }
+.story-card-purple, .story-card-green, .story-card-amber, .story-card-mixed {
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px) saturate(120%);
+}
 
 .story-tag {
   display: inline-block;
@@ -1527,22 +1711,26 @@ input:focus, textarea:focus, select:focus {
 .input-clean {
   width: 100%;
   padding: 14px 18px;
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 12px;
   font-size: 15px;
   color: var(--text);
-  background: var(--bg);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
   outline: none;
   box-sizing: border-box;
   font-family: 'DM Sans', sans-serif;
   transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
 }
-.input-clean:hover { border-color: rgba(124, 92, 191, 0.35); }
+.input-clean::placeholder { color: var(--text-light); }
+.input-clean:hover { border-color: rgba(255, 255, 255, 0.26); }
 .input-clean:focus {
-  border-color: var(--purple) !important;
-  background: var(--surface);
-  box-shadow: 0 0 0 4px rgba(124, 92, 191, 0.12), 0 4px 14px rgba(124, 92, 191, 0.08) !important;
+  border-color: var(--gold) !important;
+  background: var(--surface2);
+  box-shadow: 0 0 0 4px var(--gold-faint) !important;
 }
+/* opțiunile native de select trebuie lizibile în apă */
+.select-clean option { background: var(--water-mid); color: var(--text); }
 
 .select-clean {
   appearance: none;

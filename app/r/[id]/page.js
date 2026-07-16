@@ -70,5 +70,5 @@ const s = {
   startBox: { background:'linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%)', borderRadius:'var(--radius)', padding:'40px', textAlign:'center', marginTop:'32px' },
   startTitle: { fontSize:'26px', fontWeight:'600', color:'#fff', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif', lineHeight:1.3 },
   startSub: { fontSize:'15px', color:'rgba(255,255,255,0.8)', marginBottom:'24px', lineHeight:1.6, maxWidth:'440px', margin:'0 auto 24px' },
-  startBtn: { display:'inline-block', padding:'14px 30px', background:'#fff', color:'var(--purple-dark)', borderRadius:'12px', fontSize:'15px', fontWeight:'600' },
+  startBtn: { display:'inline-block', padding:'14px 30px', background:'var(--gold)', color:'#20142a', borderRadius:'999px', fontSize:'15px', fontWeight:'600' },
 }

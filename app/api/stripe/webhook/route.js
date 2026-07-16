@@ -94,6 +94,6 @@ export async function POST(request) {
   }
 }
 
-export const config = {
-  api: { bodyParser: false }
-}
+// Nota: `export const config = { api: { bodyParser: false } }` era cod mort —
+// e ignorat in App Router. Semnatura Stripe are nevoie de corpul brut, iar
+// request.text() de mai sus il da deja brut, deci nu e nimic de configurat.

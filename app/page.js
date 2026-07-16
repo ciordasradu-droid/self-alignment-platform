@@ -349,7 +349,7 @@ const s = {
   wrap: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px' },
 
   // Nav
-  nav: { position:'sticky', top:0, zIndex:100, background:'rgba(250,250,248,0.85)', backdropFilter:'blur(14px)', borderBottom:'1px solid rgba(232, 232, 240, 0.6)' },
+  nav: { position:'sticky', top:0, zIndex:100, background:'rgba(11,14,42,0.72)', backdropFilter:'blur(16px)', borderBottom:'1px solid var(--border)' },
   navInner: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', alignItems:'center', height:'64px' },
   logo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
   navRight: { display:'flex', alignItems:'center', gap:'10px' },

@@ -32,12 +32,38 @@ export async function GET(request) {
       c.created_at.split('T')[0] === today
     )
 
+    // ZIUA DIN DRUM — determină stadiul apei (legea 7). Vine din vechimea
+    // contului, nu din localStorage. Ziua 1 = ziua în care s-a creat contul.
+    const { data: profile } = await supabaseAdmin
+      .from('users')
+      .select('created_at, current_unlocked_day')
+      .eq('id', userId)
+      .maybeSingle()
+
+    const createdAt = profile?.created_at || user.created_at
+    const day = createdAt
+      ? Math.max(1, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000) + 1)
+      : 1
+
+    // Ce s-a întâmplat azi — home-ul știe ce ritual să ofere.
+    const todays = (checkins || []).filter(c => c.created_at.split('T')[0] === today)
+    const pick = (kind) => todays.find(c => c.answers?.kind === kind)
+    const morning = pick('morning')
+    // rândurile vechi n-au `kind` — cele fără erau check-in-ul de seară
+    const evening = pick('evening') || todays.find(c => c.answers && !c.answers.kind)
+
     return NextResponse.json({
       success: true,
       checkins: checkins || [],
       streak: streak || { current_streak: 0, longest_streak: 0 },
       checkedInToday,
-      lastScore: checkins?.[0]?.score || 0
+      day,
+      today: {
+        morning: !!morning,
+        evening: !!evening,
+        one_breath: !!pick('one_breath'),
+        intention: morning?.answers?.intention || '',
+      },
     })
 
   } catch (err) {

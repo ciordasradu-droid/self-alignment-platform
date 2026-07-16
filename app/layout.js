@@ -1,9 +1,11 @@
-// Destinație: app/layout.js  (ÎNLOCUIEȘTE COMPLET)
-// Schimbare: un mic script setează atributul lang al paginii din limba
-// salvată în localStorage, ca browserul/screen-readerele să știe limba reală.
+// Rădăcina aplicației. Aici se montează cele două lucruri care fac apa
+// universală: stratul de ripple (legea 2) și corpul de apă din globals.css
+// (legea 1). Orice ecran nou intră automat în apă.
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import RippleLayer from "./components/water/RippleLayer";
+import ServiceWorker from "./components/ServiceWorker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,12 +19,24 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Profil de Aliniere",
   description: "Astrologie, Human Design și numerologie, sintetizate într-un profil personal și un plan de aliniere.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Alignment",
+  },
+  icons: {
+    icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#0b0e2a",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {
@@ -38,6 +52,8 @@ export default function RootLayout({ children }) {
           }}
         />
         {children}
+        <RippleLayer />
+        <ServiceWorker />
       </body>
     </html>
   );

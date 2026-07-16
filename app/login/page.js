@@ -4,6 +4,7 @@
 // No password. The link lands on /auth/callback which creates the session.
 
 import { useState, Suspense } from 'react'
+import WaterLoader from '../components/water/WaterLoader'
 import { useSearchParams } from 'next/navigation'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
 import { useLanguage } from '../../lib/language'
@@ -49,7 +50,7 @@ function LoginInner() {
     <>
       <div className="cosmic-bg" />
       <main style={s.wrap}>
-        <div style={s.card} className="anim-fade-in">
+        <div style={s.card} className="glass anim-fade-in">
           {status === 'sent' ? (
             <>
               <div style={s.icon} aria-hidden="true">✦</div>
@@ -91,7 +92,7 @@ function LoginInner() {
 
 const s = {
   wrap: { maxWidth:'460px', margin:'0 auto', padding:'clamp(60px,14vh,140px) 24px 80px' },
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'36px 28px', boxShadow:'var(--shadow)', textAlign:'center' },
+  card: { padding:'36px 28px', textAlign:'center' },
   icon: { fontSize:'40px', marginBottom:'16px', color:'var(--purple)' },
   title: { fontSize:'clamp(26px,6vw,34px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.2, marginBottom:'12px' },
   sub: { fontSize:'15px', color:'var(--text-muted)', lineHeight:1.6, marginBottom:'24px' },
@@ -102,7 +103,7 @@ const s = {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign:'center', padding:'80px' }}>...</div>}>
+    <Suspense fallback={<main style={{ padding:'120px 24px' }}><WaterLoader /></main>}>
       <LoginInner />
     </Suspense>
   )

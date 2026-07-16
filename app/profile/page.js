@@ -9,6 +9,7 @@
 // - Gate-ul primește acordurile și dacă planul sosește în timp ce userul e la gate
 
 import { useState, useEffect, Suspense } from 'react'
+import WaterLoader from '../components/water/WaterLoader'
 import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
@@ -382,7 +383,7 @@ function ProfileContent() {
       })
   }, [])
 
-  if (loading) return <div style={s.center}>Loading...</div>
+  if (loading) return <main style={s.center}><WaterLoader /></main>
   if (!profile) return (
     <div style={s.center}>
       <p style={{marginBottom:'20px'}}>No profile found.</p>
@@ -632,13 +633,13 @@ const s = {
   ctaTitle: { fontSize:'28px', fontWeight:'600', color:'#fff', marginBottom:'10px', fontFamily:'Cormorant Garamond, serif' },
   ctaText: { fontSize:'15px', color:'rgba(255,255,255,0.7)', marginBottom:'24px' },
   ctaBtns: { display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' },
-  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'#fff', color:'var(--purple-dark)', borderRadius:'10px', fontSize:'15px', fontWeight:'600' },
+  ctaBtn: { display:'inline-block', padding:'13px 28px', background:'var(--gold)', color:'#20142a', borderRadius:'999px', fontSize:'15px', fontWeight:'600' },
   ctaBtnSecondary: { display:'inline-block', padding:'13px 28px', background:'rgba(255,255,255,0.15)', color:'#fff', borderRadius:'10px', fontSize:'15px', fontWeight:'600', border:'1px solid rgba(255,255,255,0.3)' }
 }
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div style={s.center}>Loading...</div>}>
+    <Suspense fallback={<main style={{ padding:'120px 24px' }}><WaterLoader /></main>}>
       <ProfileContent />
     </Suspense>
   )

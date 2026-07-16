@@ -68,14 +68,16 @@ export function isFeatureUnlocked(featureId, accountAgeDays) {
   return accountAgeDays >= stage.day
 }
 
-export default function ProgressiveUnlock({ lang = 'en' }) {
-  const [accountAge, setAccountAge] = useState(0)
+// `day` (vechimea contului în zile) vine acum din server — vechimea reală a
+// contului, nu localStorage. Fallback pe vechea metodă dacă lipsește.
+export default function ProgressiveUnlock({ lang = 'en', day = null }) {
+  const [accountAge, setAccountAge] = useState(day ?? 0)
   const [justUnlocked, setJustUnlocked] = useState(null)
 
   const t = UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']
 
   useEffect(() => {
-    const age = getAccountAgeDays()
+    const age = day ?? getAccountAgeDays()
     setAccountAge(age)
 
     // Check if something just unlocked (within last 24h)
@@ -91,7 +93,7 @@ export default function ProgressiveUnlock({ lang = 'en' }) {
         setTimeout(() => setJustUnlocked(null), 8000)
       }
     }
-  }, [])
+  }, [day])
 
   return (
     <div style={s.card}>

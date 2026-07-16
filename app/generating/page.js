@@ -8,6 +8,7 @@
 // oricum și prinde planul când e gata. Restul rămâne identic.
 
 import { useState, useEffect, Suspense } from 'react'
+import WaterLoader from '../components/water/WaterLoader'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
@@ -180,6 +181,9 @@ function GeneratingContent() {
         action_plan: planData.action_plan || [],
         personal_year: calcData.data.numerology.personal_year,
         hd_data: calcData.data.human_design,
+        // lentilele 1/2/3 de pe home au nevoie de toate trei perspectivele
+        astro_data: calcData.data.astrology,
+        numerology_data: calcData.data.numerology,
         interpreted_profile_id: interpretedProfileId,
         language
       }
@@ -235,7 +239,7 @@ function GeneratingContent() {
     <>
       <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
-        <div style={{ fontSize:'48px', marginBottom:'24px' }} aria-hidden="true">✦</div>
+        <div style={{ marginBottom:'24px' }}><WaterLoader /></div>
         <h1 style={{
           fontSize:'26px',
           fontWeight:600,
@@ -281,7 +285,7 @@ function GeneratingContent() {
 
 export default function GeneratingPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign:'center', padding:'80px' }}>Loading...</div>}>
+    <Suspense fallback={<main style={{ padding:'120px 24px' }}><WaterLoader /></main>}>
       <GeneratingContent />
     </Suspense>
   )

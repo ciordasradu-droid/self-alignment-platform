@@ -1,19 +1,14 @@
-﻿'use client'
+'use client'
 
-// Destinație: app/dashboard/page.js  (ÎNLOCUIEȘTE COMPLET)
-// Schimbări majore (toate discutate):
-// - SCOS: scorul (87/100), ShadowAlert (pattern detected), RecalibrationMode
-//   (bloca dashboard-ul), FeelingCheckin (cuvinte de stare), DailyIntention
-//   (intenție separată), DailyCheckin (emoji+scor), EveningCheckout vechi.
-// - ADĂUGAT: MorningReflection (stare scrisă liber) + EveningCheckin (3 întrebări scrise).
-// - Limba vine din limba globală (lib/language) cu fallback pe profil.
-// - PĂSTRAT intact: Gândul Zilei (DailyInsight), jurnalul, streak ca prezență,
-//   harta drumului, invitația (mutată jos, afară din fluxul de reflecție).
-// - Mojibake reparat (✦ în loc de âœ¦).
+// HOME — construit ÎN JURUL apei userului (legea 6).
+// Picătura în stadiul curent e personajul principal, permanent vizibil.
+// Ritualurile o ating: gestul de dimineață aprinde lumina din ea, jurnalul de
+// seară cade în ea. Restul (Gândul Zilei, lentilele, harta drumului) orbitează.
 
 import { useState, useEffect, Suspense } from 'react'
-import MorningReflection from './components/MorningReflection'
-import EveningCheckin from './components/EveningCheckin'
+import MorningAnchor from './components/MorningAnchor'
+import EveningMirror from './components/EveningMirror'
+import OneBreath from './components/OneBreath'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
 import DailyInsight from './components/DailyInsight'
@@ -22,12 +17,20 @@ import ProgressiveUnlock from './components/ProgressiveUnlock'
 import FreeJournal from './components/FreeJournal'
 import CommitmentDocument from './components/CommitmentDocument'
 import PatternsInsight from './components/PatternsInsight'
-import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUnlock'
+import { isFeatureUnlocked } from './components/ProgressiveUnlock'
+import WaterDrop, { stageForDay } from '../components/water/WaterDrop'
+import WaterLoader from '../components/water/WaterLoader'
+import InstallApp from '../components/InstallApp'
 import { useUser } from '../../lib/useUser'
 import { t } from '../../lib/translations'
 import { useLanguage } from '../../lib/language'
 
-// 25 drifting "stars" — purely decorative, positioned via CSS :nth-child
+const L = {
+  en: { lenses:'Your three lenses', lens1:'How', lens2:'Where', lens3:'Why', to_evening:'Go to this evening', to_morning:'Go to this morning', compat_t:'Compatibility profile', compat_s:'See how you work with someone — partner, friend or business.' },
+  ro: { lenses:'Cele trei lentile ale tale', lens1:'Cum', lens2:'Unde', lens3:'De ce', to_evening:'Mergi la seara asta', to_morning:'Mergi la dimineața asta', compat_t:'Profil de compatibilitate', compat_s:'Vezi cum funcționezi cu cineva — iubit, prieten sau partener de afaceri.' },
+}
+const lx = (lang, k) => (L[lang] || L.en)[k]
+
 function CosmicStars() {
   return (
     <div className="cosmic-stars" aria-hidden="true">
@@ -36,219 +39,216 @@ function CosmicStars() {
   )
 }
 
-function PersonalYearBanner({ personalYear, lang }) {
-  if (!personalYear) return null
+// Lentilele 1/2/3 — Human Design (Cum) · Astrologie (Unde) · Numerologie (De ce)
+function Lenses({ profile, lang }) {
+  if (!profile) return null
+  const hd = profile.hd_data || {}
+  const astro = profile.astro_data || {}
+  const num = profile.numerology_data || {}
+  const items = [
+    { n: '1', k: 'lens1', title: 'Human Design', value: [hd.type, hd.profile].filter(Boolean).join(' · ') },
+    { n: '2', k: 'lens2', title: 'Astrologie', value: [astro.sun_sign, astro.element].filter(Boolean).join(' · ') },
+    { n: '3', k: 'lens3', title: 'Numerologie', value: num.life_path ? String(num.life_path) : '' },
+  ].filter(i => i.value)
+  if (!items.length) return null
+
   return (
-    <div style={py.banner}>
-      <div style={py.left}>
-        <span style={py.num}>{personalYear.personal_year}</span>
-        <div>
-          <p style={py.label}>{t(lang, 'current_phase')}</p>
-          <p style={py.theme}>{personalYear.theme}</p>
-        </div>
-      </div>
-      <div style={py.right}>
-        <p style={py.focus}>{personalYear.focus}</p>
-        <p style={py.warning}>
-          <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
-          {personalYear.warning}
-        </p>
+    <div style={ln.wrap}>
+      <p style={ln.head}>{lx(lang, 'lenses')}</p>
+      <div style={ln.grid}>
+        {items.map(i => (
+          <div key={i.n} className="glass" style={ln.card}>
+            <span style={ln.badge}>{lx(lang, i.k)}</span>
+            <p style={ln.title}>{i.title}</p>
+            <p style={ln.value}>{i.value}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
-
-const py = {
-  banner: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'20px 28px', marginBottom:'28px', display:'flex', gap:'24px', alignItems:'center', flexWrap:'wrap' },
-  left: { display:'flex', alignItems:'center', gap:'14px', flexShrink:0 },
-  num: { fontSize:'48px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
-  label: { fontSize:'10px', color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'2px' },
-  theme: { fontSize:'16px', fontWeight:'600', color:'#fff' },
-  right: { flex:1 },
-  focus: { fontSize:'13px', color:'rgba(255,255,255,0.75)', lineHeight:'1.6', marginBottom:'6px' },
-  warning: { fontSize:'12px', color:'rgba(255,255,255,0.5)', lineHeight:'1.5', display:'flex', alignItems:'flex-start' }
+const ln = {
+  wrap: { marginBottom: '24px' },
+  head: { fontSize: '12px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' },
+  card: { padding: '16px 18px' },
+  badge: { fontSize: '11px', color: 'var(--gold)', letterSpacing: '0.5px', textTransform: 'uppercase' },
+  title: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text)', margin: '6px 0 2px' },
+  value: { fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 },
 }
 
 function InviteSection({ userId, lang }) {
   const [copied, setCopied] = useState(false)
   const [referrals, setReferrals] = useState(0)
-  const inviteLink = `${window.location.origin}/invite/${userId}`
+  const [link, setLink] = useState('')
 
   useEffect(() => {
-    fetch(`/api/invite?user_id=${userId}`)
-      .then(r => r.json())
-      .then(data => { if (data.success) setReferrals(data.referrals) })
+    setLink(`${window.location.origin}/invite/${userId}`)
+    fetch('/api/invite').then(r => r.json())
+      .then(d => { if (d.success) setReferrals(d.referrals) })
       .catch(() => {})
   }, [userId])
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(inviteLink)
+  const copy = () => {
+    navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div style={inv.card}>
-      <div style={inv.header}>
-        <span className="tag tag-green" style={{marginBottom:'8px', display:'inline-block'}}>{t(lang, 'invite_tag')}</span>
-        <h3 style={inv.title}>{t(lang, 'invite_title')}</h3>
-        <p style={inv.subtitle}>{t(lang, 'invite_subtitle')}</p>
-      </div>
+    <div className="glass" style={inv.card}>
+      <span className="tag tag-green" style={{ marginBottom: '8px', display: 'inline-block' }}>{t(lang, 'invite_tag')}</span>
+      <h3 style={inv.title}>{t(lang, 'invite_title')}</h3>
+      <p style={inv.subtitle}>{t(lang, 'invite_subtitle')}</p>
       <div style={inv.linkBox}>
-        <p style={inv.linkText}>{inviteLink}</p>
-        <button onClick={handleCopy} style={inv.copyBtn}>
+        <p style={inv.linkText}>{link}</p>
+        <button onClick={copy} className="pill-btn" style={{ padding: '8px 16px', fontSize: '13px', minHeight: '44px', flexShrink: 0 }}>
           {copied ? t(lang, 'copied') : t(lang, 'copy')}
         </button>
       </div>
-      <div style={inv.stats}>
-        <div style={inv.stat}>
-          <span style={inv.statNum}>{referrals}</span>
-          <span style={inv.statLabel}>{t(lang, 'friends_invited')}</span>
-        </div>
-        <div style={inv.stat}>
-          <span style={{...inv.statNum, color:'var(--green)'}}>{referrals}</span>
-          <span style={inv.statLabel}>{t(lang, 'free_months')}</span>
-        </div>
-      </div>
-      <div style={inv.bonus}>
-        <p style={inv.bonusText}>✦ {t(lang, 'invite_bonus')}</p>
-      </div>
+      <p style={inv.bonusText}>✦ {t(lang, 'invite_bonus')} · {referrals}</p>
     </div>
   )
 }
-
 const inv = {
-  card: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'28px', marginBottom:'24px', boxShadow:'var(--shadow)' },
-  header: { marginBottom:'20px' },
-  title: { fontSize:'20px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px' },
-  subtitle: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6' },
-  linkBox: { display:'flex', gap:'10px', background:'var(--bg)', borderRadius:'10px', border:'1px solid var(--border)', padding:'12px 16px', marginBottom:'20px', alignItems:'center' },
-  linkText: { flex:1, fontSize:'13px', color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' },
-  copyBtn: { padding:'8px 16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'500', cursor:'pointer', flexShrink:0, minHeight:'44px' },
-  stats: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' },
-  stat: { background:'var(--bg)', borderRadius:'10px', padding:'16px', textAlign:'center' },
-  statNum: { display:'block', fontSize:'28px', fontWeight:'700', color:'var(--purple)', fontFamily:'Nunito, system-ui, sans-serif', marginBottom:'4px' },
-  statLabel: { fontSize:'12px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px' },
-  bonus: { background:'var(--green-light)', borderRadius:'10px', padding:'14px 16px' },
-  bonusText: { fontSize:'13px', color:'var(--green)', lineHeight:'1.6' }
+  card: { padding: '24px', marginBottom: '24px' },
+  title: { fontSize: '20px', color: 'var(--text)', fontFamily: 'Cormorant Garamond, serif', marginBottom: '8px' },
+  subtitle: { fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.6 },
+  linkBox: { display: 'flex', gap: '10px', background: 'rgba(0,0,0,0.20)', borderRadius: '10px', border: '1px solid var(--border)', padding: '10px 14px', margin: '16px 0', alignItems: 'center' },
+  linkText: { flex: 1, fontSize: '13px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  bonusText: { fontSize: '13px', color: 'var(--green)', lineHeight: 1.6 },
 }
 
 function DashboardContent() {
-  const [checkinDone, setCheckinDone] = useState(false)
-  const [streak, setStreak] = useState(0)
-  const [longestStreak, setLongestStreak] = useState(0)
-  const [personalYear, setPersonalYear] = useState(null)
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState(null)
+  const [light, setLight] = useState(null)   // semnalul de moment -> apa home-ului
+  const [ritual, setRitual] = useState(null) // ritualul ales manual de user
   const { user } = useUser()
-  const userId = user?.id || null
   const [globalLang] = useLanguage()
   const [profileLang, setProfileLang] = useState('en')
-
-  // limba globală are prioritate; dacă nu e setată, cade pe limba profilului
   const lang = globalLang || profileLang || 'en'
 
   useEffect(() => {
-    const stored = localStorage.getItem('profile')
-    if (stored) {
-      try {
-        const profile = JSON.parse(stored)
-        if (profile.personal_year) setPersonalYear(profile.personal_year)
-        if (profile.language) setProfileLang(profile.language)
-      } catch (e) {}
-    }
+    try {
+      const stored = localStorage.getItem('profile')
+      if (stored) {
+        const p = JSON.parse(stored)
+        setProfile(p)
+        if (p.language) setProfileLang(p.language)
+      }
+    } catch (e) {}
 
-    fetch(`/api/dashboard`)
+    fetch('/api/dashboard')
       .then(r => r.json())
-      .then((dashData) => {
-        if (dashData.success) {
-          setStreak(dashData.streak.current_streak || 0)
-          setLongestStreak(dashData.streak.longest_streak || 0)
-          setCheckinDone(dashData.checkedInToday || false)
-        }
-        setLoading(false)
-      })
+      .then(d => { if (d.success) setData(d); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
-  const handleCheckinComplete = (data) => {
-    if (data && data.success) {
-      setStreak(data.streak)
-      setLongestStreak(data.longest_streak)
-    }
-    setCheckinDone(true)
+  const refresh = () => {
+    fetch('/api/dashboard').then(r => r.json())
+      .then(d => { if (d.success) setData(d) }).catch(() => {})
   }
 
-  if (loading) return (
-    <div style={{textAlign:'center', padding:'80px', fontSize:'18px', color:'var(--text-muted)'}}>
-      {t(lang, 'loading_dashboard')}
-    </div>
-  )
+  if (loading) {
+    return (
+      <>
+        <div className="cosmic-bg" />
+        <main style={{ padding: '120px 24px' }}><WaterLoader /></main>
+      </>
+    )
+  }
+
+  // ?day=N — override pentru testarea stadiilor apei
+  const override = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('day') : null
+  const day = override !== null ? parseInt(override, 10) : (data?.day || 1)
+  const age = Math.max(0, day - 1)
+
+  const today = data?.today || {}
+  const stage = stageForDay(day)
+  const firstName = (profile?.full_name || '').trim().split(/\s+/)[0] || ''
+
+  // Ritualul potrivit orei. FĂRĂ blocaj (principiul 4): celălalt rămâne
+  // accesibil printr-un link discret — ora sugerează, nu interzice.
+  // TODO (sesiunea de experiență): pragurile 12/17 sunt de validat cu Alex.
+  const hour = new Date().getHours()
+  const naturally = hour < 12 ? 'morning' : hour >= 17 ? 'evening' : (today.morning ? 'evening' : 'morning')
+  const showing = ritual || naturally
+  const other = showing === 'morning' ? 'evening' : 'morning'
 
   return (
     <>
       <div className="cosmic-bg" />
       <CosmicStars />
-      <main style={s.wrap} className="dashboard-cards-stagger">
+      <main style={s.wrap} className="flow-in">
 
         <div style={s.header}>
-          <div>
-            <span className="tag tag-purple shimmer-overlay" style={{marginBottom:'12px', display:'inline-block'}}>
-              {t(lang, 'dashboard_tag')}
-            </span>
-            <h1 style={s.title}>{t(lang, 'dashboard_title')}</h1>
-            <p style={s.subtitle}>{t(lang, 'dashboard_subtitle')}</p>
-          </div>
+          <p style={s.stageName}>{stage[lang] || stage.en}</p>
           <a href="/" style={s.homeLink}>{t(lang, 'home')}</a>
         </div>
 
-        <PersonalYearBanner personalYear={personalYear} lang={lang} />
+        {/* ── APA USERULUI — inima ecranului, permanent vizibilă ── */}
+        <WaterDrop day={day} light={light} size={280} />
 
-        {/* ── DIMINEAȚA: Gândul Zilei + reflecția de stare ── */}
+        {/* ── RITUALUL — atinge apa de deasupra ── */}
+        <div style={{ marginTop: '18px' }}>
+          {showing === 'morning' ? (
+            <MorningAnchor
+              lang={lang}
+              name={firstName}
+              done={today.morning}
+              onSignal={setLight}
+              onComplete={refresh}
+            />
+          ) : (
+            <EveningMirror
+              lang={lang}
+              done={today.evening}
+              intention={today.intention}
+              onComplete={refresh}
+            />
+          )}
+
+          <button onClick={() => setRitual(other)} style={s.switchBtn}>
+            {other === 'evening' ? lx(lang, 'to_evening') : lx(lang, 'to_morning')}
+          </button>
+        </div>
+
+        {/* zilele grele — fără vinovăție */}
+        {!today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
+
         <DailyInsight />
 
-        <MorningReflection lang={lang} />
+        <Lenses profile={profile} lang={lang} />
 
-        {/* ── SEARA: cele 3 întrebări scrise ── */}
-        <EveningCheckin
+        <StreakTracker
+          streak={data?.streak?.current_streak || 0}
+          longestStreak={data?.streak?.longest_streak || 0}
           lang={lang}
-          onComplete={handleCheckinComplete}
-          checkinDone={checkinDone}
         />
-
-        {/* compatibilitate — vizibil pentru testeri */}
-        <a href="/compatibility" style={dcompat.card} className="landing-card">
-          <div>
-            <p style={dcompat.title}>{lang === 'ro' ? 'Profil de compatibilitate' : 'Compatibility profile'}</p>
-            <p style={dcompat.sub}>{lang === 'ro' ? 'Vezi cum funcționezi cu cineva — iubit, prieten sau partener de afaceri.' : 'See how you work with someone — partner, friend or business.'}</p>
-          </div>
-          <span style={dcompat.arrow} aria-hidden="true">→</span>
-        </a>
-
-        {/* prezență blândă, fără scor */}
-        <StreakTracker streak={streak} longestStreak={longestStreak} lang={lang} />
 
         <WeeklyReset lang={lang} />
 
-        {isFeatureUnlocked('journal', getAccountAgeDays()) && (
-          <FreeJournal lang={lang} />
-        )}
+        {isFeatureUnlocked('journal', age) && <FreeJournal lang={lang} />}
+        {isFeatureUnlocked('patterns', age) && <PatternsInsight lang={lang} />}
+        {isFeatureUnlocked('review', age) && <WeeklyReview />}
+        {isFeatureUnlocked('commitment', age) && <CommitmentDocument lang={lang} />}
 
-        {isFeatureUnlocked('patterns', getAccountAgeDays()) && (
-          <PatternsInsight lang={lang} />
-        )}
+        <a href="/compatibility" className="glass" style={s.compat}>
+          <div>
+            <p style={s.compatTitle}>{lx(lang, 'compat_t')}</p>
+            <p style={s.compatSub}>{lx(lang, 'compat_s')}</p>
+          </div>
+          <span style={s.compatArrow} aria-hidden="true">→</span>
+        </a>
 
-        {isFeatureUnlocked('review', getAccountAgeDays()) && (
-          <WeeklyReview />
-        )}
+        <ProgressiveUnlock lang={lang} day={age} />
 
-        {isFeatureUnlocked('commitment', getAccountAgeDays()) && (
-          <CommitmentDocument lang={lang} />
-        )}
+        <InstallApp lang={lang} />
 
-        <ProgressiveUnlock lang={lang} />
-
-        {/* creșterea organică — jos, afară din fluxul de reflecție */}
-        {userId && <InviteSection userId={userId} lang={lang} />}
+        {user?.id && <InviteSection userId={user.id} lang={lang} />}
 
       </main>
     </>
@@ -256,23 +256,20 @@ function DashboardContent() {
 }
 
 const s = {
-  wrap: { maxWidth:'720px', margin:'0 auto', padding:'40px 24px 80px' },
-  header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'12px' },
-  title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
-  subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
-  homeLink: { fontSize:'14px', color:'var(--text-muted)', fontWeight:'500', marginTop:'8px', display:'inline-block', padding:'8px 12px', minHeight:'44px' },
-}
-
-const dcompat = {
-  card: { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', padding:'22px 24px', marginBottom:'24px', background:'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)', border:'1px solid rgba(124,92,191,0.2)', borderRadius:'var(--radius)', cursor:'pointer', textDecoration:'none' },
-  title: { fontSize:'17px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'4px' },
-  sub: { fontSize:'13px', color:'var(--text-muted)', lineHeight:'1.5' },
-  arrow: { fontSize:'22px', color:'var(--purple)', flexShrink:0 },
+  wrap: { maxWidth: '640px', margin: '0 auto', padding: '28px 20px 80px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
+  stageName: { fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'var(--text-light)', letterSpacing: '1px' },
+  homeLink: { fontSize: '14px', color: 'var(--text-muted)', padding: '8px 12px', minHeight: '44px', display: 'inline-flex', alignItems: 'center' },
+  switchBtn: { display: 'block', margin: '-8px auto 22px', padding: '10px 16px', background: 'transparent', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', minHeight: '44px' },
+  compat: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '20px 22px', marginBottom: '24px', textDecoration: 'none' },
+  compatTitle: { fontSize: '17px', color: 'var(--text)', fontFamily: 'Cormorant Garamond, serif', marginBottom: '4px' },
+  compatSub: { fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 },
+  compatArrow: { fontSize: '22px', color: 'var(--gold)', flexShrink: 0 },
 }
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign:'center', padding:'80px' }}>Loading...</div>}>
+    <Suspense fallback={<main style={{ padding: '120px 24px' }}><WaterLoader /></main>}>
       <DashboardContent />
     </Suspense>
   )
