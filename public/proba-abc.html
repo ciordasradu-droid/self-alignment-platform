@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Proba A / B / C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root{ --gold:#E5A93C; --pearl:#F4F0EA; }
+  html,body{margin:0;height:100%;overflow:hidden;background:#07060E;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;}
+  header{position:fixed;top:calc(14px + env(safe-area-inset-top));left:0;right:0;text-align:center;z-index:3;pointer-events:none;}
+  header h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;font-size:25px;color:var(--pearl);text-shadow:0 1px 14px rgba(0,0,0,0.6);}
+  .ui{position:fixed;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .row{display:flex;gap:8px;justify-content:center;}
+  .pill{border:1px solid rgba(244,240,234,0.3);color:#d9d3e6;background:rgba(7,6,14,0.5);border-radius:22px;padding:9px 18px;font-size:13px;backdrop-filter:blur(8px);}
+  .pill.on{border-color:var(--gold);color:#f0d9b0;background:rgba(229,169,60,0.14);}
+  #desc{font-size:11.5px;color:#9b92b0;text-align:center;max-width:320px;text-shadow:0 1px 8px rgba(0,0,0,0.8);}
+  #start{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(7,6,14,0.55);border:none;color:#f0d9b0;font-size:16px;font-family:'Inter',sans-serif;}
+  #start span{border:1px solid rgba(229,169,60,0.6);border-radius:24px;padding:12px 28px;backdrop-filter:blur(8px);}
+  #vmsg{position:fixed;top:44%;left:16px;right:16px;text-align:center;color:#f0d9b0;font-size:13px;z-index:4;display:none;text-shadow:0 1px 8px #000;}
+  #err{position:fixed;inset:auto 16px 50% 16px;color:var(--pearl);text-align:center;font-size:14px;z-index:6;display:none;}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<header><h1>Prima Picătură</h1></header>
+<button id="start"><span>Intră în apă</span></button>
+<div id="vmsg">Filmul nu s-a putut încărca aici. Deschide pagina de pe site sau de pe laptop (ocean.mp4 lângă fișier) — nu din chat.</div>
+<div id="err">Nu s-a putut încărca motorul 3D. Deschide în Chrome, cu internet.</div>
+<div class="ui">
+  <div class="row">
+    <button class="pill" id="mA">A · Viu</button>
+    <button class="pill" id="mB">B · Film</button>
+    <button class="pill on" id="mC">C · Hibrid</button>
+  </div>
+  <div id="desc"></div>
+</div>
+
+<video id="vA" playsinline muted loop preload="auto" src="ocean.mp4" style="display:none"></video>
+<video id="vB" playsinline muted preload="auto" src="ocean.mp4" style="display:none"></video>
+
+<script type="module">
+const errEl=document.getElementById('err');
+let THREE=null;
+for (const u of [
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.161.0/three.module.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.module.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.152.2/three.module.min.js'
+]) { try { THREE = await import(u); break; } catch(e){} }
+if(!THREE){ errEl.style.display='block'; throw new Error('three'); }
+
+const vA=document.getElementById('vA'), vB=document.getElementById('vB');
+const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('gl'), antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.1;
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,1,0.1,120);
+camera.position.set(0,0.6,5);
+camera.lookAt(0,0.5,0);
+
+// fundal gradient (ca lacrima să aibă mereu ce refracta în modul A)
+function bgTex(){
+  const c=document.createElement('canvas'); c.width=8; c.height=512;
+  const g=c.getContext('2d'); const gr=g.createLinearGradient(0,0,0,512);
+  gr.addColorStop(0,'#0b0a1e'); gr.addColorStop(0.55,'#141230');
+  gr.addColorStop(0.72,'#1c2a4a'); gr.addColorStop(0.8,'#3a5a72');
+  gr.addColorStop(0.84,'#8a6a3a'); gr.addColorStop(0.9,'#122036'); gr.addColorStop(1,'#081222');
+  g.fillStyle=gr; g.fillRect(0,0,8,512);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const skyA=new THREE.Mesh(new THREE.PlaneGeometry(16,9), new THREE.MeshBasicMaterial({map:bgTex(), depthWrite:false}));
+skyA.position.z=-9; scene.add(skyA);
+
+// planele video (B și C)
+const texA=new THREE.VideoTexture(vA), texB=new THREE.VideoTexture(vB);
+texA.colorSpace=THREE.SRGBColorSpace; texB.colorSpace=THREE.SRGBColorSpace;
+const matVA=new THREE.MeshBasicMaterial({map:texA, transparent:true, opacity:1, depthWrite:false});
+const matVB=new THREE.MeshBasicMaterial({map:texB, transparent:true, opacity:0, depthWrite:false});
+const bkA=new THREE.Mesh(new THREE.PlaneGeometry(16,9), matVA);
+const bkB=new THREE.Mesh(new THREE.PlaneGeometry(16,9), matVB);
+bkA.position.z=-8; bkB.position.z=-8.01;
+scene.add(bkA,bkB);
+
+function fitPlane(m, dist){
+  const h=2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*(dist+5);
+  const w=h*camera.aspect;
+  const s=Math.max(w/16, h/9);
+  m.scale.set(s,s,1);
+}
+
+// apa shader (modul A)
+const wU={ uTime:{value:0}, uLight:{value:0.3}, uDrop:{value:new THREE.Vector2(0,0)} };
+const waterMat=new THREE.ShaderMaterial({
+  uniforms:wU,
+  vertexShader:`varying vec3 vW; void main(){ vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
+  fragmentShader:`
+    precision highp float; varying vec3 vW;
+    uniform float uTime,uLight; uniform vec2 uDrop;
+    void main(){
+      vec2 p=vW.xz; float t=uTime;
+      float swell=sin(p.y*0.35 - t*0.18)*0.6 + sin((p.x*0.5+p.y*0.3) - t*0.12)*0.4;
+      float chop=(sin(p.x*1.6+t*0.55)*sin(p.y*1.9-t*0.45))*0.5;
+      float depth=smoothstep(-5.0,8.0,p.y);
+      vec3 col=mix(vec3(0.055,0.135,0.205), vec3(0.020,0.070,0.125), depth);
+      col+=(swell*0.5+chop*0.5)*vec3(0.02,0.045,0.06);
+      col+=pow(smoothstep(0.55,1.0,swell*0.6+chop*0.7),3.0)*vec3(0.45,0.70,0.80)*0.35;
+      float d=length(p-uDrop);
+      col+=vec3(0.72,0.89,0.95)*smoothstep(0.9,1.0,sin(d*4.6-t*0.9))*exp(-d*0.6)*0.32;
+      col+=vec3(0.90,0.66,0.24)*exp(-d*1.5)*(0.06+0.5*uLight);
+      gl_FragColor=vec4(col,1.0);
+    }`
+});
+const water=new THREE.Mesh(new THREE.PlaneGeometry(90,60), waterMat);
+water.rotation.x=-Math.PI/2; water.position.y=-0.6; scene.add(water);
+
+// mediu de lumină
+const envScene=new THREE.Scene();
+envScene.background=new THREE.Color(0x04030a);
+function envPlane(color,w,h,pos,rot){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({color, side:THREE.DoubleSide}));
+  m.position.copy(pos); m.rotation.set(rot.x,rot.y,rot.z); envScene.add(m); return m;
+}
+envPlane(0xffffff,5,2.2,new THREE.Vector3(-2.8,4.6,-1.0),new THREE.Vector3(Math.PI/2.4,0.45,0));
+envPlane(0x9fd9ff,2.2,5.5,new THREE.Vector3(4.6,1.4,-2.0),new THREE.Vector3(0,-0.95,0));
+envPlane(0xE5A93C,1.6,1.6,new THREE.Vector3(2.0,3.2,2.8),new THREE.Vector3(Math.PI/2,0,0));
+envPlane(0x1a3a58,12,12,new THREE.Vector3(0,-2.4,0),new THREE.Vector3(-Math.PI/2,0,0));
+scene.environment=new THREE.PMREMGenerator(renderer).fromScene(envScene).texture;
+
+// lacrima
+function teardropGeometry(R,sharp,steps,radial){
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const t=Math.PI*i/steps;
+    const taper=Math.pow(Math.cos(t/2),sharp);
+    pts.push(new THREE.Vector2(Math.max(Math.sin(t)*R*taper,0.0001),-Math.cos(t)*R));
+  }
+  const g=new THREE.LatheGeometry(pts,radial);
+  g.scale(1,1.26,1); g.computeVertexNormals(); return g;
+}
+const dropMat=new THREE.MeshPhysicalMaterial({
+  transmission:0.92, thickness:1.2, ior:1.33, roughness:0.04, metalness:0,
+  clearcoat:1.0, clearcoatRoughness:0.05, iridescence:0.22, iridescenceIOR:1.3,
+  envMapIntensity:2.1, specularIntensity:1.2,
+  attenuationColor:new THREE.Color(0xd6efff), attenuationDistance:3.0
+});
+const dropGeo=teardropGeometry(0.6,1.35,48,72);
+const basePos=dropGeo.attributes.position.array.slice();
+const drop=new THREE.Mesh(dropGeo,dropMat);
+drop.position.set(0,0.85,0); scene.add(drop);
+
+const core=new THREE.Mesh(new THREE.SphereGeometry(0.17,48,48),
+  new THREE.MeshBasicMaterial({color:0xE5A93C, transparent:true, opacity:0.3}));
+scene.add(core);
+function glowTexF(){
+  const c=document.createElement('canvas'); c.width=c.height=256;
+  const g=c.getContext('2d'); const gr=g.createRadialGradient(128,128,8,128,128,128);
+  gr.addColorStop(0,'rgba(229,169,60,0.85)'); gr.addColorStop(0.4,'rgba(229,169,60,0.22)'); gr.addColorStop(1,'rgba(229,169,60,0)');
+  g.fillStyle=gr; g.fillRect(0,0,256,256); return new THREE.CanvasTexture(c);
+}
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexF(),transparent:true,opacity:0.22,blending:THREE.AdditiveBlending,depthWrite:false}));
+glow.scale.setScalar(2.6); scene.add(glow);
+scene.add(new THREE.AmbientLight(0x243248,0.55));
+const rim=new THREE.DirectionalLight(0xbfe3ff,0.7); rim.position.set(3,4,-2); scene.add(rim);
+
+// stratul 2D: ploaie + inele moi cu glow
+const fx=document.getElementById('fx'), fctx=fx.getContext('2d');
+const rains=[], rings=[];
+const WATERLINE=0.5;
+function addRing(x,y,s){ rings.push({x,y,s, born:performance.now()/1000}); }
+function addRain(x,y){ rains.push({x, y:-30, ty:Math.max(y, innerHeight*(WATERLINE+0.05)), vy:0, rebound:false}); }
+function drawFX(dt){
+  fctx.clearRect(0,0,fx.width,fx.height);
+  fctx.save();
+  fctx.scale(fx.width/innerWidth, fx.height/innerHeight);
+  fctx.globalCompositeOperation='lighter';
+  for(let i=rains.length-1;i>=0;i--){
+    const r=rains[i];
+    r.vy+=2600*dt; r.y+=r.vy*dt;
+    const stretch=Math.min(24, 6+Math.abs(r.vy)*0.012);
+    const g=fctx.createLinearGradient(r.x, r.y-stretch, r.x, r.y);
+    g.addColorStop(0,'rgba(230,240,250,0)'); g.addColorStop(1,'rgba(230,240,250,0.75)');
+    fctx.strokeStyle=g; fctx.lineWidth=2.2; fctx.lineCap='round';
+    fctx.beginPath(); fctx.moveTo(r.x, r.y-stretch); fctx.lineTo(r.x, r.y); fctx.stroke();
+    if(r.y>=r.ty && r.vy>0){
+      addRing(r.x, r.ty, r.rebound?0.5:1);
+      if(!r.rebound) rains.push({x:r.x, y:r.ty-4, ty:r.ty, vy:-760, rebound:true});
+      rains.splice(i,1);
+    }
+  }
+  const now=performance.now()/1000;
+  for(let i=rings.length-1;i>=0;i--){
+    const R=rings[i]; const age=now-R.born;
+    if(age>2.2){ rings.splice(i,1); continue; }
+    const persp=0.20+0.5*Math.max(0,(R.y/innerHeight-WATERLINE))/(1-WATERLINE);
+    const fade=Math.pow(1-age/2.2, 1.6);
+    for(let k=0;k<2;k++){
+      const rr=(24+age*230)*(k?0.6:1)*R.s;
+      fctx.shadowColor='rgba(190,225,240,'+(0.5*fade).toFixed(3)+')';
+      fctx.shadowBlur=12;
+      fctx.strokeStyle='rgba(215,238,248,'+((k?0.22:0.4)*fade).toFixed(3)+')';
+      fctx.lineWidth=k?1.4:2.2;
+      fctx.beginPath();
+      fctx.ellipse(R.x, R.y, rr, rr*persp, 0, 0, Math.PI*2);
+      fctx.stroke();
+    }
+    fctx.shadowBlur=0;
+  }
+  fctx.restore();
+}
+
+// crossfade loop pentru C
+const XFADE=1.1; let lead=vA, lag=vB, leadMat=matVA, lagMat=matVB, xfading=false;
+function tickLoop(){
+  const D=lead.duration||10;
+  if(!isFinite(D)) return;
+  if(!xfading && lead.currentTime>D-XFADE && lag.readyState>=2){
+    xfading=true; lag.currentTime=0; lag.play().catch(()=>{});
+  }
+  if(xfading){
+    const k=Math.min(1,(lead.currentTime-(D-XFADE))/XFADE);
+    lagMat.opacity=k; leadMat.opacity=1-k;
+    if(k>=1){ lead.pause(); [lead,lag]=[lag,lead]; [leadMat,lagMat]=[lagMat,leadMat]; xfading=false; }
+  }
+}
+
+// ---- MODURI ----
+let MODE='C';
+const desc={
+  A:'Totul viu: apa e calculată în timp real. Răspunde la orice, dar nu e film.',
+  B:'Totul film: exact video-ul tău, în buclă. Superb — dar nu răspunde la atingere.',
+  C:'Hibrid: filmul tău + lacrima vie + ploaia la atingere. Fiecare face ce face cel mai bine.'
+};
+function setMode(m){
+  MODE=m;
+  const isV = m!=='A';
+  bkA.visible=isV; bkB.visible=isV;
+  skyA.visible=!isV;
+  water.visible=(m==='A');
+  drop.visible=(m!=='B'); core.visible=(m!=='B'); glow.visible=(m!=='B');
+  if(isV && started){ vA.play().catch(()=>{}); }
+  ['A','B','C'].forEach(x=>document.getElementById('m'+x).classList.toggle('on', x===m));
+  document.getElementById('desc').textContent=desc[m];
+}
+['A','B','C'].forEach(x=>document.getElementById('m'+x).onclick=()=>setMode(x));
+
+// pornire + detecție video blocat
+let started=false, videoOK=false;
+vA.addEventListener('playing', ()=>{ videoOK=true; document.getElementById('vmsg').style.display='none'; });
+function startAll(){
+  if(started) return; started=true;
+  document.getElementById('start').style.display='none';
+  vA.play().catch(()=>{});
+  setTimeout(()=>{ if(!videoOK && MODE!=='A') document.getElementById('vmsg').style.display='block'; }, 2500);
+}
+document.getElementById('start').addEventListener('click', startAll);
+addEventListener('pointerdown', e=>{
+  if(e.target.closest('.ui')||e.target.closest('#start')) return;
+  startAll();
+  if(MODE!=='B') addRain(e.clientX, e.clientY);
+},{passive:true});
+
+let nextAuto=3;
+function resize(){
+  renderer.setSize(innerWidth,innerHeight,false);
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  const d=Math.min(devicePixelRatio,2);
+  fx.width=innerWidth*d; fx.height=innerHeight*d;
+  fx.style.width=innerWidth+'px'; fx.style.height=innerHeight+'px';
+  fitPlane(bkA,8); fitPlane(bkB,8.01); fitPlane(skyA,9);
+}
+addEventListener('resize',resize); resize();
+
+function wobble(geo,base,t,amp){
+  const pos=geo.attributes.position;
+  for(let i=0;i<pos.count;i++){
+    const bx=base[i*3],by=base[i*3+1],bz=base[i*3+2];
+    const n=amp*(Math.sin(bx*3.1+t*1.15)*0.5+Math.sin(by*2.6-t*0.95)*0.3+Math.sin((bx+bz)*2.4+t*0.8)*0.2);
+    const d=1+n;
+    pos.array[i*3]=bx*d; pos.array[i*3+1]=by*d; pos.array[i*3+2]=bz*d;
+  }
+  pos.needsUpdate=true; geo.computeVertexNormals();
+}
+
+let tLast=performance.now()/1000;
+renderer.setAnimationLoop(()=>{
+  const t=performance.now()/1000, dt=Math.min(t-tLast,0.05); tLast=t;
+  wU.uTime.value=t;
+  if(started){
+    if(MODE==='C'||MODE==='B') tickLoop();
+    if(MODE!=='B' && t>nextAuto){ addRain(Math.random()*innerWidth, innerHeight*(WATERLINE+0.1+Math.random()*0.3)); nextAuto=t+4+Math.random()*4; }
+  }
+  const bob=Math.sin(t*0.7)*0.05;
+  drop.position.y=0.85+bob;
+  if(drop.visible) wobble(dropGeo,basePos,t,0.016);
+  wU.uDrop.value.set(drop.position.x,0);
+  core.position.set(drop.position.x, drop.position.y-0.09, drop.position.z);
+  glow.position.copy(core.position);
+  if(MODE!=='B') drawFX(dt); else fctx.clearRect(0,0,fx.width,fx.height);
+  renderer.render(scene,camera);
+});
+setMode('C');
+</script>
+</body>
+</html>
