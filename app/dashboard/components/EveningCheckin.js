@@ -159,7 +159,7 @@ export default function EveningCheckin({ lang = "en", onComplete, checkinDone })
       const res = await fetch("/api/dashboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: getUserId(), score: null, answers }),
+        body: JSON.stringify({ user_id: getUserId(), score: 0, answers }),
       })
       const data = await res.json()
       setSubmitted(true)

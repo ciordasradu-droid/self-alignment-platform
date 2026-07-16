@@ -21,7 +21,7 @@ export async function POST(request) {
       .from('checkins')
       .insert([{
         user_id,
-        score: null,
+        score: 0,
         answers: { kind: kind || 'morning', text },
         created_at: new Date().toISOString()
       }])
