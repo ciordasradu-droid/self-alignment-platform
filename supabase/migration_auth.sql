@@ -4,30 +4,31 @@
 -- Sigur de rulat: NU șterge date (blocul de curățenie e opțional, jos, comentat).
 -- ============================================================================
 
--- ── 1. Tabelul users (legat de auth.users) ─────────────────────────────────
+-- ── 1. Tabelul users (creează dacă lipsește; adaugă coloanele lipsă dacă există) ─
 create table if not exists public.users (
   id                  uuid primary key references auth.users(id) on delete cascade,
-  email               text,
-  birth_data          jsonb,
-  current_unlocked_day int  not null default 1,
-  custom_settings     jsonb not null default '{}'::jsonb,
-  starting_point      text,                         -- „punct de plecare"
   created_at          timestamptz not null default now()
 );
+alter table public.users add column if not exists email                text;
+alter table public.users add column if not exists birth_data           jsonb;
+alter table public.users add column if not exists current_unlocked_day int not null default 1;
+alter table public.users add column if not exists custom_settings      jsonb not null default '{}'::jsonb;
+alter table public.users add column if not exists starting_point        text;  -- „punct de plecare"
 
 alter table public.users enable row level security;
 
+-- cast pe ambele părți: merge indiferent dacă id e uuid sau text
 drop policy if exists "users_select_own" on public.users;
 create policy "users_select_own" on public.users
-  for select using (auth.uid() = id);
+  for select using (auth.uid()::text = id::text);
 
 drop policy if exists "users_insert_own" on public.users;
 create policy "users_insert_own" on public.users
-  for insert with check (auth.uid() = id);
+  for insert with check (auth.uid()::text = id::text);
 
 drop policy if exists "users_update_own" on public.users;
 create policy "users_update_own" on public.users
-  for update using (auth.uid() = id) with check (auth.uid() = id);
+  for update using (auth.uid()::text = id::text) with check (auth.uid()::text = id::text);
 
 -- ── 2. RLS pe tabelele deținute de user ────────────────────────────────────
 -- Notă: user_id e text (id-ul uuid al userului, stocat ca text). Comparăm cu cast.
@@ -58,8 +59,8 @@ begin
       execute format('drop policy if exists "%s_own" on public.%I;', tbl, tbl);
       execute format(
         'create policy "%s_own" on public.%I for all
-           using (auth.uid()::text = user_id)
-           with check (auth.uid()::text = user_id);', tbl, tbl);
+           using (auth.uid()::text = user_id::text)
+           with check (auth.uid()::text = user_id::text);', tbl, tbl);
     end if;
   end loop;
 end $$;
@@ -73,8 +74,8 @@ begin
     drop policy if exists "referrals_own" on public.referrals;
     create policy "referrals_own" on public.referrals
       for all
-      using (auth.uid()::text = new_user_id or auth.uid()::text = referred_by)
-      with check (auth.uid()::text = new_user_id or auth.uid()::text = referred_by);
+      using (auth.uid()::text = new_user_id::text or auth.uid()::text = referred_by::text)
+      with check (auth.uid()::text = new_user_id::text or auth.uid()::text = referred_by::text);
   end if;
 end $$;
 
