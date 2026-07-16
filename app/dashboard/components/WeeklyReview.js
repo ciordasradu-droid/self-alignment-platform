@@ -133,7 +133,7 @@ export default function WeeklyReview() {
       <div style={s.cardHeader} onClick={() => isWeekend && setIsOpen(!isOpen)}>
         <div>
           <span className="tag tag-purple" style={{marginBottom:'8px', display:'inline-block'}}>
-            🪞 {t.tag}
+            {t.tag}
           </span>
           <p style={s.cardSubtitle}>
             {isWeekend ? t.available : t.unavailable}
@@ -211,7 +211,7 @@ const s = {
   questionBlock: { marginBottom:'24px', paddingBottom:'24px', borderBottom:'1px solid var(--border)' },
   questionText: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'12px', lineHeight:'1.5' },
   textarea: { width:'100%', padding:'12px 16px', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', color:'var(--text)', background:'var(--bg)', resize:'vertical', fontFamily:'inherit', outline:'none', boxSizing:'border-box', lineHeight:'1.6' },
-  submitBtn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', marginTop:'8px', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
+  submitBtn: { width:'100%', padding:'15px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', marginTop:'8px', boxShadow:'0 4px 20px var(--gold-faint)' },
 
   // Done
   doneBox: { textAlign:'center', padding:'24px 0' },

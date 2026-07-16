@@ -99,9 +99,9 @@ export default function DailyInsight() {
 }
 
 const s = {
-  card: { position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid rgba(124,92,191,0.3)" },
+  card: { position: "relative", overflow: "hidden", background: "linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid var(--gold-faint)" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" },
-  tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "rgba(124,92,191,0.15)", padding: "5px 12px", borderRadius: "20px" },
+  tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "var(--gold-faint)", padding: "5px 12px", borderRadius: "20px" },
   date: { fontSize: "12px", color: "rgba(255,255,255,0.4)" },
   title: { fontSize: "22px", fontWeight: "600", color: "#fff", fontFamily: "Cormorant Garamond, serif", marginBottom: "12px" },
   body: { fontSize: "15px", color: "rgba(255,255,255,0.8)", lineHeight: "1.75", marginBottom: "20px" },

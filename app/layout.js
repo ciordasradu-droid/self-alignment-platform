@@ -4,7 +4,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import RippleLayer from "./components/water/RippleLayer";
+import WaterCanvas from "./components/water/WaterCanvas";
 import ServiceWorker from "./components/ServiceWorker";
 
 const geistSans = Geist({
@@ -35,7 +35,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#0b0e2a",
+  themeColor: "#14122a",
   viewportFit: "cover",
 };
 
@@ -51,8 +51,9 @@ export default function RootLayout({ children }) {
               "try{var l=localStorage.getItem('app_language');if(l){document.documentElement.lang=l}}catch(e){}",
           }}
         />
-        {children}
-        <RippleLayer />
+        {/* LEGEA 1 — apa e sub tot. UN SINGUR canvas, pentru toata aplicatia. */}
+        <WaterCanvas />
+        <div id="app-surface">{children}</div>
         <ServiceWorker />
       </body>
     </html>

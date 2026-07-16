@@ -116,7 +116,7 @@ function CommitmentGate({ lang, agreements, onAccept }) {
                       background:'var(--surface)',
                       border: isOn ? '1.5px solid var(--purple)' : '1.5px solid var(--border)',
                       borderRadius:'14px', padding:'16px 18px',
-                      boxShadow: isOn ? '0 4px 14px rgba(124, 92, 191, 0.15)' : 'var(--shadow)',
+                      boxShadow: isOn ? '0 4px 14px var(--gold-faint)' : 'var(--shadow)',
                       transition:'border-color 0.2s, box-shadow 0.2s',
                     }}
                   >
@@ -131,7 +131,7 @@ function CommitmentGate({ lang, agreements, onAccept }) {
                         transition:'background 0.2s',
                       }}
                     >
-                      {isOn ? '✓' : ''}
+                      {null}
                     </span>
                     <span style={{ fontSize:'15px', lineHeight:'1.65', color: isOn ? 'var(--text)' : 'var(--text-muted)', transition:'color 0.2s' }}>
                       {item}
@@ -222,7 +222,7 @@ function LegacySections({ sections, swot, lang }) {
   return (
     <>
       <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-        <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>✦ {t(lang, 'blueprint')}</div>
+        <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'blueprint')}</div>
         <p style={s.bodyText}>{sections?.blueprint}</p>
       </div>
 
@@ -239,7 +239,7 @@ function LegacySections({ sections, swot, lang }) {
           <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'vulnerabilities')}</div>
           <ul style={s.list}>
             {sections?.vulnerabilities?.map((item, i) => (
-              <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>🌱</span>{item}</li>
+              <li key={i} style={s.listItem}>{item}</li>
             ))}
           </ul>
         </div>
@@ -454,8 +454,7 @@ function ProfileContent() {
             <div style={s.personalYearRight}>
               <p style={s.personalYearFocus}>{personal_year.focus}</p>
               <div style={s.personalYearWarning}>
-                <span style={{color:'var(--orange)', marginRight:'6px'}}>⚠</span>
-                <span>{personal_year.warning}</span>
+                                <span>{personal_year.warning}</span>
               </div>
             </div>
           </div>
@@ -556,7 +555,7 @@ function ProfileContent() {
                   <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
                   <ul style={s.list}>
                     {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>✕</span>{item}</li>
+                      <li key={i} style={s.listItem}>{item}</li>
                     ))}
                   </ul>
                 </div>
@@ -607,7 +606,7 @@ const s = {
   title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
   dlBtn: { padding:'10px 20px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', fontWeight:'500', cursor:'pointer', color:'var(--text)' },
-  personalYearCard: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px', display:'flex', gap:'32px', alignItems:'flex-start', flexWrap:'wrap' },
+  personalYearCard: { background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px', display:'flex', gap:'32px', alignItems:'flex-start', flexWrap:'wrap' },
   personalYearLeft: { display:'flex', alignItems:'center', gap:'16px', flexShrink:0 },
   personalYearNum: { fontSize:'64px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
   personalYearLabel: { fontSize:'11px', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'4px' },

@@ -18,7 +18,7 @@ import FreeJournal from './components/FreeJournal'
 import CommitmentDocument from './components/CommitmentDocument'
 import PatternsInsight from './components/PatternsInsight'
 import { isFeatureUnlocked } from './components/ProgressiveUnlock'
-import WaterDrop, { stageForDay } from '../components/water/WaterDrop'
+import { waterState, stageForDay } from '../components/water/waterState'
 import WaterLoader from '../components/water/WaterLoader'
 import InstallApp from '../components/InstallApp'
 import { useUser } from '../../lib/useUser'
@@ -106,7 +106,7 @@ function InviteSection({ userId, lang }) {
           {copied ? t(lang, 'copied') : t(lang, 'copy')}
         </button>
       </div>
-      <p style={inv.bonusText}>✦ {t(lang, 'invite_bonus')} · {referrals}</p>
+      <p style={inv.bonusText}>{t(lang, 'invite_bonus')} · {referrals}</p>
     </div>
   )
 }
@@ -170,6 +170,12 @@ function DashboardContent() {
   const stage = stageForDay(day)
   const firstName = (profile?.full_name || '').trim().split(/\s+/)[0] || ''
 
+  // Apa userului traieste in Canvas-ul global (legea 6): home-ul nu o deseneaza,
+  // ii spune doar in ce stadiu e si unde sa stea pe ecran.
+  waterState.setDay(day)
+  waterState.setDropPos(0.5, 0.72)
+  waterState.setShowDrop(true)
+
   // Ritualul potrivit orei. FĂRĂ blocaj (principiul 4): celălalt rămâne
   // accesibil printr-un link discret — ora sugerează, nu interzice.
   // TODO (sesiunea de experiență): pragurile 12/17 sunt de validat cu Alex.
@@ -189,17 +195,20 @@ function DashboardContent() {
           <a href="/" style={s.homeLink}>{t(lang, 'home')}</a>
         </div>
 
-        {/* ── APA USERULUI — inima ecranului, permanent vizibilă ── */}
-        <WaterDrop day={day} light={light} size={280} />
+        {/* ── APA USERULUI ──
+            Picătura e randată de Canvas-ul global, în spatele UI-ului. Aici îi
+            lăsăm locul ei: ecranul se deschide pe apă, nu pe carduri. */}
+        <div style={s.waterRoom} aria-hidden="true" />
 
         {/* ── RITUALUL — atinge apa de deasupra ── */}
-        <div style={{ marginTop: '18px' }}>
+        <div>
           {showing === 'morning' ? (
             <MorningAnchor
               lang={lang}
               name={firstName}
               done={today.morning}
-              onSignal={setLight}
+              /* gestul aprinde lumina DIN picătura de deasupra, în timp real */
+              onSignal={(v) => { setLight(v); waterState.setLight(v) }}
               onComplete={refresh}
             />
           ) : (
@@ -257,6 +266,8 @@ function DashboardContent() {
 
 const s = {
   wrap: { maxWidth: '640px', margin: '0 auto', padding: '28px 20px 80px' },
+  // locul picăturii: ecranul se deschide pe apă, nu pe carduri
+  waterRoom: { height: 'min(46vh, 340px)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
   stageName: { fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'var(--text-light)', letterSpacing: '1px' },
   homeLink: { fontSize: '14px', color: 'var(--text-muted)', padding: '8px 12px', minHeight: '44px', display: 'inline-flex', alignItems: 'center' },

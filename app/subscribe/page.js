@@ -23,21 +23,19 @@ const SUBSCRIBE_LABELS = {
     per_year: '/year',
     two_months_free: '2 months free',
     features: [
-      { icon: '◎', text: 'Daily alignment check-in — 2 minutes' },
-      { icon: '✦', text: 'Daily personalized insight — generated from your profile' },
-      { icon: '◎', text: 'Weekly reset — every Monday morning' },
-      { icon: '⚡', text: 'Personal alignment score — updated daily' },
-      { icon: '⟳', text: 'Streak tracking — build real consistency' },
-      { icon: '🪞', text: 'Weekly review — reflect and reset' },
-      { icon: '◦', text: 'Shadow alerts — pattern detection' },
-      { icon: '🧭', text: 'Recalibration mode — when you drift' },
-      { icon: '✦', text: 'Personal year phase — always in context' },
-      { icon: '🌍', text: 'Available in 10 languages' },
+      { text: 'Daily alignment check-in — 2 minutes' },
+      { text: 'Daily personalized insight — generated from your profile' },
+      { text: 'Weekly reset — every Monday morning' },
+      { text: 'Presence held gently, without scores' },
+      { text: 'Weekly review — reflect and reset' },
+      { text: 'Patterns — what is emerging in your journey' },
+      { text: 'Personal year phase — always in context' },
+      { text: 'Available in 10 languages' },
     ],
     subscribe_btn: 'Start for',
     redirecting: 'Redirecting...',
     try_free: 'Try for free first →',
-    guarantee_badge: '🛡 30-day money-back guarantee. No questions asked.',
+    guarantee_badge: '30-day money-back guarantee. No questions asked.',
     no_profile_text: "Don't have your free profile yet?",
     no_profile_link: 'Generate your free profile first →',
     promise_title: 'Our promise to you',
@@ -65,21 +63,19 @@ const SUBSCRIBE_LABELS = {
     per_year: '/an',
     two_months_free: '2 luni gratuite',
     features: [
-      { icon: '◎', text: 'Check-in zilnic de aliniere — 2 minute' },
-      { icon: '✦', text: 'Gândul zilnic personalizat — generat din profilul tău' },
-      { icon: '◎', text: 'Reset săptămânal — în fiecare luni dimineața' },
-      { icon: '⚡', text: 'Scor personal de aliniere — actualizat zilnic' },
-      { icon: '⟳', text: 'Urmărirea streak-ului — construiește consecvență reală' },
-      { icon: '🪞', text: 'Revizuire săptămânală — reflectează și resetează' },
-      { icon: '◦', text: 'Alerte de umbră — detectarea tiparelor' },
-      { icon: '🧭', text: 'Mod de recalibrare — când deviezi' },
-      { icon: '✦', text: 'Faza anului personal — mereu în context' },
-      { icon: '🌍', text: 'Disponibil în 10 limbi' },
+      { text: 'Check-in zilnic de aliniere — 2 minute' },
+      { text: 'Gândul zilnic personalizat — generat din profilul tău' },
+      { text: 'Reset săptămânal — în fiecare luni dimineața' },
+      { text: 'Prezență ținută blând, fără scoruri' },
+      { text: 'Revizuire săptămânală — reflectează și resetează' },
+      { text: 'Tipare — ce se conturează în drumul tău' },
+      { text: 'Faza anului personal — mereu în context' },
+      { text: 'Disponibil în 10 limbi' },
     ],
     subscribe_btn: 'Începe pentru',
     redirecting: 'Redirecționare...',
     try_free: 'Încearcă gratuit mai întâi →',
-    guarantee_badge: '🛡 Garanție de returnare 30 de zile. Fără întrebări.',
+    guarantee_badge: 'Garanție de returnare 30 de zile. Fără întrebări.',
     no_profile_text: 'Nu ai încă profilul gratuit?',
     no_profile_link: 'Generează-ți profilul gratuit mai întâi →',
     promise_title: 'Promisiunea noastră pentru tine',
@@ -207,7 +203,6 @@ export default function SubscribePage() {
           <div style={s.features}>
             {labels.features.map((f, i) => (
               <div key={i} style={s.feature}>
-                <span style={{color:'var(--purple)', marginRight:'10px', fontSize:'16px'}}>{f.icon}</span>
                 <span style={s.featureText}>{f.text}</span>
               </div>
             ))}
@@ -239,17 +234,14 @@ export default function SubscribePage() {
           <h2 style={s.guaranteeTitle}>{labels.promise_title}</h2>
           <div style={s.guaranteeGrid}>
             <div style={s.guaranteeCard}>
-              <p style={s.guaranteeIcon}>🛡</p>
               <p style={s.guaranteeCardTitle}>{labels.promise_1_title}</p>
               <p style={s.guaranteeCardText}>{labels.promise_1_text}</p>
             </div>
             <div style={s.guaranteeCard}>
-              <p style={s.guaranteeIcon}>⚡</p>
               <p style={s.guaranteeCardTitle}>{labels.promise_2_title}</p>
               <p style={s.guaranteeCardText}>{labels.promise_2_text}</p>
             </div>
             <div style={s.guaranteeCard}>
-              <p style={s.guaranteeIcon}>✦</p>
               <p style={s.guaranteeCardTitle}>{labels.promise_3_title}</p>
               <p style={s.guaranteeCardText}>{labels.promise_3_text}</p>
             </div>
@@ -269,7 +261,7 @@ const s = {
   title: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', marginBottom:'16px' },
   accent: { color:'var(--orange)' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', lineHeight:'1.75', maxWidth:'480px', margin:'0 auto' },
-  spotsBanner: { background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'32px', display:'flex', gap:'20px', alignItems:'center', flexWrap:'wrap' },
+  spotsBanner: { background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'32px', display:'flex', gap:'20px', alignItems:'center', flexWrap:'wrap' },
   spotsLeft: { textAlign:'center', flexShrink:0 },
   spotsNum: { display:'block', fontSize:'36px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
   spotsLabel: { display:'block', fontSize:'11px', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'1px', marginTop:'4px' },
@@ -285,7 +277,7 @@ const s = {
   features: { marginBottom:'28px' },
   feature: { display:'flex', alignItems:'center', padding:'10px 0', borderBottom:'1px solid var(--border)' },
   featureText: { fontSize:'14px', color:'var(--text)', lineHeight:'1.5' },
-  subscribeBtn: { width:'100%', padding:'16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', cursor:'pointer', marginBottom:'12px', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
+  subscribeBtn: { width:'100%', padding:'16px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', cursor:'pointer', marginBottom:'12px', boxShadow:'0 4px 20px var(--gold-faint)' },
   tryFreeBtn: { width:'100%', padding:'14px', background:'transparent', color:'var(--text-muted)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'15px', fontWeight:'500', cursor:'pointer', marginBottom:'16px' },
   guarantee: { textAlign:'center', fontSize:'13px', color:'var(--text-muted)' },
   profileNote: { textAlign:'center', padding:'24px', background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', marginBottom:'32px' },
@@ -295,7 +287,6 @@ const s = {
   guaranteeTitle: { fontSize:'28px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', textAlign:'center', marginBottom:'24px' },
   guaranteeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px' },
   guaranteeCard: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'24px', textAlign:'center' },
-  guaranteeIcon: { fontSize:'28px', marginBottom:'12px' },
   guaranteeCardTitle: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'8px' },
   guaranteeCardText: { fontSize:'13px', color:'var(--text-muted)', lineHeight:'1.6' }
 }

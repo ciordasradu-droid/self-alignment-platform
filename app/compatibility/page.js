@@ -217,5 +217,5 @@ const s = {
   label: { display:'block', fontSize:'13px', fontWeight:'600', color:'var(--text)', marginBottom:'8px' },
   sug: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'12px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'240px', overflowY:'auto', marginTop:'4px' },
   sugItem: { padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)', fontSize:'13px', color:'var(--text)', display:'flex', alignItems:'flex-start' },
-  cta: { width:'100%', padding:'16px', marginTop:'28px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
+  cta: { width:'100%', padding:'16px', marginTop:'28px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', boxShadow:'0 4px 20px var(--gold-faint)' },
 }

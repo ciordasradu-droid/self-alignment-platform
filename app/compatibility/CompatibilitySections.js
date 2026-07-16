@@ -66,7 +66,7 @@ function Patterns({ items, lang }) {
       <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
         {real.map((p,i)=>(
           <div key={i} style={st.signItem}>
-            <p style={st.signFeel}>⚠ {p.semn}</p>
+            <p style={st.signFeel}>{p.semn}</p>
             {p.ce_se_intampla && <p style={st.signSub}>{p.ce_se_intampla}</p>}
             {p.intoarcerea && <p style={st.signExit}>→ {p.intoarcerea}</p>}
           </div>
@@ -128,7 +128,7 @@ export default function CompatibilitySections({ profile, lang }) {
             return (<div key={k} style={{ marginBottom:'14px' }}><p style={st.subName}>{k}</p><p style={st.body}>{v}</p></div>)
           })}
           {x.cum_impartiti_rolurile.capcana && (
-            <p style={{ ...st.body, fontStyle:'italic', marginTop:'6px' }}>⚠ {x.cum_impartiti_rolurile.capcana}</p>
+            <p style={{ ...st.body, fontStyle:'italic', marginTop:'6px' }}>{x.cum_impartiti_rolurile.capcana}</p>
           )}
         </Card>
       )}
@@ -147,7 +147,7 @@ const st = {
   pairHead: { textAlign:'center', marginBottom:'24px', display:'flex', alignItems:'center', justifyContent:'center', gap:'12px', flexWrap:'wrap' },
   pairName: { fontSize:'clamp(22px,5vw,30px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   pairAmp: { fontSize:'20px', color:'var(--purple)' },
-  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 60%, #3d2660 100%)', borderRadius:'var(--radius)', padding:'36px 28px', marginBottom:'20px', textAlign:'center' },
+  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 60%, #3d2660 100%)', borderRadius:'var(--radius)', padding:'36px 28px', marginBottom:'20px', textAlign:'center' },
   archetypeLabel: { fontSize:'12px', letterSpacing:'2px', textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:'12px' },
   archetypeName: { fontSize:'clamp(26px,6vw,40px)', fontWeight:'700', color:'#fff', fontFamily:'Cormorant Garamond, serif', lineHeight:1.1, marginBottom:'14px' },
   archetypeDesc: { fontSize:'16px', lineHeight:'1.8', color:'rgba(255,255,255,0.85)', maxWidth:'620px', margin:'0 auto' },

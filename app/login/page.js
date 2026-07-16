@@ -113,7 +113,7 @@ const s = {
   title: { fontSize:'clamp(26px,6vw,34px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.2, marginBottom:'12px' },
   sub: { fontSize:'15px', color:'var(--text-muted)', lineHeight:1.6, marginBottom:'24px' },
   hint: { fontSize:'13px', color:'var(--text-light)', lineHeight:1.6, marginTop:'6px' },
-  btn: { width:'100%', padding:'15px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', boxShadow:'0 4px 20px rgba(124,92,191,0.3)', marginTop:'8px' },
+  btn: { width:'100%', padding:'15px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', boxShadow:'0 4px 20px var(--gold-faint)', marginTop:'8px' },
   errText: { fontSize:'13px', color:'#c0392b', textAlign:'left', marginBottom:'8px' },
 }
 

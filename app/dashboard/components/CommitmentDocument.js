@@ -102,7 +102,7 @@ export default function CommitmentDocument({ lang = 'en' }) {
       <div style={s.card} onClick={() => setIsOpen(true)}>
         <div style={s.closedHeader}>
           <div>
-            <span className="tag tag-orange" style={{marginBottom:'8px', display:'inline-block'}}>📜 {t.tag}</span>
+            <span className="tag tag-orange" style={{marginBottom:'8px', display:'inline-block'}}>{t.tag}</span>
             <h3 style={s.closedTitle}>{t.title}</h3>
             <p style={s.closedSubtitle}>{t.subtitle}</p>
           </div>
@@ -116,7 +116,7 @@ export default function CommitmentDocument({ lang = 'en' }) {
     return (
       <div style={s.card}>
         <div style={s.printHeader} id="commitment-print">
-          <div style={s.printLogo}>✦ Alignment</div>
+          <div style={s.printLogo}>Alignment</div>
           <h2 style={s.printTitle}>{t.title}</h2>
           <div style={s.printDivider} />
 
@@ -168,7 +168,7 @@ export default function CommitmentDocument({ lang = 'en' }) {
   return (
     <div style={s.card}>
       <div style={s.header}>
-        <span className="tag tag-orange" style={{marginBottom:'12px', display:'inline-block'}}>📜 {t.tag}</span>
+        <span className="tag tag-orange" style={{marginBottom:'12px', display:'inline-block'}}>{t.tag}</span>
         <h3 style={s.title}>{t.title}</h3>
         <p style={s.subtitle}>{t.subtitle}</p>
       </div>
@@ -244,7 +244,7 @@ const s = {
   formLabel: { fontSize:'16px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'6px' },
   formPrompt: { fontSize:'13px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'12px' },
   textarea: { width:'100%', padding:'16px', border:'1.5px solid var(--border)', borderRadius:'12px', fontSize:'15px', color:'var(--text)', background:'var(--bg)', resize:'vertical', fontFamily:'inherit', outline:'none', boxSizing:'border-box', lineHeight:'1.7', minHeight:'120px' },
-  generateBtn: { width:'100%', padding:'16px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
+  generateBtn: { width:'100%', padding:'16px', color:'#fff', border:'none', borderRadius:'10px', fontSize:'16px', fontWeight:'500', boxShadow:'0 4px 20px var(--gold-faint)' },
 
   // Generated - print state
   printHeader: { textAlign:'center', padding:'20px 0' },

@@ -8,14 +8,14 @@
 import { useState, useEffect } from 'react'
 
 const UNLOCK_STAGES = [
-  { day: 0,  id: 'checkin',    icon: '◎', label: 'Daily Check-in',        description: 'Your daily mirror â€” 3 questions, less than 2 minutes.' },
-  { day: 0,  id: 'insight',    icon: '✦', label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
-  { day: 3,  id: 'journal',    icon: '📔', label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
-  { day: 7,  id: 'plan',       icon: '🧭', label: 'Alignment Plan',        description: 'Your personalized roadmap â€” direction, structure, and anchors.' },
-  { day: 14, id: 'patterns',   icon: '🔍', label: 'Patterns',             description: 'AI synthesis of your check-ins â€” what is emerging in your journey.' },
-  { day: 30, id: 'review',     icon: '🪞', label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
-  { day: 60, id: 'commitment', icon: '📜', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
-  { day: 90, id: 'circle',     icon: '⭕', label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
+  { day: 0,  id: 'checkin',    label: 'Daily Check-in',        description: 'Your daily mirror â€” 3 questions, less than 2 minutes.' },
+  { day: 0,  id: 'insight',    label: 'Daily Thought',         description: 'A reflection calibrated to your design, every morning.' },
+  { day: 3,  id: 'journal',    label: 'Free Journal',          description: 'A private space to write freely, with no prompts or structure.' },
+  { day: 7,  id: 'plan',       label: 'Alignment Plan',        description: 'Your personalized roadmap â€” direction, structure, and anchors.' },
+  { day: 14, id: 'patterns',   label: 'Patterns',             description: 'AI synthesis of your check-ins â€” what is emerging in your journey.' },
+  { day: 30, id: 'review',     label: 'Weekly Review',         description: 'A deeper weekly reflection with AI-powered insights.' },
+  { day: 60, id: 'commitment', label: 'Commitment With Yourself', description: 'A personal document you write, print, and sign by hand.' },
+  { day: 90, id: 'circle',     label: 'The Circle',            description: '4 people, compatible by design. Shared presence, not therapy.' },
 ]
 
 // Translations for unlock stage labels
@@ -100,7 +100,6 @@ export default function ProgressiveUnlock({ lang = 'en', day = null }) {
       {/* Celebration banner for newly unlocked feature */}
       {justUnlocked && (
         <div style={s.celebration} className="shimmer-overlay anim-scale-in">
-          <p style={s.celebrationIcon}>{justUnlocked.icon}</p>
           <p style={s.celebrationTitle}>{justUnlocked.label}</p>
           <p style={s.celebrationText}>{justUnlocked.description}</p>
           <span style={s.celebrationBadge}>{t.new}</span>
@@ -150,7 +149,6 @@ export default function ProgressiveUnlock({ lang = 'en', day = null }) {
                 }}
               >
                 <div style={s.stageHeader}>
-                  <span style={s.stageIcon}>{stage.icon}</span>
                   <span style={s.stageLabel}>{(UNLOCK_TRANSLATIONS[lang] || UNLOCK_TRANSLATIONS['en']).stages?.[stage.id]?.l || stage.label}</span>
                   {isNew && <span style={s.newBadge} className="shimmer-overlay">{t.new}</span>}
                 </div>
@@ -174,7 +172,6 @@ const s = {
 
   // Celebration
   celebration: { background: 'linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%)', borderRadius: '12px', padding: '24px', marginBottom: '24px', textAlign: 'center', position: 'relative' },
-  celebrationIcon: { fontSize: '32px', marginBottom: '8px' },
   celebrationTitle: { fontSize: '18px', fontWeight: '600', color: 'var(--text)', fontFamily: 'Cormorant Garamond, serif', marginBottom: '6px' },
   celebrationText: { fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' },
   celebrationBadge: { position: 'absolute', top: '12px', right: '12px', background: 'var(--orange)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' },
@@ -194,7 +191,6 @@ const s = {
   // Stage content
   stageContent: { flex: 1, paddingBottom: '16px' },
   stageHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' },
-  stageIcon: { fontSize: '16px' },
   stageLabel: { fontSize: '15px', fontWeight: '600', color: 'var(--text)' },
   newBadge: { background: 'var(--orange)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' },
   stageDesc: { fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5' },

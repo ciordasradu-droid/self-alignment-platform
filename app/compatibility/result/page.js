@@ -84,7 +84,7 @@ function Result() {
           <button onClick={handleShare} style={s.shareBtn}>
             ↗ {copied ? lx(langUsed,'copied') : lx(langUsed,'share')}
           </button>
-          <p style={s.private}>🔒 {lx(langUsed,'private')}</p>
+          <p style={s.private}>{lx(langUsed,'private')}</p>
         </div>
       </main>
     </>
@@ -99,7 +99,7 @@ const s = {
   header: { marginBottom:'24px' },
   back: { fontSize:'14px', color:'var(--text-muted)', fontWeight:'500' },
   shareBox: { textAlign:'center', marginTop:'32px' },
-  shareBtn: { padding:'15px 32px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', cursor:'pointer', boxShadow:'0 4px 20px rgba(124,92,191,0.3)' },
+  shareBtn: { padding:'15px 32px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', cursor:'pointer', boxShadow:'0 4px 20px var(--gold-faint)' },
   private: { fontSize:'13px', color:'var(--text-muted)', marginTop:'12px' },
 }
 

@@ -92,7 +92,7 @@ export default function Home() {
       {/* ── NAV ── */}
       <nav style={s.nav}>
         <div style={s.navInner}>
-          <p style={s.logo}>✦ Alignment</p>
+          <p style={s.logo}>Alignment</p>
           <div style={s.navRight}>
             <select
               value={lang}
@@ -115,7 +115,6 @@ export default function Home() {
 
         {/* ── HERO ── */}
         <section style={s.hero}>
-          <div className="hero-orb" aria-hidden="true" />
           <div style={s.heroInner}>
             <h1 style={s.heroTitle} className="anim-fade-in">
               {lt(lang, 'hero_title_1')}
@@ -170,12 +169,12 @@ export default function Home() {
                   {lt(lang, 'card_ritual_text')}
                 </p>
                 <div className="story-preview">
-                  <div className="mock-rating" aria-hidden="true">
-                    <div className="mock-rating-emoji"><span>😔</span></div>
-                    <div className="mock-rating-emoji"><span>😐</span></div>
-                    <div className="mock-rating-emoji"><span>🙂</span></div>
-                    <div className="mock-rating-emoji active"><span>😊</span></div>
-                    <div className="mock-rating-emoji"><span>✨</span></div>
+                  {/* reprezentarea check-in-ului = apa, nu fete (principiul 13) */}
+                  <div className="mock-water" aria-hidden="true">
+                    <span className="mock-water-drop" />
+                    <span className="mock-water-ring" />
+                    <span className="mock-water-ring" />
+                    <span className="mock-water-ring" />
                   </div>
                 </div>
               </div>
@@ -189,20 +188,12 @@ export default function Home() {
                   {lt(lang, 'card_patterns_text')}
                 </p>
                 <div className="story-preview">
-                  <div className="mock-streak">
-                    <div className="mock-streak-row">
-                      <span className="mock-streak-num">12</span>
-                      <span className="mock-streak-fire" aria-hidden="true">🔥</span>
-                    </div>
-                    <div className="mock-streak-dots">
-                      <div className="mock-streak-dot filled" />
-                      <div className="mock-streak-dot filled" />
-                      <div className="mock-streak-dot filled" />
-                      <div className="mock-streak-dot filled" />
-                      <div className="mock-streak-dot filled" />
-                      <div className="mock-streak-dot" />
-                      <div className="mock-streak-dot" />
-                    </div>
+                  {/* prezenta se aduna, nu se pierde (decizia 4) */}
+                  <div className="mock-water" aria-hidden="true">
+                    <span className="mock-water-drop mock-water-drop-lit" />
+                    <span className="mock-water-ring" />
+                    <span className="mock-water-ring" />
+                    <span className="mock-water-ring" />
                   </div>
                 </div>
               </div>
@@ -217,9 +208,9 @@ export default function Home() {
                 </p>
                 <div className="story-preview">
                   <div className="mock-pillars">
-                    <span className="mock-pillar"><span className="mock-pillar-icon">◎</span> Human Design</span>
-                    <span className="mock-pillar"><span className="mock-pillar-icon">✦</span> {lt(lang, 'pillar_astro')}</span>
-                    <span className="mock-pillar"><span className="mock-pillar-icon">⚡</span> {lt(lang, 'pillar_num')}</span>
+                    <span className="mock-pillar">Human Design</span>
+                    <span className="mock-pillar">{lt(lang, 'pillar_astro')}</span>
+                    <span className="mock-pillar">{lt(lang, 'pillar_num')}</span>
                   </div>
                 </div>
               </div>
@@ -239,9 +230,9 @@ export default function Home() {
           </Reveal>
           <Reveal delay={120}>
             <div className="trust-indicators">
-              <div className="trust-indicator"><span className="trust-indicator-icon">🔒</span> {lt(lang, 'trust_private')}</div>
-              <div className="trust-indicator"><span className="trust-indicator-icon">⚡</span> {lt(lang, 'trust_fast')}</div>
-              <div className="trust-indicator"><span className="trust-indicator-icon">🌍</span> {lt(lang, 'trust_langs')}</div>
+              <div className="trust-indicator">{lt(lang, 'trust_private')}</div>
+              <div className="trust-indicator">{lt(lang, 'trust_fast')}</div>
+              <div className="trust-indicator">{lt(lang, 'trust_langs')}</div>
             </div>
           </Reveal>
         </section>
@@ -300,7 +291,7 @@ export default function Home() {
                 <div className="price-premium-features">
                   {lt(lang, 'features').map((feat, i) => (
                     <div key={i} className="price-feature">
-                      <span className="price-check">✓</span>
+                      <span className="price-check" aria-hidden="true" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -335,7 +326,7 @@ export default function Home() {
 
         {/* ── FOOTER ── */}
         <footer style={s.footer}>
-          <p style={s.footerLogo}>✦ Alignment</p>
+          <p style={s.footerLogo}>Alignment</p>
           <p style={s.footerText}>{lt(lang, 'footer_text')}</p>
         </footer>
 
@@ -354,7 +345,8 @@ const s = {
   logo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
   navRight: { display:'flex', alignItems:'center', gap:'10px' },
   langSelect: { padding:'8px 10px', borderRadius:'10px', border:'1px solid var(--border)', background:'var(--surface)', fontSize:'13px', color:'var(--text)', cursor:'pointer', maxWidth:'130px' },
-  navCta: { display:'inline-block', padding:'9px 22px', background:'var(--purple)', color:'#fff', borderRadius:'10px', fontSize:'14px', fontWeight:'600', boxShadow:'0 4px 14px rgba(124, 92, 191, 0.25)' },
+  // un singur CTA auriu plin per ecran (brief): cel din hero. Nav-ul e contur.
+  navCta: { display:'inline-block', padding:'9px 22px', background:'transparent', color:'var(--text)', border:'1px solid var(--gold-soft)', borderRadius:'999px', fontSize:'14px', fontWeight:'500' },
 
   // Hero — large, generous
   hero: { position:'relative', textAlign:'center', padding:'clamp(80px, 14vw, 140px) 0 clamp(70px, 12vw, 110px)', overflow:'hidden' },
@@ -391,7 +383,7 @@ const s = {
   ctaTitle: { fontSize:'clamp(28px, 4vw, 42px)', fontWeight:'600', color:'var(--text)', marginBottom:'40px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.2', letterSpacing:'-0.3px' },
 
   // Footer
-  footer: { borderTop:'1px solid var(--border)', padding:'48px 0', textAlign:'center', background:'linear-gradient(180deg, transparent 0%, rgba(124, 92, 191, 0.04) 100%)', marginTop:'40px' },
+  footer: { borderTop:'1px solid var(--border)', padding:'48px 0', textAlign:'center', background:'linear-gradient(180deg, transparent 0%, var(--gold-faint) 100%)', marginTop:'40px' },
   footerLogo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px', color:'var(--text)' },
   footerText: { fontSize:'13px', color:'var(--text-muted)' },
 }

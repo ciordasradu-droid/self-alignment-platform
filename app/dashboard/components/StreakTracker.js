@@ -32,7 +32,6 @@ export default function StreakTracker({ streak = 0, longestStreak = 0, lang = "e
       <div style={styles.row}>
         <div style={styles.stat}>
           <p style={styles.streakNum}>
-            {streak > 0 && <span className="streak-fire" aria-hidden="true">🔥</span>}
             <span className={streak > 0 ? "gradient-text-amber" : ""}>{streak}</span>
           </p>
           <p style={styles.streakLabel}>{t.current}</p>

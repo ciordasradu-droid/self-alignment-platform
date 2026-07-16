@@ -133,7 +133,7 @@ export default function V4Sections({ sections, lang, s }) {
             <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'vulnerabilities')}</div>
             <ul style={s.list}>
               {sections.vulnerabilities.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>🌱</span>{item}</li>
+                <li key={i} style={s.listItem}>{item}</li>
               ))}
             </ul>
           </div>
@@ -192,7 +192,7 @@ export default function V4Sections({ sections, lang, s }) {
           <div style={v.signalStack}>
             {signals.map((w, i) => (
               <div key={i} style={v.signalItem}>
-                {w.signal && <p style={v.signalFeel}>⚠ {w.signal}</p>}
+                {w.signal && <p style={v.signalFeel}>{w.signal}</p>}
                 {w.pattern && <p style={v.signalPattern}>{w.pattern}</p>}
                 {w.exit && <p style={v.signalExit}>→ {w.exit}</p>}
               </div>
@@ -206,7 +206,7 @@ export default function V4Sections({ sections, lang, s }) {
 
 // ---- v4-specific styles (named `v` to avoid clashing with page `s`) ----
 const v = {
-  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 60%, #3d2660 100%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center' },
+  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 60%, #3d2660 100%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center' },
   archetypeGlow: { position:'absolute', top:'-40%', left:'50%', transform:'translateX(-50%)', width:'320px', height:'320px', background:'radial-gradient(circle, rgba(155,109,255,0.35) 0%, transparent 70%)', pointerEvents:'none' },
   archetypeLabel: { position:'relative', fontSize:'12px', letterSpacing:'2px', textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:'14px' },
   archetypeName: { position:'relative', fontSize:'clamp(28px, 6vw, 44px)', fontWeight:'700', color:'#fff', fontFamily:'Cormorant Garamond, serif', lineHeight:1.1, marginBottom:'16px' },

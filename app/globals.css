@@ -3,41 +3,42 @@
 :root {
   /* ── APA — sistemul de operare vizual (legea 1) ──
      Adâncime: indigo → prună. Lumina caldă (aurul) apare doar ÎN/PE apă. */
-  --water-deep:    #0b0e2a;
-  --water-mid:     #171438;
-  --water-plum:    #2e1b3d;
-  --water-plumwarm:#3d2140;
+  --water-deep:    #14122a;
+  --water-mid:     #1e1932;
+  --water-plum:    #2a1f3d;
+  --water-plumwarm:#2a1f3d;
   --water-surface: rgba(255, 255, 255, 0.06);
-  --water-line:    rgba(255, 255, 255, 0.14);
+  --water-line:    rgba(255, 255, 255, 0.12);
 
   /* Lumina în apă — soarele care răsare peste apă, niciodată glob propriu */
-  --gold:        #ffb066;
-  --gold-soft:   rgba(255, 176, 102, 0.34);
-  --gold-faint:  rgba(255, 176, 102, 0.14);
-  --pearl:       #e8eef5;
+  --gold:        #e0b36a;
+  --gold-soft:   rgba(224, 179, 106, 0.34);
+  --gold-faint:  rgba(224, 179, 106, 0.14);
+  --pearl:       #f4ecd9;
+  --gold-deep:   #e08a3c;
 
   /* Core palette — recalibrată pentru adâncime */
-  --purple: #a892e8;
-  --purple-light: rgba(168, 146, 232, 0.16);
-  --purple-dark: #6a55b0;
+  --purple: #e0b36a;
+  --purple-light: rgba(224, 179, 106, 0.14);
+  --purple-dark: #e08a3c;
   --green: #6fd3ae;
   --green-light: rgba(111, 211, 174, 0.14);
-  --orange: #ffa85c;
-  --orange-light: rgba(255, 168, 92, 0.14);
-  --amber: #ffc98a;
+  --orange: #e08a3c;
+  --orange-light: rgba(224, 138, 60, 0.14);
+  --amber: #e0b36a;
 
   /* Surfaces — gheață topită peste apă (legea 5) */
   --bg: #0b0e2a;
   --surface: rgba(255, 255, 255, 0.06);
-  --surface2: rgba(255, 255, 255, 0.10);
-  --text: rgba(255, 255, 255, 0.94);
+  --surface2: rgba(255, 255, 255, 0.08);
+  --text: #f4ecd9;
   --text-muted: rgba(255, 255, 255, 0.64);
   --text-light: rgba(255, 255, 255, 0.46);
-  --border: rgba(255, 255, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.12);
 
   /* Warm/cool glow tokens (for soft auras + selected states) */
-  --purple-glow: rgba(124, 92, 191, 0.35);
-  --purple-glow-soft: rgba(124, 92, 191, 0.14);
+  --purple-glow: rgba(224, 179, 106, 0.14);
+  --purple-glow-soft: rgba(224, 179, 106, 0.14);
   --green-glow: rgba(74, 155, 127, 0.35);
   --green-glow-soft: rgba(74, 155, 127, 0.14);
   --orange-glow: rgba(232, 130, 74, 0.35);
@@ -50,16 +51,16 @@
   --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-glow: 0 0 24px var(--purple-glow-soft);
-  --shadow-glow-purple: 0 0 24px rgba(124, 92, 191, 0.20);
+  --shadow-glow-purple: 0 0 24px rgba(224, 179, 106, 0.14);
   --shadow-glow-green: 0 0 24px rgba(74, 155, 127, 0.20);
   --shadow-glow-orange: 0 0 24px rgba(232, 130, 74, 0.20);
 
   /* Soft gradients */
   --gradient-warm: linear-gradient(135deg, var(--purple-light) 0%, var(--orange-light) 100%);
-  --gradient-purple: linear-gradient(135deg, #7C5CBF 0%, #9d7cd6 100%);
-  --gradient-purple-orange: linear-gradient(135deg, var(--purple) 0%, var(--orange) 100%);
+  --gradient-purple: linear-gradient(135deg, #e0b36a 0%, #e08a3c 100%);
+  --gradient-purple-orange: linear-gradient(135deg, #e0b36a 0%, #e08a3c 100%);
   --gradient-amber: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
-  --gradient-timeline: linear-gradient(180deg, var(--purple) 0%, rgba(124, 92, 191, 0.25) 100%);
+  --gradient-timeline: linear-gradient(180deg, var(--purple) 0%, rgba(224, 179, 106, 0.14) 100%);
 
   /* Geometry */
   --radius: 16px;
@@ -128,6 +129,24 @@ input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--purple) !important;
   box-shadow: 0 0 0 3px var(--purple-glow-soft);
+}
+
+/* UI-ul stă PESTE apă, explicit. Fără asta, stratificarea depinde de ordinea
+   de pictare și se rupe la prima schimbare. */
+#app-surface {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cine cere mai puțină mișcare o primește peste tot, nu doar în WebGL:
+   stelele, causticele CSS și tranzițiile se opresc și ele. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ---------- LEGEA 1 — lumina difuză + caustice subtile pe apă ----------
@@ -468,7 +487,7 @@ input:focus, textarea:focus, select:focus {
 }
 .feeling-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(124, 92, 191, 0.10);
+  box-shadow: 0 4px 14px rgba(224, 179, 106, 0.14);
   border-color: var(--purple) !important;
   color: var(--purple);
 }
@@ -494,7 +513,7 @@ input:focus, textarea:focus, select:focus {
 }
 .intention-btn:hover {
   transform: translateX(2px);
-  box-shadow: 0 4px 14px rgba(124, 92, 191, 0.08);
+  box-shadow: 0 4px 14px rgba(224, 179, 106, 0.14);
 }
 .intention-btn:hover::before {
   background: var(--purple);
@@ -509,7 +528,7 @@ input:focus, textarea:focus, select:focus {
 }
 .stats-row > div:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(124, 92, 191, 0.10);
+  box-shadow: 0 8px 28px rgba(224, 179, 106, 0.14);
 }
 
 /* ============================================================
@@ -663,7 +682,7 @@ input:focus, textarea:focus, select:focus {
 
 .feeling-card.selected .feeling-circle {
   transform: scale(1.15);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(124, 92, 191, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(224, 179, 106, 0.14);
   animation: ring-bloom 0.6s var(--ease-out);
 }
 
@@ -683,15 +702,15 @@ input:focus, textarea:focus, select:focus {
 .feeling-bg-1 { background: linear-gradient(135deg, #e8824a 0%, #c44d4d 100%); } /* frustrated â€” red-orange */
 .feeling-bg-2 { background: linear-gradient(135deg, #f5d976 0%, #e8a945 100%); } /* energized â€” yellow-amber */
 .feeling-bg-3 { background: linear-gradient(135deg, #b0bcc8 0%, #6b7e93 100%); } /* exhausted â€” gray-blue */
-.feeling-bg-4 { background: linear-gradient(135deg, #9d7cd6 0%, #5a4994 100%); } /* in-flow â€” purple-indigo */
+.feeling-bg-4 { background: linear-gradient(135deg, #e0b36a 0%, #5a4994 100%); } /* in-flow â€” purple-indigo */
 .feeling-bg-5 { background: linear-gradient(135deg, #f29555 0%, #d4513c 100%); } /* forcing â€” orange-red */
 .feeling-bg-6 { background: linear-gradient(135deg, #f5b8c4 0%, #e08a9c 100%); } /* content â€” pink-rose */
 .feeling-bg-7 { background: linear-gradient(135deg, #f0c97a 0%, #d99454 100%); } /* restless â€” amber-yellow */
 
 @keyframes ring-bloom {
-  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9), 0 0 0 0 rgba(124, 92, 191, 0.5); }
-  60% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 32px 4px rgba(124, 92, 191, 0.55); }
-  100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(124, 92, 191, 0.45); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9), 0 0 0 0 rgba(224, 179, 106, 0.14); }
+  60% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 32px 4px rgba(224, 179, 106, 0.14); }
+  100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(224, 179, 106, 0.14); }
 }
 
 .feeling-done-wrap {
@@ -707,7 +726,7 @@ input:focus, textarea:focus, select:focus {
   align-items: center;
   justify-content: center;
   font-size: 44px;
-  filter: drop-shadow(0 8px 24px rgba(124, 92, 191, 0.25));
+  filter: drop-shadow(0 8px 24px rgba(224, 179, 106, 0.14));
 }
 .feeling-done-name {
   font-size: 26px;
@@ -793,7 +812,7 @@ input:focus, textarea:focus, select:focus {
   animation: glow-shift 8s ease-in-out infinite;
 }
 @keyframes glow-shift {
-  0%, 100% { box-shadow: 0 0 0 1.5px rgba(124, 92, 191, 0.55), 0 8px 28px rgba(124, 92, 191, 0.18); }
+  0%, 100% { box-shadow: 0 0 0 1.5px rgba(224, 179, 106, 0.14), 0 8px 28px rgba(224, 179, 106, 0.14); }
   33%      { box-shadow: 0 0 0 1.5px rgba(212, 165, 116, 0.55), 0 8px 28px rgba(212, 165, 116, 0.18); }
   66%      { box-shadow: 0 0 0 1.5px rgba(74, 155, 127, 0.50), 0 8px 28px rgba(74, 155, 127, 0.18); }
 }
@@ -865,7 +884,7 @@ input:focus, textarea:focus, select:focus {
   stroke-width: 8;
   stroke-linecap: round;
   transition: stroke-dashoffset 1.2s var(--ease-out);
-  filter: drop-shadow(0 0 6px rgba(124, 92, 191, 0.35));
+  filter: drop-shadow(0 0 6px rgba(224, 179, 106, 0.14));
 }
 .score-ring-center {
   position: absolute;
@@ -1000,8 +1019,8 @@ input:focus, textarea:focus, select:focus {
       to bottom,
       transparent 0,
       transparent 27px,
-      rgba(124, 92, 191, 0.06) 27px,
-      rgba(124, 92, 191, 0.06) 28px
+      rgba(224, 179, 106, 0.14) 27px,
+      rgba(224, 179, 106, 0.14) 28px
     ) !important;
   background-color: #FCFBF7 !important;
   line-height: 28px !important;
@@ -1103,13 +1122,13 @@ input:focus, textarea:focus, select:focus {
 @keyframes btn-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 6px 30px rgba(124, 92, 191, 0.30),
-      0 0 0 0 rgba(124, 92, 191, 0.25);
+      0 6px 30px rgba(224, 179, 106, 0.14),
+      0 0 0 0 rgba(224, 179, 106, 0.14);
   }
   50% {
     box-shadow:
-      0 6px 30px rgba(124, 92, 191, 0.45),
-      0 0 0 10px rgba(124, 92, 191, 0);
+      0 6px 30px rgba(224, 179, 106, 0.14),
+      0 0 0 10px rgba(224, 179, 106, 0.14);
   }
 }
 .btn-glow-pulse {
@@ -1147,8 +1166,8 @@ input:focus, textarea:focus, select:focus {
 .landing-card:hover {
   transform: translateY(-4px);
   box-shadow:
-    0 6px 18px rgba(124, 92, 191, 0.10),
-    0 18px 40px rgba(124, 92, 191, 0.14);
+    0 6px 18px rgba(224, 179, 106, 0.14),
+    0 18px 40px rgba(224, 179, 106, 0.14);
 }
 
 /* City suggestions dropdown polish (onboarding) */
@@ -1166,23 +1185,6 @@ input:focus, textarea:focus, select:focus {
    ============================================================ */
 
 /* Hero â€” drifting glowing orb behind the title (depth + life) */
-.hero-orb {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: clamp(420px, 80vw, 760px);
-  height: clamp(420px, 80vw, 760px);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 35%, rgba(124, 92, 191, 0.32) 0%, transparent 45%),
-    radial-gradient(circle at 70% 65%, rgba(212, 165, 116, 0.22) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(232, 130, 74, 0.10) 0%, transparent 60%);
-  filter: blur(50px);
-  pointer-events: none;
-  z-index: 0;
-  animation: orb-drift 20s ease-in-out infinite;
-}
 @keyframes orb-drift {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   33%      { transform: translate(calc(-50% + 30px), calc(-50% - 24px)) scale(1.08); }
@@ -1191,7 +1193,7 @@ input:focus, textarea:focus, select:focus {
 
 /* Faster animated gradient text â€” purple â†’ gold â†’ purple, 6s */
 .gradient-text-fast {
-  background: linear-gradient(135deg, var(--purple) 0%, #d4a574 50%, var(--purple) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, #e08a3c 50%, var(--purple) 100%);
   background-size: 220% 220%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1208,7 +1210,7 @@ input:focus, textarea:focus, select:focus {
   height: 56px;
   padding: 0 32px;
   border-radius: 28px;
-  background: linear-gradient(135deg, #7C5CBF 0%, #9d7cd6 50%, #d4a574 100%);
+  background: linear-gradient(135deg, #e0b36a 0%, #e0b36a 50%, #e08a3c 100%);
   background-size: 200% 200%;
   color: #fff;
   font-size: 17px;
@@ -1219,8 +1221,8 @@ input:focus, textarea:focus, select:focus {
   text-decoration: none;
   white-space: nowrap;
   box-shadow:
-    0 10px 32px rgba(124, 92, 191, 0.35),
-    0 0 0 0 rgba(124, 92, 191, 0.4);
+    0 10px 32px rgba(224, 179, 106, 0.14),
+    0 0 0 0 rgba(224, 179, 106, 0.14);
   animation: cta-glow 2.6s var(--ease-soft) infinite, gradient-flow 6s ease-in-out infinite;
   transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease;
 }
@@ -1234,13 +1236,13 @@ input:focus, textarea:focus, select:focus {
 @keyframes cta-glow {
   0%, 100% {
     box-shadow:
-      0 10px 32px rgba(124, 92, 191, 0.35),
-      0 0 0 0 rgba(124, 92, 191, 0.40);
+      0 10px 32px rgba(224, 179, 106, 0.14),
+      0 0 0 0 rgba(224, 179, 106, 0.14);
   }
   50% {
     box-shadow:
-      0 12px 40px rgba(124, 92, 191, 0.50),
-      0 0 0 14px rgba(124, 92, 191, 0);
+      0 12px 40px rgba(224, 179, 106, 0.14),
+      0 0 0 14px rgba(224, 179, 106, 0.14);
   }
 }
 
@@ -1277,14 +1279,14 @@ input:focus, textarea:focus, select:focus {
   overflow: hidden;
   isolation: isolate;
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 32px rgba(124, 92, 191, 0.10);
+  box-shadow: 0 8px 32px rgba(224, 179, 106, 0.14);
   transition: transform 0.32s var(--ease-out), box-shadow 0.32s ease;
   display: flex;
   flex-direction: column;
 }
 .story-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 24px 56px rgba(124, 92, 191, 0.18);
+  box-shadow: 0 24px 56px rgba(224, 179, 106, 0.14);
 }
 .story-card::after {
   /* subtle inner highlight at top */
@@ -1345,7 +1347,7 @@ input:focus, textarea:focus, select:focus {
   border-radius: 14px;
   padding: 18px;
   border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 18px rgba(124, 92, 191, 0.10);
+  box-shadow: 0 4px 18px rgba(224, 179, 106, 0.14);
 }
 .mock-profile-tag {
   display: inline-block;
@@ -1456,7 +1458,7 @@ input:focus, textarea:focus, select:focus {
 }
 .mock-streak-dot.filled {
   background: linear-gradient(90deg, var(--purple), var(--amber));
-  box-shadow: 0 0 8px rgba(124, 92, 191, 0.4);
+  box-shadow: 0 0 8px rgba(224, 179, 106, 0.14);
 }
 
 /* Mock pillars (used in story card 4) */
@@ -1490,14 +1492,14 @@ input:focus, textarea:focus, select:focus {
   padding: 32px 0 64px;
 }
 .trust-banner {
-  background: linear-gradient(135deg, #fef3eb 0%, #f0ebff 50%, #e8f7f2 100%);
+  background: linear-gradient(135deg, #fef3eb 0%, var(--gold-faint) 50%, #e8f7f2 100%);
   background-size: 200% 200%;
   animation: gradient-flow 12s ease-in-out infinite;
   border-radius: 24px;
   padding: clamp(24px, 4vw, 36px);
   text-align: center;
   border: 1px solid rgba(212, 165, 116, 0.35);
-  box-shadow: 0 8px 32px rgba(124, 92, 191, 0.08);
+  box-shadow: 0 8px 32px rgba(224, 179, 106, 0.14);
   margin-bottom: 24px;
 }
 .trust-banner-title {
@@ -1528,7 +1530,7 @@ input:focus, textarea:focus, select:focus {
 }
 .trust-indicator:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(124, 92, 191, 0.10);
+  box-shadow: 0 8px 20px rgba(224, 179, 106, 0.14);
 }
 .trust-indicator-icon {
   font-size: 18px;
@@ -1540,13 +1542,13 @@ input:focus, textarea:focus, select:focus {
 
 .price-premium {
   position: relative;
-  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 70%, #3d2860 100%);
+  background: linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 70%, #3d2860 100%);
   border-radius: 28px;
   padding: clamp(32px, 5vw, 48px) clamp(24px, 4vw, 40px);
   text-align: center;
   color: #fff;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(124, 92, 191, 0.30);
+  box-shadow: 0 24px 60px rgba(224, 179, 106, 0.14);
 }
 .price-premium::before {
   content: '';
@@ -1554,7 +1556,7 @@ input:focus, textarea:focus, select:focus {
   inset: 0;
   background:
     radial-gradient(circle at 25% 0%, rgba(212, 165, 116, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 80% 100%, rgba(124, 92, 191, 0.30) 0%, transparent 50%);
+    radial-gradient(circle at 80% 100%, rgba(224, 179, 106, 0.14) 0%, transparent 50%);
   pointer-events: none;
 }
 .price-premium > * { position: relative; }
@@ -1565,7 +1567,7 @@ input:focus, textarea:focus, select:focus {
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #d4a574;
+  color: #e08a3c;
   background: rgba(212, 165, 116, 0.15);
   padding: 5px 14px;
   border-radius: 20px;
@@ -1577,7 +1579,7 @@ input:focus, textarea:focus, select:focus {
   font-weight: 700;
   font-family: 'Cormorant Garamond', serif;
   line-height: 1;
-  background: linear-gradient(135deg, #d4a574 0%, #f5d976 100%);
+  background: linear-gradient(135deg, #e08a3c 0%, #f5d976 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1616,7 +1618,7 @@ input:focus, textarea:focus, select:focus {
   height: 22px;
   border-radius: 50%;
   background: rgba(212, 165, 116, 0.18);
-  color: #d4a574;
+  color: #e08a3c;
   flex-shrink: 0;
   font-size: 12px;
   margin-top: 2px;
@@ -1628,7 +1630,7 @@ input:focus, textarea:focus, select:focus {
   border-radius: 24px;
   padding: clamp(28px, 5vw, 40px);
   text-align: center;
-  box-shadow: 0 8px 28px rgba(124, 92, 191, 0.08);
+  box-shadow: 0 8px 28px rgba(224, 179, 106, 0.14);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1654,8 +1656,8 @@ input:focus, textarea:focus, select:focus {
   background: var(--surface);
   border-radius: 28px;
   box-shadow:
-    0 4px 16px rgba(124, 92, 191, 0.08),
-    0 24px 56px rgba(124, 92, 191, 0.14);
+    0 4px 16px rgba(224, 179, 106, 0.14),
+    0 24px 56px rgba(224, 179, 106, 0.14);
   overflow: hidden;
   z-index: 0;
 }
@@ -1673,7 +1675,7 @@ input:focus, textarea:focus, select:focus {
 .onboarding-card-header {
   padding: clamp(28px, 5vw, 44px) clamp(24px, 5vw, 44px) clamp(22px, 4vw, 32px);
   background:
-    radial-gradient(circle at 20% 0%, rgba(124, 92, 191, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 20% 0%, rgba(224, 179, 106, 0.14) 0%, transparent 55%),
     radial-gradient(circle at 80% 100%, rgba(212, 165, 116, 0.10) 0%, transparent 55%),
     linear-gradient(135deg, var(--purple-light) 0%, var(--green-light) 100%);
   border-bottom: 1px solid var(--border);
@@ -1685,7 +1687,7 @@ input:focus, textarea:focus, select:focus {
   line-height: 1.15;
   letter-spacing: -0.5px;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--purple) 0%, #d4a574 50%, var(--purple) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, #e08a3c 50%, var(--purple) 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;

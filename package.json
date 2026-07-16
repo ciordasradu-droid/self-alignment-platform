@@ -11,6 +11,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@fontsource/nunito": "^5.2.7",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@stripe/stripe-js": "^8.9.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.98.0",
@@ -23,12 +25,15 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
-    "stripe": "^20.4.0"
+    "stripe": "^20.4.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "leva": "^0.10.1",
     "tailwindcss": "^4"
   },
   "//browserslist": "Fara asta, procesorul CSS taie backdrop-filter (gheata topita - legea 5). Tintim browserele care chiar ruleaza aplicatia: telefoane si desktop moderne.",

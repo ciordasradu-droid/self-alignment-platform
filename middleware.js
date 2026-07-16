@@ -6,6 +6,14 @@ import { createServerClient } from '@supabase/ssr'
 const PROTECTED = ['/dashboard', '/onboarding', '/generating', '/profile', '/compatibility']
 
 export async function middleware(request) {
+  // Playground-ul de apă e unealtă de lucru, nu produs. Nu exista in productie.
+  if (request.nextUrl.pathname.startsWith('/dev')) {
+    if (process.env.NODE_ENV === 'production') {
+      return new NextResponse('Not found', { status: 404 })
+    }
+    return NextResponse.next({ request })
+  }
+
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(

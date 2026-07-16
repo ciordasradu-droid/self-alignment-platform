@@ -58,7 +58,7 @@ export default function FreeJournal({ lang = 'en' }) {
       <div style={s.header} onClick={() => setIsOpen(!isOpen)}>
         <div>
           <div style={s.titleRow}>
-            <span style={{ fontSize: '18px', marginRight: '8px' }}>📓</span>
+            
             <h3 style={s.title}>{t.title}</h3>
           </div>
           <p style={s.subtitle}>{t.subtitle}</p>
@@ -85,7 +85,7 @@ export default function FreeJournal({ lang = 'en' }) {
               }}
               className={`journal-save-btn${saved ? ' saved' : ''}`}
             >
-              {saved ? `✓ ${t.saved}` : t.save}
+              {saved ? t.saved : t.save}
             </button>
           </div>
 

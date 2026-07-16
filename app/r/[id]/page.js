@@ -47,7 +47,7 @@ export default function SharedRelationPage() {
       <div className="cosmic-bg" />
       <main style={s.wrap}>
         <div style={s.banner}>
-          <span style={s.bannerText}>✦ {lx(langUsed,'shared')}</span>
+          <span style={s.bannerText}>{lx(langUsed,'shared')}</span>
         </div>
 
         <CompatibilitySections profile={profile} lang={langUsed} />

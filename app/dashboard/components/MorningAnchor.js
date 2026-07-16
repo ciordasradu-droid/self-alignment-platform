@@ -63,7 +63,8 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, on
       <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
       <p style={s.q}>{lx(lang, 'q')}</p>
 
-      {/* poli: doar semnal vizual — mic/stins ↔ mare/cald. Zero cuvinte de stare. */}
+      {/* Poli: doar semnal vizual — mic si stins la un capat, mare si cald la
+          celalalt. Zero cuvinte de stare (principiul 13). */}
       <div style={s.sliderRow}>
         <span style={s.poleLow} aria-hidden="true" />
         <input
