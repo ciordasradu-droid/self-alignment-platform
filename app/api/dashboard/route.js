@@ -34,11 +34,21 @@ export async function GET(request) {
 
     // ZIUA DIN DRUM — determină stadiul apei (legea 7). Vine din vechimea
     // contului, nu din localStorage. Ziua 1 = ziua în care s-a creat contul.
-    const { data: profile } = await supabaseAdmin
+    let { data: profile } = await supabaseAdmin
       .from('users')
       .select('created_at, current_unlocked_day')
       .eq('id', userId)
       .maybeSingle()
+
+    // Conturile fără email (testeri) nu trec prin /auth/callback, deci n-au
+    // rândul lor. Îl creăm la prima cerere — o singură dată, tăcut.
+    if (!profile) {
+      await supabaseAdmin.from('users')
+        .upsert({ id: userId, email: user.email || null }, { onConflict: 'id', ignoreDuplicates: true })
+      const { data: fresh } = await supabaseAdmin
+        .from('users').select('created_at, current_unlocked_day').eq('id', userId).maybeSingle()
+      profile = fresh
+    }
 
     const createdAt = profile?.created_at || user.created_at
     const day = createdAt
