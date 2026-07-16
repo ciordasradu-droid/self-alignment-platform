@@ -6,21 +6,25 @@ export const maxDuration = 60
 // NU atinge streak-ul (acela rămâne legat de check-in-ul de seară).
 
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id, kind, text } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-    if (!user_id || !text) {
-      return NextResponse.json({ error: 'user_id and text required' }, { status: 400 })
+    const body = await request.json()
+    const { kind, text } = body
+
+    if (!text) {
+      return NextResponse.json({ error: 'text required' }, { status: 400 })
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('checkins')
       .insert([{
-        user_id,
+        user_id: user.id,
         score: 0,
         answers: { kind: kind || 'morning', text },
         created_at: new Date().toISOString()

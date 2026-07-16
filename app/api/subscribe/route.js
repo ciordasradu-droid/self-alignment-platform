@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -20,7 +21,7 @@ export async function POST(request) {
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscribed=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscribe`,
       metadata: {
-        user_id: user_id || 'guest'
+        user_id: user.id
       }
     })
 

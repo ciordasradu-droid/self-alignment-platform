@@ -5,7 +5,8 @@
 
 import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 import { buildCompatibilityPrompt } from '../../../lib/prompts/compatibility'
 import { calculateFullProfile } from '../../../lib/calculations/index'
 import { jsonrepair } from 'jsonrepair'
@@ -44,8 +45,11 @@ async function callClaude(prompt, language = 'en', maxTokens = 8000) {
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
     const body = await request.json()
-    const { user_id, type = 'life', language = 'en', personA, personB } = body
+    const { type = 'life', language = 'en', personA, personB } = body
 
     if (!personA || !personB) {
       return NextResponse.json({ error: 'both persons required' }, { status: 400 })
@@ -55,10 +59,10 @@ export async function POST(request) {
     const dataA = calculateFullProfile(personA.full_name, personA.date_of_birth, personA.time_of_birth, personA.lat, personA.lng, language)
     const dataB = calculateFullProfile(personB.full_name, personB.date_of_birth, personB.time_of_birth, personB.lat, personB.lng, language)
 
-    const { data: row, error: insertErr } = await supabase
+    const { data: row, error: insertErr } = await supabaseAdmin
       .from('compatibility_profiles')
       .insert([{
-        user_id: user_id || null,
+        user_id: user.id,
         type,
         language,
         name_a: personA.full_name,
@@ -79,10 +83,10 @@ export async function POST(request) {
       try {
         const prompt = buildCompatibilityPrompt(dataA, dataB, personA.full_name, personB.full_name, type, language)
         const sections = await callClaude(prompt, language, 8000)
-        await supabase.from('compatibility_profiles').update({ sections }).eq('id', compatId)
+        await supabaseAdmin.from('compatibility_profiles').update({ sections }).eq('id', compatId)
       } catch (err) {
         console.error('[compatibility] background error:', err.message)
-        await supabase.from('compatibility_profiles').update({ sections: { __error__: err.message } }).eq('id', compatId)
+        await supabaseAdmin.from('compatibility_profiles').update({ sections: { __error__: err.message } }).eq('id', compatId)
       }
     })
 
@@ -99,7 +103,7 @@ export async function GET(request) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('compatibility_profiles')
       .select('id, type, language, name_a, name_b, sections')
       .eq('id', id)

@@ -5,7 +5,8 @@
 
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 import { buildAlignmentPlanPrompt, buildActionPlanPrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
@@ -55,7 +56,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'id required' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('interpreted_profiles')
       .select('alignment_plan, action_plan')
       .eq('id', id)
@@ -82,6 +83,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
     const body = await request.json()
     const { interpreted_profile_id, calculated_data, sections, swot, language = 'en' } = body
 
@@ -97,7 +101,7 @@ export async function POST(request) {
       console.error('Action plan failed (non-fatal):', e.message)
     }
 
-    await supabase
+    await supabaseAdmin
       .from('interpreted_profiles')
       .update({ alignment_plan: alignmentPlan, action_plan: actionPlan })
       .eq('id', interpreted_profile_id)

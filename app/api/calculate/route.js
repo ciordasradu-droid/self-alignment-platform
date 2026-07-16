@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 import { calculateFullProfile } from '../../../lib/calculations/index'
 
 export const maxDuration = 60
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
     const body = await request.json()
-    const { full_name, date_of_birth, time_of_birth, lat, lng, user_id, language } = body
+    const { full_name, date_of_birth, time_of_birth, lat, lng, language } = body
 
     const calculatedData = calculateFullProfile(
       full_name,
@@ -18,10 +22,10 @@ export async function POST(request) {
       language || 'en'
     )
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('calculated_profiles')
       .insert([{
-        user_id: user_id || null,
+        user_id: user.id,
         astro_data: calculatedData.astrology,
         numerology_data: calculatedData.numerology,
         hd_data: calculatedData.human_design

@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id, week_start, responses, score_avg } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-    const { error } = await supabase
+    const body = await request.json()
+    const { week_start, responses, score_avg } = body
+
+    const { error } = await supabaseAdmin
       .from('weekly_reviews')
-      .upsert([{ user_id, week_start, responses, score_avg }],
+      .upsert([{ user_id: user.id, week_start, responses, score_avg }],
         { onConflict: 'user_id,week_start' })
 
     if (error) throw error

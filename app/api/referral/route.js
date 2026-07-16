@@ -1,16 +1,20 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { referred_by, new_user_id } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-    const { error } = await supabase
+    const body = await request.json()
+    const { referred_by } = body
+
+    const { error } = await supabaseAdmin
       .from('referrals')
       .insert([{
         referred_by,
-        new_user_id,
+        new_user_id: user.id,
         created_at: new Date().toISOString()
       }])
 

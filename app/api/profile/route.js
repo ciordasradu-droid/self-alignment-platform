@@ -6,22 +6,19 @@
 export const maxDuration = 60
 
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
-
-    if (!userId) {
-      return NextResponse.json({ error: 'user_id required' }, { status: 400 })
-    }
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     // Get interpreted profile
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('interpreted_profiles')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -37,7 +34,7 @@ export async function GET(request) {
     let calculatedData = null
 
     if (data.calculated_profile_id) {
-      const { data: calcData } = await supabase
+      const { data: calcData } = await supabaseAdmin
         .from('calculated_profiles')
         .select('full_name, calculated_data')
         .eq('id', data.calculated_profile_id)

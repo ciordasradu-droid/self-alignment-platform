@@ -1,18 +1,16 @@
 export const maxDuration = 60
 
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    const userId = user.id
 
-    if (!userId) {
-      return NextResponse.json({ error: 'user_id required' }, { status: 400 })
-    }
-
-    const { data: checkins, error: checkinError } = await supabase
+    const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
       .select('*')
       .eq('user_id', userId)
@@ -21,7 +19,7 @@ export async function GET(request) {
 
     if (checkinError) throw checkinError
 
-    const { data: streak, error: streakError } = await supabase
+    const { data: streak, error: streakError } = await supabaseAdmin
       .from('streaks')
       .select('*')
       .eq('user_id', userId)
@@ -50,23 +48,23 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id, score, answers } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    const user_id = user.id
 
-    if (!user_id) {
-      return NextResponse.json({ error: 'user_id required' }, { status: 400 })
-    }
+    const body = await request.json()
+    const { score, answers } = body
 
     const today = new Date().toISOString().split('T')[0]
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
-    const { error: checkinError } = await supabase
+    const { error: checkinError } = await supabaseAdmin
       .from('checkins')
       .insert([{ user_id, score, answers, created_at: new Date().toISOString() }])
 
     if (checkinError) throw checkinError
 
-    const { data: existingStreak } = await supabase
+    const { data: existingStreak } = await supabaseAdmin
       .from('streaks')
       .select('*')
       .eq('user_id', user_id)
@@ -89,7 +87,7 @@ export async function POST(request) {
         longestStreak = Math.max(1, existingStreak.longest_streak || 1)
       }
 
-      await supabase
+      await supabaseAdmin
         .from('streaks')
         .update({
           current_streak: newStreak,
@@ -99,7 +97,7 @@ export async function POST(request) {
         })
         .eq('user_id', user_id)
     } else {
-      await supabase
+      await supabaseAdmin
         .from('streaks')
         .insert([{
           user_id,

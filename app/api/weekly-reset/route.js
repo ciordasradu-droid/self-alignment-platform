@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -21,15 +22,19 @@ const LANGUAGE_NAMES = {
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    const user_id = user.id
+
     const body = await request.json()
-    const { user_id, profile, personal_year, last_week_score, language = 'en' } = body
+    const { profile, personal_year, last_week_score, language = 'en' } = body
 
     const today = new Date()
     const weekStart = new Date(today)
     weekStart.setDate(today.getDate() - today.getDay() + 1)
     const weekKey = weekStart.toISOString().split('T')[0]
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from('weekly_resets')
       .select('*')
       .eq('user_id', user_id)
@@ -87,7 +92,7 @@ Return ONLY a JSON object, no markdown:
     const text = message.content[0].text.replace(/```json|```/g, '').trim()
     const reset = JSON.parse(text)
 
-    await supabase
+    await supabaseAdmin
       .from('weekly_resets')
       .insert([{ user_id, week_start: weekKey, reset, language }])
 
