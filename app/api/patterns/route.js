@@ -2,7 +2,8 @@ export const maxDuration = 60
 
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -16,15 +17,15 @@ const LANGUAGE_NAMES = {
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id, language = 'en' } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    const user_id = user.id
 
-    if (!user_id) {
-      return NextResponse.json({ error: 'user_id required' }, { status: 400 })
-    }
+    const body = await request.json()
+    const { language = 'en' } = body
 
     // Get check-ins from the checkins table (written by dashboard API, has user_id)
-    const { data: checkins, error: checkinError } = await supabase
+    const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
       .select('created_at, score, answers')
       .eq('user_id', user_id)
@@ -46,7 +47,7 @@ export async function POST(request) {
     }
 
     // Get user's profile for context
-    const { data: profileData } = await supabase
+    const { data: profileData } = await supabaseAdmin
       .from('interpreted_profiles')
       .select('profile')
       .eq('user_id', user_id)
@@ -131,7 +132,7 @@ Return ONLY a JSON object, no markdown:
     const patterns = JSON.parse(text)
 
     // Cache in Supabase for future reference
-    await supabase
+    await supabaseAdmin
       .from('patterns_insights')
       .upsert([{
         user_id,

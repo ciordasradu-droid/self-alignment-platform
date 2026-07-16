@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
-
-    if (!userId) {
+    const user = await getSessionUser()
+    if (!user) {
       return NextResponse.json({ subscribed: false })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('subscriptions')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .eq('status', 'active')
       .single()
 

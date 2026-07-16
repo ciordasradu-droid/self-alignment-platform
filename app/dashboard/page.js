@@ -16,7 +16,6 @@ import MorningReflection from './components/MorningReflection'
 import EveningCheckin from './components/EveningCheckin'
 import StreakTracker from './components/StreakTracker'
 import WeeklyReview from './components/WeeklyReview'
-import EmailCapture from './components/EmailCapture'
 import DailyInsight from './components/DailyInsight'
 import WeeklyReset from './components/WeeklyReset'
 import ProgressiveUnlock from './components/ProgressiveUnlock'
@@ -24,7 +23,7 @@ import FreeJournal from './components/FreeJournal'
 import CommitmentDocument from './components/CommitmentDocument'
 import PatternsInsight from './components/PatternsInsight'
 import { isFeatureUnlocked, getAccountAgeDays } from './components/ProgressiveUnlock'
-import { getUserId } from '../../lib/userId'
+import { useUser } from '../../lib/useUser'
 import { t } from '../../lib/translations'
 import { useLanguage } from '../../lib/language'
 
@@ -140,7 +139,8 @@ function DashboardContent() {
   const [longestStreak, setLongestStreak] = useState(0)
   const [personalYear, setPersonalYear] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [userId, setUserId] = useState(null)
+  const { user } = useUser()
+  const userId = user?.id || null
   const [globalLang] = useLanguage()
   const [profileLang, setProfileLang] = useState('en')
 
@@ -148,9 +148,6 @@ function DashboardContent() {
   const lang = globalLang || profileLang || 'en'
 
   useEffect(() => {
-    const id = getUserId()
-    setUserId(id)
-
     const stored = localStorage.getItem('profile')
     if (stored) {
       try {
@@ -160,7 +157,7 @@ function DashboardContent() {
       } catch (e) {}
     }
 
-    fetch(`/api/dashboard?user_id=${id}`)
+    fetch(`/api/dashboard`)
       .then(r => r.json())
       .then((dashData) => {
         if (dashData.success) {
@@ -251,8 +248,6 @@ function DashboardContent() {
         <ProgressiveUnlock lang={lang} />
 
         {/* creșterea organică — jos, afară din fluxul de reflecție */}
-        <EmailCapture lang={lang} />
-
         {userId && <InviteSection userId={userId} lang={lang} />}
 
       </main>

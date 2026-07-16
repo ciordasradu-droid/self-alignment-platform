@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { supabase } from '../../../../lib/supabase'
+import { supabaseAdmin } from '../../../../lib/supabase/service'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -30,7 +30,7 @@ export async function POST(request) {
         const plan = session.metadata?.plan
 
         if (userId) {
-          await supabase
+          await supabaseAdmin
             .from('subscriptions')
             .upsert([{
               user_id: userId,
@@ -43,7 +43,7 @@ export async function POST(request) {
             }], { onConflict: 'user_id' })
 
           // Decrement first 1000 spots if applicable
-          await supabase.rpc('decrement_spots')
+          await supabaseAdmin.rpc('decrement_spots')
         }
         break
       }
@@ -52,14 +52,14 @@ export async function POST(request) {
         const subscription = event.data.object
         const customerId = subscription.customer
 
-        const { data: sub } = await supabase
+        const { data: sub } = await supabaseAdmin
           .from('subscriptions')
           .select('*')
           .eq('stripe_customer_id', customerId)
           .single()
 
         if (sub) {
-          await supabase
+          await supabaseAdmin
             .from('subscriptions')
             .update({
               status: subscription.status,
@@ -75,7 +75,7 @@ export async function POST(request) {
         const subscription = event.data.object
         const customerId = subscription.customer
 
-        await supabase
+        await supabaseAdmin
           .from('subscriptions')
           .update({
             status: 'cancelled',

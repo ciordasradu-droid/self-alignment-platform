@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { user_id } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('invites')
-      .upsert([{ user_id, created_at: new Date().toISOString() }], { onConflict: 'user_id' })
+      .upsert([{ user_id: user.id, created_at: new Date().toISOString() }], { onConflict: 'user_id' })
       .select()
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, invite_code: user_id })
+    return NextResponse.json({ success: true, invite_code: user.id })
 
   } catch (err) {
     console.error('Invite error:', err.message)
@@ -23,20 +24,20 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const user_id = searchParams.get('user_id')
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ success: false, referrals: 0 }, { status: 401 })
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('invites')
       .select('*, referrals(count)')
-      .eq('user_id', user_id)
+      .eq('user_id', user.id)
       .single()
 
     if (error) throw error
 
     return NextResponse.json({
       success: true,
-      invite_code: user_id,
+      invite_code: user.id,
       referrals: data.referrals?.[0]?.count || 0
     })
 

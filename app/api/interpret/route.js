@@ -1,6 +1,7 @@
 ﻿import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { supabase } from '../../../lib/supabase'
+import { supabaseAdmin } from '../../../lib/supabase/service'
+import { getSessionUser } from '../../../lib/supabase/server'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
@@ -93,14 +94,17 @@ async function callClaude(prompt, language = 'en', maxTokens = 16000) {
 // This avoids holding a long-lived browser→server connection that mobile networks drop.
 export async function POST(request) {
   try {
-    const body = await request.json()
-    const { calculated_profile_id, full_name, calculated_data, user_id, language = 'en' } = body
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-    const { data: row, error: insertErr } = await supabase
+    const body = await request.json()
+    const { calculated_profile_id, full_name, calculated_data, language = 'en' } = body
+
+    const { data: row, error: insertErr } = await supabaseAdmin
       .from('interpreted_profiles')
       .insert([{
         calculated_profile_id: calculated_profile_id || null,
-        user_id: user_id || null,
+        user_id: user.id,
         sections: null,
         swot: null,
         alignment_plan: null,
@@ -130,7 +134,7 @@ export async function POST(request) {
           threats: []
         }
 
-        await supabase
+        await supabaseAdmin
           .from('interpreted_profiles')
           .update({ sections, swot })
           .eq('id', interpretedProfileId)
@@ -140,7 +144,7 @@ export async function POST(request) {
           : (err?.message || 'Unknown error')
         console.error('[interpret] background error:', message)
         // Sentinel: GET treats sections.__error__ as a failed run
-        await supabase
+        await supabaseAdmin
           .from('interpreted_profiles')
           .update({ sections: { __error__: message } })
           .eq('id', interpretedProfileId)
@@ -165,7 +169,7 @@ export async function GET(request) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('interpreted_profiles')
       .select('id, sections, swot')
       .eq('id', id)
