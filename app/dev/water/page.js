@@ -32,7 +32,11 @@ export default function WaterPlayground() {
   })
 
   useEffect(() => { waterState.setDay(v.day) }, [v.day])
-  useEffect(() => { waterState.setDropPos(v.dropX, v.dropY) }, [v.dropX, v.dropY])
+  useEffect(() => {
+    waterState.setDropPos(v.dropX, v.dropY)
+    waterState.setShowDrop(true)
+    waterState.setDropOpacity(1)
+  }, [v.dropX, v.dropY])
 
   const stage = STAGES.reduce((a, s) => (v.day >= s.day ? s : a), STAGES[0])
 

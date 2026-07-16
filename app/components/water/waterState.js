@@ -8,14 +8,17 @@ import { useEffect } from 'react'
 
 // ── Cele 7 stadii: ziua -> parametrii vizuali. Arhitectura stie de toate,
 //    stadiul 1 e livrat complet; 2-7 cresc pe aceiasi parametri (nu se rescrie).
+// Stadiile TREBUIE sa difere dramatic: daca ziua 1 si ziua 90 se confunda
+// una cu alta, drumul nu se vede — iar starea apei e singura forma de progres
+// din aplicatie (legea 7). De aici saltul mare de marime si de lumina.
 export const STAGES = [
-  { day: 1,  key: 'first_drop',  en: 'First Drop',  ro: 'Prima Picătură', size: 0.52, caustics: 0.30, light: 0.00, spin: 0.10 },
-  { day: 3,  key: 'the_deep',    en: 'The Deep',    ro: 'Adâncul',        size: 0.62, caustics: 0.42, light: 0.10, spin: 0.14 },
-  { day: 7,  key: 'the_flow',    en: 'The Flow',    ro: 'Curgerea',       size: 0.68, caustics: 0.52, light: 0.20, spin: 0.18 },
-  { day: 14, key: 'clear_water', en: 'Clear Water', ro: 'Apa Limpede',    size: 0.74, caustics: 0.78, light: 0.34, spin: 0.20 },
-  { day: 30, key: 'the_tide',    en: 'The Tide',    ro: 'Mareea',         size: 0.80, caustics: 0.62, light: 0.50, spin: 0.24 },
-  { day: 60, key: 'the_crystal', en: 'The Crystal', ro: 'Cristalul',      size: 0.86, caustics: 0.70, light: 0.68, spin: 0.16 },
-  { day: 90, key: 'the_ocean',   en: 'The Ocean',   ro: 'Oceanul',        size: 1.00, caustics: 0.95, light: 1.00, spin: 0.12 },
+  { day: 1,  key: 'first_drop',  en: 'First Drop',  ro: 'Prima Picătură', size: 0.34, caustics: 0.22, light: 0.00, spin: 0.10 },
+  { day: 3,  key: 'the_deep',    en: 'The Deep',    ro: 'Adâncul',        size: 0.52, caustics: 0.38, light: 0.10, spin: 0.14 },
+  { day: 7,  key: 'the_flow',    en: 'The Flow',    ro: 'Curgerea',       size: 0.66, caustics: 0.50, light: 0.22, spin: 0.18 },
+  { day: 14, key: 'clear_water', en: 'Clear Water', ro: 'Apa Limpede',    size: 0.80, caustics: 0.85, light: 0.38, spin: 0.20 },
+  { day: 30, key: 'the_tide',    en: 'The Tide',    ro: 'Mareea',         size: 0.95, caustics: 0.65, light: 0.55, spin: 0.24 },
+  { day: 60, key: 'the_crystal', en: 'The Crystal', ro: 'Cristalul',      size: 1.10, caustics: 0.75, light: 0.75, spin: 0.16 },
+  { day: 90, key: 'the_ocean',   en: 'The Ocean',   ro: 'Oceanul',        size: 1.45, caustics: 1.05, light: 1.00, spin: 0.12 },
 ]
 
 export function stageForDay(day = 1) {
@@ -36,6 +39,9 @@ const state = {
   // Picatura e APA USERULUI. Pe landing/login nu exista user, deci nu exista
   // picatura — doar apa. Home o cere explicit.
   showDrop: false,
+  // Picatura traieste in zona ei din hero si iese din cadru odata cu ea.
+  // NU e element care pluteste peste continutul scrolat.
+  dropOpacity: 1,
 }
 const listeners = new Set()
 const notify = () => listeners.forEach(l => l())
@@ -47,6 +53,7 @@ export const waterState = {
   setLight(v) { state.light = v; notify() },
   setDropPos(x, y) { state.dropPos = [x, y]; notify() },
   setShowDrop(v) { state.showDrop = v; notify() },
+  setDropOpacity(v) { state.dropOpacity = v },
   // LEGEA 2 — orice atingere naste o unda. Max 8 simultan; se sting in ~1.5s.
   addRipple(x, y, clock) {
     state.ripples.push({ x, y, born: clock })
@@ -56,6 +63,46 @@ export const waterState = {
     if (!state.ripples.length) return
     state.ripples = state.ripples.filter(r => clock - r.born < 1.6)
   },
+}
+
+// ── Ancora picaturii ──
+// Picatura se randeaza in Canvas-ul fix, dar TREBUIE sa stea in zona ei din
+// hero si sa iasa din cadru odata cu ea la scroll. Elementul-ancora isi
+// raporteaza pozitia; picatura o urmeaza si se stinge cand ancora pleaca.
+export function useWaterAnchor(ref, active = true) {
+  useEffect(() => {
+    if (!active || !ref.current) {
+      waterState.setShowDrop(false)
+      return
+    }
+    let raf = 0
+    const measure = () => {
+      const el = ref.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const cx = (r.left + r.width / 2) / window.innerWidth
+      const cy = 1 - (r.top + r.height / 2) / window.innerHeight   // UV: y creste in sus
+      waterState.setDropPos(cx, cy)
+
+      // se stinge pe masura ce ancora paraseste ecranul — nu trece peste carduri
+      const visible = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0)
+      waterState.setDropOpacity(Math.max(0, Math.min(1, visible / Math.max(1, r.height))))
+      waterState.setShowDrop(true)
+    }
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(measure)
+    }
+    measure()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      waterState.setShowDrop(false)
+    }
+  }, [ref, active])
 }
 
 // ── LEGEA 2: hook global. Montat o data, asculta tot documentul.

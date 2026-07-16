@@ -5,7 +5,7 @@
 // Ritualurile o ating: gestul de dimineață aprinde lumina din ea, jurnalul de
 // seară cade în ea. Restul (Gândul Zilei, lentilele, harta drumului) orbitează.
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import MorningAnchor from './components/MorningAnchor'
 import EveningMirror from './components/EveningMirror'
 import OneBreath from './components/OneBreath'
@@ -18,7 +18,7 @@ import FreeJournal from './components/FreeJournal'
 import CommitmentDocument from './components/CommitmentDocument'
 import PatternsInsight from './components/PatternsInsight'
 import { isFeatureUnlocked } from './components/ProgressiveUnlock'
-import { waterState, stageForDay } from '../components/water/waterState'
+import { waterState, stageForDay, useWaterAnchor } from '../components/water/waterState'
 import WaterLoader from '../components/water/WaterLoader'
 import InstallApp from '../components/InstallApp'
 import { useUser } from '../../lib/useUser'
@@ -125,6 +125,7 @@ function DashboardContent() {
   const [profile, setProfile] = useState(null)
   const [light, setLight] = useState(null)   // semnalul de moment -> apa home-ului
   const [ritual, setRitual] = useState(null) // ritualul ales manual de user
+  const heroRef = useRef(null)
   const { user } = useUser()
   const [globalLang] = useLanguage()
   const [profileLang, setProfileLang] = useState('en')
@@ -151,6 +152,17 @@ function DashboardContent() {
       .then(d => { if (d.success) setData(d) }).catch(() => {})
   }
 
+  // ?day=N — override pentru testarea stadiilor apei
+  const override = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('day') : null
+  const day = override !== null ? parseInt(override, 10) : (data?.day || 1)
+  const age = Math.max(0, day - 1)
+
+  // Apa userului traieste in Canvas-ul global (legea 6). Home-ul nu o deseneaza:
+  // ii spune in ce stadiu e, iar ancora ii tine locul in hero.
+  useEffect(() => { waterState.setDay(day) }, [day])
+  useWaterAnchor(heroRef, !loading)
+
   if (loading) {
     return (
       <>
@@ -160,21 +172,10 @@ function DashboardContent() {
     )
   }
 
-  // ?day=N — override pentru testarea stadiilor apei
-  const override = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('day') : null
-  const day = override !== null ? parseInt(override, 10) : (data?.day || 1)
-  const age = Math.max(0, day - 1)
-
   const today = data?.today || {}
   const stage = stageForDay(day)
   const firstName = (profile?.full_name || '').trim().split(/\s+/)[0] || ''
 
-  // Apa userului traieste in Canvas-ul global (legea 6): home-ul nu o deseneaza,
-  // ii spune doar in ce stadiu e si unde sa stea pe ecran.
-  waterState.setDay(day)
-  waterState.setDropPos(0.5, 0.72)
-  waterState.setShowDrop(true)
 
   // Ritualul potrivit orei. FĂRĂ blocaj (principiul 4): celălalt rămâne
   // accesibil printr-un link discret — ora sugerează, nu interzice.
@@ -198,7 +199,7 @@ function DashboardContent() {
         {/* ── APA USERULUI ──
             Picătura e randată de Canvas-ul global, în spatele UI-ului. Aici îi
             lăsăm locul ei: ecranul se deschide pe apă, nu pe carduri. */}
-        <div style={s.waterRoom} aria-hidden="true" />
+        <div ref={heroRef} style={s.waterRoom} aria-hidden="true" />
 
         {/* ── RITUALUL — atinge apa de deasupra ── */}
         <div>

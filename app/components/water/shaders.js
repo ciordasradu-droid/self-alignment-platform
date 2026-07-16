@@ -77,16 +77,21 @@ ${NOISE}
 
 // Inele concentrice care se lasa pe suprafata sub picatura.
 // Subtiri si clare: daca sunt late si difuze, citesc a fum/nebuloasa, nu a apa.
+// NOTA: smoothstep(edge0, edge1, x) cu edge0 > edge1 e NEDEFINIT in GLSL —
+// merge pe unele drivere, intoarce zero pe altele. De aia disparusera inelele.
+// Forma corecta: 1.0 - smoothstep(0.0, w, x).
+float band(float x, float w){ return 1.0 - smoothstep(0.0, w, x); }
+
 float restingRings(vec2 p, vec2 c, float t){
   float d = distance(p, c);
   float rings = 0.0;
   for (int i = 0; i < 4; i++){
     float fi = float(i);
     // undele respira: se largesc si se sting, apoi se reiau
-    float r = 0.055 + fi * 0.040 + sin(t * 0.35 - fi * 0.9) * 0.008;
-    float w = 0.0035 + fi * 0.0015;              // grosime — subtire
-    float amp = (0.30 - fi * 0.06);
-    rings += smoothstep(w, 0.0, abs(d - r)) * amp;
+    float r = 0.055 + fi * 0.042 + sin(t * 0.35 - fi * 0.9) * 0.009;
+    float w = 0.005 + fi * 0.002;                // grosime — subtire, dar vizibila
+    float amp = (0.26 - fi * 0.05);
+    rings += band(abs(d - r), w) * amp;
   }
   return rings;
 }
@@ -100,9 +105,9 @@ float touchRipple(vec2 p, vec3 rip, float t){
   float d = distance(p, rip.xy);
   float r = age * 0.42;                       // viteza de largire
   float fade = 1.0 - smoothstep(0.0, 1.6, age);
-  float ring = smoothstep(0.034, 0.0, abs(d - r));
+  float ring = band(abs(d - r), 0.034);
   // un al doilea inel, mai slab, in urma primului — unda are corp
-  float trail = smoothstep(0.055, 0.0, abs(d - r * 0.72)) * 0.35;
+  float trail = band(abs(d - r * 0.72), 0.055) * 0.35;
   return (ring + trail) * fade;
 }
 
@@ -119,15 +124,17 @@ void main(){
   float waves = (w1 * 0.65 + w2 * 0.35) * uWaveAmp;
 
   // ── adancimea: indigo sus -> pruna jos, framantata de unde ──
+  // ATENTIE la spatiul de culoare: uDeep/uPlum vin din THREE.Color, deci sunt
+  // deja LINIARE. Scriem liniar; conversia in sRGB o face pasul final al
+  // composer-ului, o singura data. Orice "ridicare" manuala aici (col *= 2)
+  // spala imaginea — asta a fost bug-ul care facea fundalul sa para mort.
   float depth = clamp(uv.y + waves * 0.16, 0.0, 1.0);
   vec3 col = mix(uPlum, uDeep, smoothstep(0.0, 1.0, depth));
 
-  // Apa trebuie sa se VADA ca apa, nu ca negru. Adancimea e intunecata, dar
-  // nuanta (indigo->pruna) trebuie sa fie lizibila, altfel ecranul e mort.
-  col *= 2.05;
-  col += mix(uPlum, uDeep, 0.5) * 0.85 * (0.55 + 0.45 * waves);
-  // pruna calda urca de jos — apa e mai vie langa lumina
-  col += uPlum * 0.55 * smoothstep(0.85, 0.0, uv.y);
+  // apa respira cu undele — variatie, nu luminozitate in plus
+  col *= 0.85 + 0.35 * (0.5 + 0.5 * waves);
+  // pruna calda urca de jos: lumina se aduna sub picatura
+  col += uPlum * 0.45 * smoothstep(0.9, 0.0, uv.y);
 
   // ── caustice: BALTI LARGI de lumina refractata, nu filamente ──
   // Nota: pow(1-abs(c1-c2), N) pe doua zgomote da fire subtiri care citesc a
