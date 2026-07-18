@@ -55,6 +55,15 @@ export async function middleware(request) {
     return NextResponse.redirect(url)
   }
 
+  // 2b. Landing = DOAR pentru necunoscuti (decizie v5, sect. 6).
+  // User logat pe / → direct in Azi, fara opriri. Server-side, deci fara
+  // flash de landing inainte de redirect.
+  if (path === '/' && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   // 3. Subscription gate — /dashboard needs an active subscription or free trial.
   if (path === '/dashboard' || path.startsWith('/dashboard/')) {
     const subscribed = request.cookies.get('subscribed')

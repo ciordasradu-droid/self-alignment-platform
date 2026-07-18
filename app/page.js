@@ -56,30 +56,8 @@ function CosmicStars() {
   )
 }
 
-// ── Returning user banner ──
-function ReturningUserBanner({ lang }) {
-  const [hasProfile, setHasProfile] = useState(false)
-
-  useEffect(() => {
-    const profile = localStorage.getItem('profile')
-    if (profile) setHasProfile(true)
-  }, [])
-
-  if (!hasProfile) return null
-
-  return (
-    <div style={rb.banner} className="anim-fade-in">
-      <span style={rb.text}>{lt(lang, 'banner_back')}</span>
-      <Link href="/profile" style={rb.link}>{lt(lang, 'banner_view')}</Link>
-    </div>
-  )
-}
-
-const rb = {
-  banner: { background:'var(--purple-light)', border:'1px solid var(--purple)', borderRadius:'12px', padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'32px', flexWrap:'wrap', gap:'12px' },
-  text: { fontSize:'14px', color:'var(--purple)', fontWeight:'500' },
-  link: { fontSize:'14px', color:'var(--purple)', fontWeight:'700', textDecoration:'underline' }
-}
+// Bannerul "Bine ai revenit" a fost eliminat (decizie v5, sect. 6):
+// userul logat nu mai vede landing-ul deloc — middleware-ul il duce direct in Azi.
 
 export default function Home() {
   const [lang, changeLanguage] = useLanguage()
@@ -110,8 +88,6 @@ export default function Home() {
       </nav>
 
       <main style={s.wrap}>
-
-        <ReturningUserBanner lang={lang} />
 
         {/* ── HERO ── */}
         <section style={s.hero}>
