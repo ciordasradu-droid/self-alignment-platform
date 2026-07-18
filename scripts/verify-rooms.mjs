@@ -1,6 +1,6 @@
 import { chromium } from 'playwright'
 import { createClient } from '@supabase/supabase-js'
-import { loadEnv, DEV_EMAIL } from './scripts/dev-login.mjs'
+import { loadEnv, DEV_EMAIL } from './dev-login.mjs'
 
 const OUT = 'C:/Users/user/AppData/Local/Temp/claude/C--Users-user/89bfe275-4e10-48c4-84f8-3c1cc59bd124/scratchpad'
 const BASE = process.env.VBASE || 'http://localhost:3000'
