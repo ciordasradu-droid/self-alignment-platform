@@ -62,6 +62,13 @@ export async function GET(request) {
     // rândurile vechi n-au `kind` — cele fără erau check-in-ul de seară
     const evening = pick('evening') || todays.find(c => c.answers && !c.answers.kind)
 
+    // Curgerea seară→dimineață (sect. 5): intenția se stabilește seara,
+    // pentru ziua următoare — dimineața o continuă, n-o mai stabilește.
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    const yesterdayEvening = (checkins || []).find(c =>
+      c.created_at.split('T')[0] === yesterday && c.answers?.kind === 'evening'
+    )
+
     return NextResponse.json({
       success: true,
       checkins: checkins || [],
@@ -72,7 +79,7 @@ export async function GET(request) {
         morning: !!morning,
         evening: !!evening,
         one_breath: !!pick('one_breath'),
-        intention: morning?.answers?.intention || '',
+        continuedIntention: yesterdayEvening?.answers?.intention || '',
       },
     })
 

@@ -6,7 +6,7 @@
 // Restul Gândului Zilei rămâne identic.
 
 import { useState, useEffect } from "react"
-import { getDailyThought } from "../../../lib/dailyThoughts"
+import { getDailyThought, getDailyThoughtFormat } from "../../../lib/dailyThoughts"
 
 const LABELS = {
   en: { tag: "Daily Thought", reflect: "Reflect on this today" },
@@ -21,9 +21,13 @@ const LABELS = {
   hu: { tag: "A Nap Gondolata", reflect: "Gondolkodj el ezen ma" }
 }
 
-export default function DailyInsight() {
+// Ambele formate (sect. 5) vin din aceeași bancă de conținut — 'quick' arată
+// doar întrebarea, fără titlu/corp/geometrie. embedded=true scoate marginea
+// de card proprie, pentru montare ca pas în ritualul de dimineață.
+export default function DailyInsight({ embedded = false }) {
   const [insight, setInsight] = useState(null)
   const [lang, setLang] = useState("en")
+  const [format, setFormat] = useState("full")
 
   useEffect(() => {
     const stored = localStorage.getItem("profile")
@@ -33,6 +37,7 @@ export default function DailyInsight() {
       const hdType = profile.hd_data?.type || "Generator"
       const userLang = profile.language || "en"
       setLang(userLang)
+      setFormat(getDailyThoughtFormat())
       const thought = getDailyThought(hdType, userLang)
       setInsight(thought)
     } catch (e) {
@@ -45,10 +50,19 @@ export default function DailyInsight() {
   const t = LABELS[lang] || LABELS.en
   const dateLocale = lang === "en" ? "en-US" : lang
 
+  if (format === "quick") {
+    return (
+      <div style={{ ...s.card, ...s.quickCard, ...(embedded ? s.embeddedCard : null) }} className="anim-fade-in">
+        <span style={s.tag} className="shimmer-overlay">{t.tag}</span>
+        <p style={s.quickQuestion}>{insight.question}</p>
+      </div>
+    )
+  }
+
   const questionWords = (insight.question || "").split(/\s+/).filter(Boolean)
 
   return (
-    <div style={s.card} className="anim-fade-in gradient-border-glow">
+    <div style={{ ...s.card, ...(embedded ? s.embeddedCard : null) }} className="anim-fade-in gradient-border-glow">
       {/* Sacred geometry decoration */}
       <svg
         className="mandala-bg"
@@ -100,8 +114,11 @@ export default function DailyInsight() {
 
 const s = {
   card: { position: "relative", overflow: "hidden", background: "var(--surface)", backdropFilter: "blur(16px) saturate(120%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid var(--border)" },
+  embeddedCard: { marginBottom: 0 },
+  quickCard: { padding: "24px", display: "flex", flexDirection: "column", gap: "14px" },
+  quickQuestion: { fontSize: "18px", color: "var(--text)", lineHeight: "1.6", fontFamily: "Cormorant Garamond, serif", fontStyle: "italic" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" },
-  tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "var(--gold-faint)", padding: "5px 12px", borderRadius: "20px" },
+  tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "var(--gold-faint)", padding: "5px 12px", borderRadius: "20px", alignSelf: "flex-start" },
   date: { fontSize: "12px", color: "rgba(255,255,255,0.4)" },
   title: { fontSize: "22px", fontWeight: "600", color: "#fff", fontFamily: "Cormorant Garamond, serif", marginBottom: "12px" },
   body: { fontSize: "15px", color: "rgba(255,255,255,0.8)", lineHeight: "1.75", marginBottom: "20px" },

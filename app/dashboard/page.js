@@ -11,7 +11,6 @@ import { useState, useEffect, Suspense } from 'react'
 import MorningAnchor from './components/MorningAnchor'
 import EveningMirror from './components/EveningMirror'
 import OneBreath from './components/OneBreath'
-import DailyInsight from './components/DailyInsight'
 import WaterLoader from '../components/water/WaterLoader'
 import RoomNav from '../components/RoomNav'
 import { useUser } from '../../lib/useUser'
@@ -82,14 +81,13 @@ function DashboardContent() {
             lang={lang}
             name={firstName}
             done={today.morning}
-            onSignal={() => {}}
+            continuedIntention={today.continuedIntention}
             onComplete={refresh}
           />
         ) : (
           <EveningMirror
             lang={lang}
             done={today.evening}
-            intention={today.intention}
             onComplete={refresh}
           />
         )}
@@ -101,8 +99,6 @@ function DashboardContent() {
 
       {/* zilele grele — fără vinovăție */}
       {!today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
-
-      <DailyInsight />
 
       <RoomNav lang={lang} />
     </main>
