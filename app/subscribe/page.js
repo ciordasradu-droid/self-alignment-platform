@@ -12,10 +12,7 @@ const SUBSCRIBE_LABELS = {
     title_line1: 'We are accountable to everyone.',
     title_line2: 'Except ourselves.',
     subtitle: 'The Accountability System keeps you aligned every day — with check-ins, pattern detection, and a structure built around who you actually are.',
-    spots_left: 'spots left',
-    spots_text_1: 'The first 1,000 people to start their accountability journey get their',
-    spots_text_bold: 'first month free',
-    spots_text_2: '. No credit card needed for the trial.',
+    offer_text: 'The first 1,000 people get their full personal profile free.',
     monthly: 'Monthly',
     annual: 'Annual',
     save_badge: 'Save 2 months',
@@ -23,9 +20,8 @@ const SUBSCRIBE_LABELS = {
     per_year: '/year',
     two_months_free: '2 months free',
     features: [
-      { text: 'Daily alignment check-in — 2 minutes' },
+      { text: 'Daily alignment check-in — 30 seconds' },
       { text: 'Daily personalized insight — generated from your profile' },
-      { text: 'Weekly reset — every Monday morning' },
       { text: 'Presence held gently, without scores' },
       { text: 'Weekly review — reflect and reset' },
       { text: 'Patterns — what is emerging in your journey' },
@@ -52,10 +48,7 @@ const SUBSCRIBE_LABELS = {
     title_line1: 'Suntem responsabili față de toți.',
     title_line2: 'Mai puțin față de noi. Hai să schimbăm asta!',
     subtitle: 'Sistemul de Responsabilitate te menține aliniat în fiecare zi — cu check-in-uri, detectarea tiparelor și o structură construită în jurul a cine ești cu adevărat.',
-    spots_left: 'locuri rămase',
-    spots_text_1: 'Primii 1.000 de oameni care încep călătoria de responsabilitate primesc',
-    spots_text_bold: 'prima lună gratuită',
-    spots_text_2: '. Nu e nevoie de card de credit pentru încercare.',
+    offer_text: 'Primii 1.000 de oameni primesc profilul personal complet, gratuit.',
     monthly: 'Lunar',
     annual: 'Anual',
     save_badge: 'Economisești 2 luni',
@@ -63,9 +56,8 @@ const SUBSCRIBE_LABELS = {
     per_year: '/an',
     two_months_free: '2 luni gratuite',
     features: [
-      { text: 'Check-in zilnic de aliniere — 2 minute' },
+      { text: 'Check-in zilnic de aliniere — 30 de secunde' },
       { text: 'Gândul zilnic personalizat — generat din profilul tău' },
-      { text: 'Reset săptămânal — în fiecare luni dimineața' },
       { text: 'Prezență ținută blând, fără scoruri' },
       { text: 'Revizuire săptămânală — reflectează și resetează' },
       { text: 'Tipare — ce se conturează în drumul tău' },
@@ -90,7 +82,6 @@ const SUBSCRIBE_LABELS = {
 
 export default function SubscribePage() {
   const [plan, setPlan] = useState('monthly')
-  const [spotsLeft, setSpotsLeft] = useState(null)
   const [loading, setLoading] = useState(false)
   const [lang, setLang] = useState('en')
 
@@ -103,11 +94,6 @@ export default function SubscribePage() {
         if (profile.language) setLang(profile.language)
       }
     } catch (e) {}
-
-    fetch('/api/spots')
-      .then(r => r.json())
-      .then(data => setSpotsLeft(data.spots_left))
-      .catch(() => setSpotsLeft(847))
   }, [])
 
   const labels = SUBSCRIBE_LABELS[lang] || SUBSCRIBE_LABELS['en']
@@ -156,17 +142,9 @@ export default function SubscribePage() {
           <p style={s.subtitle}>{labels.subtitle}</p>
         </div>
 
-        {spotsLeft !== null && spotsLeft > 0 && (
-          <div style={s.spotsBanner}>
-            <div style={s.spotsLeft}>
-              <span style={s.spotsNum}>{spotsLeft}</span>
-              <span style={s.spotsLabel}>{labels.spots_left}</span>
-            </div>
-            <p style={s.spotsText}>
-              {labels.spots_text_1} <strong>{labels.spots_text_bold}</strong>{labels.spots_text_2}
-            </p>
-          </div>
-        )}
+        <div style={s.offerBanner}>
+          <p style={s.offerText}>{labels.offer_text}</p>
+        </div>
 
         <div style={s.toggle}>
           <button
@@ -261,11 +239,8 @@ const s = {
   title: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', marginBottom:'16px' },
   accent: { color:'var(--orange)' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', lineHeight:'1.75', maxWidth:'480px', margin:'0 auto' },
-  spotsBanner: { background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'32px', display:'flex', gap:'20px', alignItems:'center', flexWrap:'wrap' },
-  spotsLeft: { textAlign:'center', flexShrink:0 },
-  spotsNum: { display:'block', fontSize:'36px', fontWeight:'700', color:'var(--orange)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
-  spotsLabel: { display:'block', fontSize:'11px', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'1px', marginTop:'4px' },
-  spotsText: { fontSize:'14px', color:'rgba(255,255,255,0.75)', lineHeight:'1.6' },
+  offerBanner: { background:'var(--surface)', border:'1px solid var(--border)', backdropFilter:'blur(16px) saturate(120%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'32px', textAlign:'center' },
+  offerText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6' },
   toggle: { display:'flex', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'10px', padding:'4px', marginBottom:'24px' },
   toggleBtn: { flex:1, padding:'10px', borderRadius:'8px', border:'none', fontSize:'14px', fontWeight:'500', cursor:'pointer', transition:'all 0.2s', minHeight:'44px' },
   saveBadge: { fontSize:'11px', background:'var(--green-light)', color:'var(--green)', padding:'2px 6px', borderRadius:'4px', marginLeft:'6px' },

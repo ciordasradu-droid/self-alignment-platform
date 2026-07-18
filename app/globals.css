@@ -25,8 +25,8 @@
      verde. Numele variabilei ramane (folosit in zeci de fisiere), valoarea nu. */
   --green: #e0b36a;
   --green-light: rgba(224, 179, 106, 0.14);
-  --orange: #e08a3c;
-  --orange-light: rgba(224, 138, 60, 0.14);
+  --orange: #E5A93C;
+  --orange-light: rgba(229, 169, 60, 0.14);
   --amber: #e0b36a;
 
   /* Surfaces — sticla peste apa (v5 sect. 4.2, tokens locked) */
@@ -43,8 +43,8 @@
   --purple-glow-soft: rgba(224, 179, 106, 0.14);
   --green-glow: rgba(74, 155, 127, 0.35);
   --green-glow-soft: rgba(74, 155, 127, 0.14);
-  --orange-glow: rgba(232, 130, 74, 0.35);
-  --orange-glow-soft: rgba(232, 130, 74, 0.14);
+  --orange-glow: rgba(229, 169, 60, 0.35);
+  --orange-glow-soft: rgba(229, 169, 60, 0.14);
   --amber-glow: rgba(212, 165, 116, 0.30);
 
   /* Layered shadows â€” adâncime sub apă, nu umbre de hârtie */
@@ -1178,7 +1178,7 @@ input:focus, textarea:focus, select:focus {
 
 /* Faster animated gradient text â€” purple â†’ gold â†’ purple, 6s */
 .gradient-text-fast {
-  background: linear-gradient(135deg, var(--purple) 0%, #e08a3c 50%, var(--purple) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, var(--orange) 50%, var(--purple) 100%);
   background-size: 220% 220%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1195,7 +1195,7 @@ input:focus, textarea:focus, select:focus {
   height: 56px;
   padding: 0 32px;
   border-radius: 28px;
-  background: linear-gradient(135deg, #e0b36a 0%, #e0b36a 50%, #e08a3c 100%);
+  background: linear-gradient(135deg, #e0b36a 0%, #e0b36a 50%, var(--orange) 100%);
   background-size: 200% 200%;
   color: #fff;
   font-size: 17px;
@@ -1263,7 +1263,7 @@ input:focus, textarea:focus, select:focus {
   min-height: 260px;
   overflow: hidden;
   isolation: isolate;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border);
   box-shadow: 0 8px 32px rgba(224, 179, 106, 0.14);
   transition: transform 0.32s var(--ease-out), box-shadow 0.32s ease;
   display: flex;
@@ -1273,22 +1273,10 @@ input:focus, textarea:focus, select:focus {
   transform: translateY(-6px);
   box-shadow: 0 24px 56px rgba(224, 179, 106, 0.14);
 }
-.story-card::after {
-  /* subtle inner highlight at top */
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 30%);
-  pointer-events: none;
-  z-index: 0;
-}
 .story-card > * { position: relative; z-index: 1; }
 
-.story-card-purple { background: linear-gradient(135deg, rgba(168,146,232,0.16) 0%, rgba(255,176,102,0.10) 100%); }
-.story-card-green  { background: linear-gradient(135deg, rgba(111,211,174,0.14) 0%, rgba(255,176,102,0.10) 100%); }
-.story-card-amber  { background: linear-gradient(135deg, rgba(255,176,102,0.14) 0%, rgba(255,120,90,0.10) 100%); }
-.story-card-mixed  { background: linear-gradient(135deg, rgba(168,146,232,0.14) 0%, rgba(111,211,174,0.10) 100%); }
 .story-card-purple, .story-card-green, .story-card-amber, .story-card-mixed {
+  background: var(--surface);
   border: 1px solid var(--border);
   backdrop-filter: blur(16px) saturate(120%);
 }
@@ -1301,7 +1289,7 @@ input:focus, textarea:focus, select:focus {
   letter-spacing: 1.2px;
   padding: 4px 12px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--gold-faint);
   color: var(--purple);
   margin-bottom: 16px;
   align-self: flex-start;
@@ -1327,11 +1315,11 @@ input:focus, textarea:focus, select:focus {
 
 /* Mock profile preview (used in story card 1) */
 .mock-profile {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--surface);
   backdrop-filter: blur(10px);
   border-radius: 14px;
   padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
   box-shadow: 0 4px 18px rgba(224, 179, 106, 0.14);
 }
 .mock-profile-tag {
@@ -1456,14 +1444,14 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   border-radius: 24px;
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
 }
 .mock-pillar-icon {
   font-size: 14px;
@@ -1477,13 +1465,12 @@ input:focus, textarea:focus, select:focus {
   padding: 32px 0 64px;
 }
 .trust-banner {
-  background: linear-gradient(135deg, #fef3eb 0%, var(--gold-faint) 50%, #e8f7f2 100%);
-  background-size: 200% 200%;
-  animation: gradient-flow 12s ease-in-out infinite;
+  background: var(--surface);
+  backdrop-filter: blur(16px) saturate(120%);
   border-radius: 24px;
   padding: clamp(24px, 4vw, 36px);
   text-align: center;
-  border: 1px solid rgba(212, 165, 116, 0.35);
+  border: 1px solid var(--border);
   box-shadow: 0 8px 32px rgba(224, 179, 106, 0.14);
   margin-bottom: 24px;
 }
@@ -1527,11 +1514,13 @@ input:focus, textarea:focus, select:focus {
 
 .price-premium {
   position: relative;
-  background: linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 70%, #3d2860 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px) saturate(120%);
   border-radius: 28px;
   padding: clamp(32px, 5vw, 48px) clamp(24px, 4vw, 40px);
   text-align: center;
-  color: #fff;
+  color: var(--text);
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(224, 179, 106, 0.14);
 }
@@ -1552,7 +1541,7 @@ input:focus, textarea:focus, select:focus {
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #e08a3c;
+  color: var(--orange);
   background: rgba(212, 165, 116, 0.15);
   padding: 5px 14px;
   border-radius: 20px;
@@ -1564,7 +1553,7 @@ input:focus, textarea:focus, select:focus {
   font-weight: 700;
   font-family: 'Cormorant Garamond', serif;
   line-height: 1;
-  background: linear-gradient(135deg, #e08a3c 0%, #f5d976 100%);
+  background: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1603,7 +1592,7 @@ input:focus, textarea:focus, select:focus {
   height: 22px;
   border-radius: 50%;
   background: rgba(212, 165, 116, 0.18);
-  color: #e08a3c;
+  color: var(--orange);
   flex-shrink: 0;
   font-size: 12px;
   margin-top: 2px;
@@ -1672,7 +1661,7 @@ input:focus, textarea:focus, select:focus {
   line-height: 1.15;
   letter-spacing: -0.5px;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--purple) 0%, #e08a3c 50%, var(--purple) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, var(--orange) 50%, var(--purple) 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
