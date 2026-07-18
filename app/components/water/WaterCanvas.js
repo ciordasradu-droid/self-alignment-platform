@@ -30,7 +30,8 @@ export default function WaterCanvas() {
 
   // Playground-ul isi monteaza propria scena, cu uniformurile lui.
   // Doua contexte WebGL pe acelasi ecran = risipa curata.
-  if (pathname?.startsWith('/dev')) return null
+  // /proba/* judeca stratul video hibrid IZOLAT — apa three.js n-are ce cauta acolo.
+  if (pathname?.startsWith('/dev') || pathname?.startsWith('/proba')) return null
 
   if (ok === null) return <div className="water-fallback" aria-hidden="true" />
   if (ok === false) {

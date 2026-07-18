@@ -1809,3 +1809,31 @@ input:focus, textarea:focus, select:focus {
   }
   .cosmic-bg { animation: none; }
 }
+
+/* ============================================================
+   WaterVideoLayer — fundal video hibrid (bloc 1, sect. 4.1)
+   Un player global sub tot UI-ul. Posterul = gradientul apei,
+   mereu dedesubt (gol de incarcare / autoplay blocat / reduced-motion).
+   ============================================================ */
+.watervideo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #07060e;
+}
+.watervideo-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.watervideo-el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
