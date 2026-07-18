@@ -1,10 +1,10 @@
-// Rădăcina aplicației. Aici se montează cele două lucruri care fac apa
-// universală: stratul de ripple (legea 2) și corpul de apă din globals.css
-// (legea 1). Orice ecran nou intră automat în apă.
+// Rădăcina aplicației. Arhitectura hibridă (v5, sect. 4): apa video e stratul
+// universal, montat o singură dată aici (portal in body). three.js a fost
+// scos de aici — ramane izolat, doar pe Azi, cand vine lacrima vie (bloc 5).
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import WaterCanvas from "./components/water/WaterCanvas";
+import WaterVideoLayer from "./components/water/WaterVideoLayer";
 import ServiceWorker from "./components/ServiceWorker";
 
 const geistSans = Geist({
@@ -51,8 +51,8 @@ export default function RootLayout({ children }) {
               "try{var l=localStorage.getItem('app_language');if(l){document.documentElement.lang=l}}catch(e){}",
           }}
         />
-        {/* LEGEA 1 — apa e sub tot. UN SINGUR canvas, pentru toata aplicatia. */}
-        <WaterCanvas />
+        {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
+        <WaterVideoLayer />
         <div id="app-surface">{children}</div>
         <ServiceWorker />
       </body>

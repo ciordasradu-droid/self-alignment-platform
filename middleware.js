@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 
 // Pages that require a logged-in user. Everything else (landing, /login,
 // public share /r/[id], /subscribe, /api/*) stays open.
-const PROTECTED = ['/dashboard', '/onboarding', '/generating', '/profile', '/compatibility']
+const PROTECTED = ['/dashboard', '/drumul', '/onboarding', '/generating', '/profile', '/compatibility']
 
 export async function middleware(request) {
   // Playground-ul de apă e unealtă de lucru, nu produs. Nu exista in productie.
@@ -64,8 +64,10 @@ export async function middleware(request) {
     return NextResponse.redirect(url)
   }
 
-  // 3. Subscription gate — /dashboard needs an active subscription or free trial.
-  if (path === '/dashboard' || path.startsWith('/dashboard/')) {
+  // 3. Subscription gate — Azi si Drumul (accountability) cer abonament sau
+  // proba gratuita. Tu (profilul, platit separat cu 4€) ramane accesibil.
+  const needsSubscription = ['/dashboard', '/drumul'].some((p) => path === p || path.startsWith(p + '/'))
+  if (needsSubscription) {
     const subscribed = request.cookies.get('subscribed')
     const tryFree = request.cookies.get('try_free')
     if (!subscribed && !tryFree) {

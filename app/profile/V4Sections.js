@@ -1,5 +1,6 @@
 'use client'
 import { t } from '../../lib/translations'
+import Chapter from '../components/Chapter'
 
 // ============================================================
 //  V4 PROFILE SECTIONS
@@ -12,7 +13,7 @@ export function isV4(sections) {
   return !!(sections && sections.archetype)
 }
 
-export default function V4Sections({ sections, lang, s }) {
+export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
   if (!isV4(sections)) return null
 
   const a = sections.archetype
@@ -40,8 +41,7 @@ export default function V4Sections({ sections, lang, s }) {
 
       {/* HOW YOU WORK — 3 layers */}
       {work && (work.surface || work.engine || work.core) && (
-        <div style={s.card}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'how_you_work')}</div>
+        <Chapter id="how-you-work" title={t(lang, 'how_you_work')} storageKey={storageKey}>
           <div style={v.layerStack}>
             {work.surface && (
               <div style={v.workLayer}>
@@ -71,13 +71,13 @@ export default function V4Sections({ sections, lang, s }) {
               </div>
             )}
           </div>
-        </div>
+        </Chapter>
       )}
 
-      {/* FRICTION MAP */}
+      {/* FRICTION MAP — polii nu mai poarta litere goale (A/B); ii distinge
+          doar culoarea + pozitia (sect. 6: "polii numiti pe inteles"). */}
       {frictions.length > 0 && (
-        <div style={s.card}>
-          <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'friction_map')}</div>
+        <Chapter id="friction-map" title={t(lang, 'friction_map')} storageKey={storageKey}>
           <div style={v.frictionStack}>
             {frictions.map((f, i) => (
               <div key={i} style={v.frictionItem}>
@@ -85,13 +85,11 @@ export default function V4Sections({ sections, lang, s }) {
                 <div style={v.pullRow}>
                   {f.pull_a && (
                     <div style={v.pullBox('var(--purple)')}>
-                      <span style={v.pullTag('var(--purple)')}>A</span>
                       <p style={v.pullText}>{f.pull_a}</p>
                     </div>
                   )}
                   {f.pull_b && (
-                    <div style={v.pullBox('var(--green)')}>
-                      <span style={v.pullTag('var(--green)')}>B</span>
+                    <div style={v.pullBox('var(--orange)')}>
                       <p style={v.pullText}>{f.pull_b}</p>
                     </div>
                   )}
@@ -105,57 +103,52 @@ export default function V4Sections({ sections, lang, s }) {
               </div>
             ))}
           </div>
-        </div>
+        </Chapter>
       )}
 
       {/* ALIGNED LIFE */}
       {sections.aligned_life && (
-        <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
-          <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'aligned_life')}</div>
+        <Chapter id="aligned-life" title={t(lang, 'aligned_life')} storageKey={storageKey}>
           <p style={s.bodyText}>{sections.aligned_life}</p>
-        </div>
+        </Chapter>
       )}
 
       {/* STRENGTHS + VULNERABILITIES */}
       <div style={s.grid2}>
         {Array.isArray(sections.strengths) && sections.strengths.length > 0 && (
-          <div style={{...s.card, borderLeft:'4px solid var(--green)'}}>
-            <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'strengths')}</div>
+          <Chapter id="strengths" title={t(lang, 'strengths')} storageKey={storageKey}>
             <ul style={s.list}>
               {sections.strengths.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
               ))}
             </ul>
-          </div>
+          </Chapter>
         )}
         {Array.isArray(sections.vulnerabilities) && sections.vulnerabilities.length > 0 && (
-          <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
-            <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'vulnerabilities')}</div>
+          <Chapter id="vulnerabilities" title={t(lang, 'vulnerabilities')} storageKey={storageKey}>
             <ul style={s.list}>
               {sections.vulnerabilities.map((item, i) => (
                 <li key={i} style={s.listItem}>{item}</li>
               ))}
             </ul>
-          </div>
+          </Chapter>
         )}
       </div>
 
       {/* DECISION SYSTEM */}
       {decision.length > 0 && (
-        <div style={{...s.card, borderLeft:'4px solid var(--purple)'}}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'decision_system')}</div>
+        <Chapter id="decision-system" title={t(lang, 'decision_system')} storageKey={storageKey}>
           <div style={v.decisionStack}>
             {decision.map((item, i) => (
               <p key={i} style={{...s.bodyText, paddingBottom:'14px', marginBottom:'14px', borderBottom: i < decision.length-1 ? '1px solid var(--border)' : 'none'}}>{item}</p>
             ))}
           </div>
-        </div>
+        </Chapter>
       )}
 
       {/* ENERGY MANUAL */}
       {energy && (energy.peak || energy.drain || energy.rhythm || energy.current_year) && (
-        <div style={s.card}>
-          <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'energy_manual')}</div>
+        <Chapter id="energy-manual" title={t(lang, 'energy_manual')} storageKey={storageKey}>
           <div style={s.grid2}>
             {energy.peak && (
               <div style={v.energyBox('var(--green)')}>
@@ -182,13 +175,12 @@ export default function V4Sections({ sections, lang, s }) {
               </div>
             )}
           </div>
-        </div>
+        </Chapter>
       )}
 
       {/* WARNING SIGNALS */}
       {signals.length > 0 && (
-        <div style={{...s.card, borderLeft:'4px solid var(--orange)'}}>
-          <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'warning_signals')}</div>
+        <Chapter id="warning-signals" title={t(lang, 'warning_signals')} storageKey={storageKey}>
           <div style={v.signalStack}>
             {signals.map((w, i) => (
               <div key={i} style={v.signalItem}>
@@ -198,7 +190,7 @@ export default function V4Sections({ sections, lang, s }) {
               </div>
             ))}
           </div>
-        </div>
+        </Chapter>
       )}
     </>
   )
@@ -206,8 +198,8 @@ export default function V4Sections({ sections, lang, s }) {
 
 // ---- v4-specific styles (named `v` to avoid clashing with page `s`) ----
 const v = {
-  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 60%, #3d2660 100%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center' },
-  archetypeGlow: { position:'absolute', top:'-40%', left:'50%', transform:'translateX(-50%)', width:'320px', height:'320px', background:'radial-gradient(circle, rgba(155,109,255,0.35) 0%, transparent 70%)', pointerEvents:'none' },
+  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center', border:'1px solid var(--border)' },
+  archetypeGlow: { position:'absolute', top:'-40%', left:'50%', transform:'translateX(-50%)', width:'320px', height:'320px', background:'radial-gradient(circle, rgba(229,169,60,0.22) 0%, transparent 70%)', pointerEvents:'none' },
   archetypeLabel: { position:'relative', fontSize:'12px', letterSpacing:'2px', textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:'14px' },
   archetypeName: { position:'relative', fontSize:'clamp(28px, 6vw, 44px)', fontWeight:'700', color:'#fff', fontFamily:'Cormorant Garamond, serif', lineHeight:1.1, marginBottom:'16px' },
   archetypeDesc: { position:'relative', fontSize:'16px', lineHeight:'1.8', color:'rgba(255,255,255,0.85)', maxWidth:'640px', margin:'0 auto' },

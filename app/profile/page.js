@@ -14,6 +14,11 @@ import { generateProfilePDF } from '../../lib/generatePDF'
 import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 import V4Sections, { isV4 } from './V4Sections'
+import Chapter from '../components/Chapter'
+import RoomNav from '../components/RoomNav'
+import { SettingsIcon } from '../components/SettingsDrawer'
+import SettingsDrawer from '../components/SettingsDrawer'
+import { useUser } from '../../lib/useUser'
 
 // Terminology imports for HDCard subtitles + translated values
 import { headerBoxExplanations as roExpl, hdTerms as roHd } from '../../lib/prompts/terminology/ro'
@@ -74,6 +79,89 @@ async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}
   throw new Error('Generation timed out')
 }
 
+// ============================================================
+//  HUB DE IDENTITATE — lentile + compatibilitate + invitatii
+//  (sect. 6: "TU: profilul complet, lentilele, compatibilitatea, invitatiile")
+// ============================================================
+const HUB_L = {
+  en: { lenses: 'Your three lenses', lens1: 'How', lens2: 'Where', lens3: 'Why',
+        compat_t: 'Compatibility profile', compat_s: 'See how you work with someone — partner, friend or business.',
+        invite_t: 'Invite someone', invite_s: 'One invitation a month.', copy: 'Copy', copied: 'Copied' },
+  ro: { lenses: 'Cele trei lentile ale tale', lens1: 'Cum', lens2: 'Unde', lens3: 'De ce',
+        compat_t: 'Profil de compatibilitate', compat_s: 'Vezi cum funcționezi cu cineva — partener, prieten sau afaceri.',
+        invite_t: 'Invită pe cineva', invite_s: 'O invitație pe lună.', copy: 'Copiază', copied: 'Copiat' },
+}
+const hx = (lang, k) => (HUB_L[lang] || HUB_L.en)[k]
+
+function Lenses({ profile, lang }) {
+  if (!profile) return null
+  const hd = profile.hd_data || {}
+  const astro = profile.astro_data || {}
+  const num = profile.numerology_data || {}
+  const items = [
+    { n: '1', k: 'lens1', title: 'Human Design', value: [hd.type, hd.profile].filter(Boolean).join(' · ') },
+    { n: '2', k: 'lens2', title: 'Astrologie', value: [astro.sun_sign, astro.element].filter(Boolean).join(' · ') },
+    { n: '3', k: 'lens3', title: 'Numerologie', value: num.life_path ? String(num.life_path) : '' },
+  ].filter(i => i.value)
+  if (!items.length) return null
+
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      <p style={{ fontSize: '12px', color: 'rgba(244,240,234,0.5)', letterSpacing: '0.5px', marginBottom: '10px' }}>{hx(lang, 'lenses')}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+        {items.map(i => (
+          <div key={i.n} className="chapter" style={{ padding: '14px 16px', marginBottom: 0 }}>
+            <span style={{ fontSize: '10.5px', color: '#e5a93c', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{hx(lang, i.k)}</span>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: '#f4f0ea', margin: '5px 0 2px' }}>{i.title}</p>
+            <p style={{ fontSize: '12.5px', color: 'rgba(244,240,234,0.6)', lineHeight: 1.4 }}>{i.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CompatCard({ lang }) {
+  return (
+    <a href="/compatibility" className="chapter" style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px',
+      padding: '18px 20px', marginBottom: '12px', textDecoration: 'none',
+    }}>
+      <div>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: '#f4f0ea', marginBottom: '3px' }}>{hx(lang, 'compat_t')}</p>
+        <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.6)', lineHeight: 1.4 }}>{hx(lang, 'compat_s')}</p>
+      </div>
+      <span style={{ fontSize: '20px', color: '#e5a93c', flexShrink: 0 }} aria-hidden="true">→</span>
+    </a>
+  )
+}
+
+function InviteHub({ userId, lang }) {
+  const [copied, setCopied] = useState(false)
+  const [link, setLink] = useState('')
+
+  useEffect(() => { setLink(`${window.location.origin}/invite/${userId}`) }, [userId])
+
+  const copy = () => {
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="chapter" style={{ padding: '18px 20px', marginBottom: '16px' }}>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: '#f4f0ea', marginBottom: '3px' }}>{hx(lang, 'invite_t')}</p>
+      <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.6)', marginBottom: '12px' }}>{hx(lang, 'invite_s')}</p>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <p style={{ flex: 1, fontSize: '12.5px', color: 'rgba(244,240,234,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'rgba(7,6,14,0.4)', borderRadius: '10px', padding: '9px 12px' }}>{link}</p>
+        <button onClick={copy} style={{ padding: '9px 16px', minHeight: '40px', fontSize: '13px', flexShrink: 0, borderRadius: '20px', border: '1px solid rgba(229,169,60,0.3)', background: 'transparent', color: '#f0d9b0', cursor: 'pointer' }}>
+          {copied ? hx(lang, 'copied') : hx(lang, 'copy')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function CommitmentGate({ lang, agreements, onAccept }) {
   const hasAgreements = Array.isArray(agreements) && agreements.length > 0
   const [checked, setChecked] = useState(hasAgreements ? agreements.map(() => false) : [])
@@ -86,9 +174,7 @@ function CommitmentGate({ lang, agreements, onAccept }) {
 
   return (
     <>
-      <div className="cosmic-bg" />
-      <main style={{ maxWidth:'560px', margin:'60px auto', padding:'0 24px', textAlign:'center' }}>
-        <div style={{ fontSize:'48px', marginBottom:'20px' }} aria-hidden="true">✦</div>
+      <main style={{ position:'relative', zIndex:2, maxWidth:'560px', margin:'60px auto', padding:'0 24px', textAlign:'center' }}>
         <h1 style={{ fontSize:'clamp(26px, 6vw, 38px)', fontWeight:600, color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.2, marginBottom:'18px' }}>
           {t(lang, 'before_you_begin')}
         </h1>
@@ -231,7 +317,7 @@ function LegacySections({ sections, swot, lang }) {
           <div style={s.cardLabel('var(--green-light)', 'var(--green)')}>{t(lang, 'strengths')}</div>
           <ul style={s.list}>
             {sections?.strengths?.map((item, i) => (
-              <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+              <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
             ))}
           </ul>
         </div>
@@ -291,6 +377,8 @@ function ProfileContent() {
   const [loading, setLoading] = useState(true)
   const [committed, setCommitted] = useState(false)
   const [planPending, setPlanPending] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { user } = useUser()
 
   // Regenerează planul în fundal când lipsește (auto-vindecare).
   // POST-ul poate fi abandonat de browser (30s) — serverul continuă;
@@ -385,10 +473,13 @@ function ProfileContent() {
 
   if (loading) return <main style={s.center}><WaterLoader /></main>
   if (!profile) return (
-    <div style={s.center}>
-      <p style={{marginBottom:'20px'}}>No profile found.</p>
-      <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
-    </div>
+    <>
+      <div style={s.center}>
+        <p style={{marginBottom:'20px'}}>No profile found.</p>
+        <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
+      </div>
+      <RoomNav />
+    </>
   )
 
   const lang = profile.language || 'en'
@@ -425,10 +516,25 @@ function ProfileContent() {
   const hasPlan = !!(alignment_plan && alignment_plan.directional_clarity)
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
+  const chapterKey = full_name || 'anon'
+
+  // TOC — doar capitolele care chiar exista (v4). Trebuie sa oglindeasca
+  // exact id-urile Chapter din V4Sections + cele de mai jos.
+  const toc = useV4 ? [
+    sections.how_you_work && (sections.how_you_work.surface || sections.how_you_work.engine || sections.how_you_work.core) && { id: 'how-you-work', label: t(lang, 'how_you_work') },
+    Array.isArray(sections.friction_map) && sections.friction_map.some(f => f?.tension) && { id: 'friction-map', label: t(lang, 'friction_map') },
+    sections.aligned_life && { id: 'aligned-life', label: t(lang, 'aligned_life') },
+    Array.isArray(sections.strengths) && sections.strengths.length > 0 && { id: 'strengths', label: t(lang, 'strengths') },
+    Array.isArray(sections.vulnerabilities) && sections.vulnerabilities.length > 0 && { id: 'vulnerabilities', label: t(lang, 'vulnerabilities') },
+    Array.isArray(sections.decision_system) && sections.decision_system.length > 0 && { id: 'decision-system', label: t(lang, 'decision_system') },
+    sections.energy_manual && { id: 'energy-manual', label: t(lang, 'energy_manual') },
+    Array.isArray(sections.warning_signals) && sections.warning_signals.some(w => w?.signal) && { id: 'warning-signals', label: t(lang, 'warning_signals') },
+    { id: 'self-perspective', label: t(lang, 'self_perspective') },
+    hasPlan && { id: 'alignment-plan', label: t(lang, 'alignment_plan') },
+  ].filter(Boolean) : []
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
 
         <div style={s.header}>
@@ -437,10 +543,24 @@ function ProfileContent() {
             <h1 style={s.title}>{t(lang, 'profile_title')}</h1>
             {full_name && <p style={s.subtitle}>{t(lang, 'profile_generated_for')} {full_name}</p>}
           </div>
-          <button onClick={handleDownloadPDF} style={s.dlBtn}>
-            {t(lang, 'download_pdf')}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0 }}>
+            <button onClick={handleDownloadPDF} style={s.dlBtn}>
+              {t(lang, 'download_pdf')}
+            </button>
+            <SettingsIcon onClick={() => setSettingsOpen(true)} />
+          </div>
         </div>
+
+        {/* HUB DE IDENTITATE — lentile, compatibilitate, invitatii (sect. 6) */}
+        <Lenses profile={profile} lang={lang} />
+        <CompatCard lang={lang} />
+        {user?.id && <InviteHub userId={user.id} lang={lang} />}
+
+        {toc.length > 0 && (
+          <div className="chapter-toc">
+            {toc.map(c => <a key={c.id} href={`#${c.id}`} className="chapter-toc-item">{c.label}</a>)}
+          </div>
+        )}
 
         {personal_year && (
           <div style={s.personalYearCard}>
@@ -464,16 +584,15 @@ function ProfileContent() {
 
         {/* v4 profiles render the new sections; old v3 profiles fall back to legacy */}
         {useV4
-          ? <V4Sections sections={sections} lang={lang} s={s} />
+          ? <V4Sections sections={sections} lang={lang} s={s} storageKey={chapterKey} />
           : <LegacySections sections={sections} swot={swot} lang={lang} />
         }
 
         {/* Self Perspective — opportunities + threats only */}
-        <div style={s.card}>
-          <div style={s.cardLabel('var(--orange-light)', 'var(--orange)')}>{t(lang, 'self_perspective')}</div>
+        <Chapter id="self-perspective" title={t(lang, 'self_perspective')} storageKey={chapterKey} defaultOpen={!useV4}>
           <div style={s.swotGrid}>
             {[
-              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'✦' },
+              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'◦' },
               ...(swot?.threats && swot.threats.length ? [{ title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' }] : []),
             ].filter(q => q.items && q.items.length).map((q, i) => (
               <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
@@ -486,12 +605,11 @@ function ProfileContent() {
               </div>
             ))}
           </div>
-        </div>
+        </Chapter>
 
         {/* PLAN DE ALINIERE — complet, în curs de generare, sau deloc (niciodată gol) */}
         {hasPlan ? (
-          <div style={s.card}>
-            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
+          <Chapter id="alignment-plan" title={t(lang, 'alignment_plan')} storageKey={chapterKey}>
 
             <div style={s.planLayer}>
               <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
@@ -501,7 +619,7 @@ function ProfileContent() {
                   <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
                   <ul style={s.list}>
                     {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
                     ))}
                   </ul>
                 </div>
@@ -547,7 +665,7 @@ function ProfileContent() {
                   <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
                   <ul style={s.list}>
                     {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>✦</span>{item}</li>
+                      <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
                     ))}
                   </ul>
                 </div>
@@ -563,17 +681,17 @@ function ProfileContent() {
                   <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
                   <ul style={s.list}>
                     {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>✦</span>{item}</li>
+                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
                     ))}
                   </ul>
                 </div>
               </div>
             </div>
-          </div>
+          </Chapter>
         ) : planPending ? (
           <div style={{...s.card, textAlign:'center', padding:'36px 28px'}}>
             <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
-            <div style={{ fontSize:'32px', marginBottom:'14px' }} aria-hidden="true">✦</div>
+            <div style={{ fontSize:'32px', marginBottom:'14px' }} aria-hidden="true">◦</div>
             <p style={{ fontSize:'15px', lineHeight:'1.7', color:'var(--text-muted)', maxWidth:'420px', margin:'0 auto' }}>
               {PLAN_PENDING[lang] || PLAN_PENDING.en}
             </p>
@@ -590,18 +708,20 @@ function ProfileContent() {
           <p style={s.ctaText}>{t(lang, 'cta_text')}</p>
           <div style={s.ctaBtns}>
             <a href="/subscribe" style={s.ctaBtn}>{t(lang, 'cta_btn')}</a>
-            <a href="/dashboard" style={s.ctaBtnSecondary}>{t(lang, 'cta_dashboard')}</a><a href="/compatibility" style={s.ctaBtnSecondary}>{lang === 'ro' ? 'Profil de compatibilitate →' : 'Compatibility profile →'}</a>
           </div>
         </div>
 
       </main>
+
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} lang={lang} />
+      <RoomNav lang={lang} />
     </>
   )
 }
 
 const s = {
-  wrap: { maxWidth:'800px', margin:'0 auto', padding:'40px 24px 80px' },
-  center: { textAlign:'center', padding:'80px 20px', fontSize:'18px' },
+  wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px calc(140px + env(safe-area-inset-bottom))' },
+  center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px', fontSize:'18px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
   title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },

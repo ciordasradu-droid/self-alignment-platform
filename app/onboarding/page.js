@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation'
 import { t } from '../../lib/translations'
 import { useLanguage, LANGUAGES } from '../../lib/language'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
-import WaterVideoLayer from '../components/water/WaterVideoLayer'
 
 // Steaguri SVG inline — emoji-urile de steag nu se randeaza pe Windows
 // (cad pe coduri de litere), iar spec-ul cere steaguri, nu coduri.
@@ -248,7 +247,6 @@ export default function Onboarding() {
 
   return (
     <>
-      <WaterVideoLayer src="/ocean.mp4" poster="/ocean-poster.jpg" />
       <main className="ob">
 
         {step > 0 && (

@@ -71,7 +71,7 @@ export default function DailyInsight() {
       </svg>
 
       <div style={s.header}>
-        <span style={s.tag} className="shimmer-overlay">{"✦"} {t.tag}</span>
+        <span style={s.tag} className="shimmer-overlay">{t.tag}</span>
         <span style={s.date}>
           {new Date().toLocaleDateString(dateLocale, { weekday: "long", month: "long", day: "numeric" })}
         </span>
@@ -99,7 +99,7 @@ export default function DailyInsight() {
 }
 
 const s = {
-  card: { position: "relative", overflow: "hidden", background: "linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid var(--gold-faint)" },
+  card: { position: "relative", overflow: "hidden", background: "var(--surface)", backdropFilter: "blur(16px) saturate(120%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid var(--border)" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" },
   tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "var(--gold-faint)", padding: "5px 12px", borderRadius: "20px" },
   date: { fontSize: "12px", color: "rgba(255,255,255,0.4)" },
