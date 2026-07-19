@@ -6,6 +6,7 @@
 // scrisului. Zero vinovăție, zero explicații de ce n-ai scris.
 
 import { useState } from 'react'
+import { waterState } from '../../components/water/waterState'
 
 const L = {
   en: { btn:'One breath', during:'Breathe in… and out.', done:'Your presence is kept.' },
@@ -27,12 +28,18 @@ export default function OneBreath({ lang = 'en', onComplete }) {
   const start = () => {
     if (state !== 'idle') return
     setState('breathing')
+    // apa răspunde la respirație — se luminează pe durata gestului, apoi revine
+    waterState.setLight(65)
     fetch('/api/ritual', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ kind: 'one_breath', one_breath: true }),
     }).catch(() => {})
-    setTimeout(() => { setState('done'); if (onComplete) onComplete() }, 3000)
+    setTimeout(() => {
+      waterState.setLight(null)
+      setState('done')
+      if (onComplete) onComplete()
+    }, 3000)
   }
 
   if (state === 'done') {
@@ -42,7 +49,7 @@ export default function OneBreath({ lang = 'en', onComplete }) {
   if (state === 'breathing') {
     return (
       <div style={s.stage}>
-        <div style={s.ripple} aria-hidden="true" />
+        <div className="one-breath-ripple" style={s.ripple} aria-hidden="true" />
         <p style={s.during}>{lx(lang, 'during')}</p>
       </div>
     )

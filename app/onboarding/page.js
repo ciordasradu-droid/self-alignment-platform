@@ -135,6 +135,31 @@ const TX = {
     pl: 'Gotowy w 2–3 minuty. Raz, na zawsze.',
     hu: 'Kész 2–3 perc alatt. Egyszer, örökre.',
   },
+  // Poziționare (secț. 8, GDPR minim) — vizibil înaintea generării, nu ascuns.
+  disclaimer: {
+    en: 'This is a reflection tool — not medical, psychological, or financial advice.',
+    ro: 'Acesta este un instrument de reflecție — nu sfat medical, psihologic sau financiar.',
+    es: 'Esta es una herramienta de reflexión — no es un consejo médico, psicológico ni financiero.',
+    fr: 'Ceci est un outil de réflexion — pas un conseil médical, psychologique ou financier.',
+    de: 'Dies ist ein Reflexionswerkzeug — keine medizinische, psychologische oder finanzielle Beratung.',
+    it: 'Questo è uno strumento di riflessione — non un consiglio medico, psicologico o finanziario.',
+    pt: 'Esta é uma ferramenta de reflexão — não é um conselho médico, psicológico ou financeiro.',
+    nl: 'Dit is een reflectiemiddel — geen medisch, psychologisch of financieel advies.',
+    pl: 'To narzędzie do refleksji — nie porada medyczna, psychologiczna ani finansowa.',
+    hu: 'Ez egy önreflexiós eszköz — nem orvosi, pszichológiai vagy pénzügyi tanács.',
+  },
+  consent: {
+    en: 'I understand this is a reflection tool, not professional advice.',
+    ro: 'Am înțeles că acesta e un instrument de reflecție, nu un sfat profesionist.',
+    es: 'Entiendo que esta es una herramienta de reflexión, no un consejo profesional.',
+    fr: "Je comprends que c'est un outil de réflexion, pas un conseil professionnel.",
+    de: 'Ich verstehe, dass dies ein Reflexionswerkzeug ist, keine professionelle Beratung.',
+    it: 'Capisco che questo è uno strumento di riflessione, non una consulenza professionale.',
+    pt: 'Entendo que esta é uma ferramenta de reflexão, não um conselho profissional.',
+    nl: 'Ik begrijp dat dit een reflectiemiddel is, geen professioneel advies.',
+    pl: 'Rozumiem, że to narzędzie do refleksji, a nie porada profesjonalna.',
+    hu: 'Megértettem, hogy ez egy önreflexiós eszköz, nem szakmai tanács.',
+  },
 }
 const tx = (lang, key) => TX[key][lang] || TX[key].en
 
@@ -153,6 +178,7 @@ export default function Onboarding() {
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
   const [startingPoint, setStartingPoint] = useState('')
+  const [consentChecked, setConsentChecked] = useState(false)
 
   const [cityValue, setCityValue] = useState('')
   const [citySuggestions, setCitySuggestions] = useState([])
@@ -345,8 +371,22 @@ export default function Onboarding() {
               onChange={e => setStartingPoint(e.target.value)}
             />
             <p className="ob-hint">{tx(lang, 'start_hint')}</p>
-            <button className="ob-cta" onClick={handleGenerate} disabled={loading}
-                    style={{ opacity: loading ? 0.7 : 1 }}>
+
+            {/* Poziționare GDPR minimă (secț. 8) — vizibilă, nu ascunsă, cu
+                consimțământ explicit înainte de generare. */}
+            <p className="ob-hint" style={{ marginTop: '4px' }}>{tx(lang, 'disclaimer')}</p>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '14px 0', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={consentChecked}
+                onChange={(e) => setConsentChecked(e.target.checked)}
+                style={{ marginTop: '3px', width: '18px', height: '18px', flexShrink: 0 }}
+              />
+              <span className="ob-hint" style={{ marginTop: 0 }}>{tx(lang, 'consent')}</span>
+            </label>
+
+            <button className="ob-cta" onClick={handleGenerate} disabled={loading || !consentChecked}
+                    style={{ opacity: (loading || !consentChecked) ? 0.7 : 1 }}>
               {loading ? t(lang, 'generating_btn') : tx(lang, 'generate')}
             </button>
             <p className="ob-ready">{tx(lang, 'ready_note')}</p>

@@ -36,10 +36,29 @@ export default function DailyInsight({ embedded = false }) {
       const profile = JSON.parse(stored)
       const hdType = profile.hd_data?.type || "Generator"
       const userLang = profile.language || "en"
+      const dayFormat = getDailyThoughtFormat()
       setLang(userLang)
-      setFormat(getDailyThoughtFormat())
-      const thought = getDailyThought(hdType, userLang)
-      setInsight(thought)
+      setFormat(dayFormat)
+
+      // fallback imediat, din banca statică — niciodată ecran gol cât timp
+      // generarea reală răspunde (sau eșuează: cheie lipsă, rețea, etc.)
+      setInsight(getDailyThought(hdType, userLang))
+
+      if (profile.date_of_birth) {
+        fetch("/api/daily-insight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            profile,
+            personal_year: profile.personal_year,
+            format: dayFormat,
+            language: userLang,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => { if (d.success) setInsight(d.insight) })
+          .catch(() => {}) // fallback-ul static rămâne pe ecran
+      }
     } catch (e) {
       console.error("Error loading daily thought:", e)
     }

@@ -68,8 +68,12 @@ function DashboardContent() {
   const showing = ritual || naturally
   const other = showing === 'morning' ? 'evening' : 'morning'
 
+  // Mod-noapte pe tot Azi de la ora serii (secț. 3/4) — indiferent care
+  // ritual e afișat manual, ceasul decide atmosfera întregului ecran.
+  const isNight = hour >= 17 || hour < 6
+
   return (
-    <main className="room-shell">
+    <main className={`room-shell${isNight ? ' night-mode' : ''}`}>
 
       {/* locul apei/lacrimii: ecranul se deschide pe apă, nu pe carduri */}
       <div style={{ height: 'min(30vh, 220px)' }} aria-hidden="true" />
@@ -87,6 +91,7 @@ function DashboardContent() {
         ) : (
           <EveningMirror
             lang={lang}
+            name={firstName}
             done={today.evening}
             onComplete={refresh}
           />

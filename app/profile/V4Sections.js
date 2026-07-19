@@ -198,11 +198,11 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
 
 // ---- v4-specific styles (named `v` to avoid clashing with page `s`) ----
 const v = {
-  archetypeCard: { position:'relative', overflow:'hidden', background:'linear-gradient(135deg, var(--water-deep) 0%, var(--water-plum) 100%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center', border:'1px solid var(--border)' },
+  archetypeCard: { position:'relative', overflow:'hidden', background:'var(--surface)', backdropFilter:'blur(16px) saturate(120%)', borderRadius:'var(--radius)', padding:'40px 32px', marginBottom:'24px', textAlign:'center', border:'1px solid var(--border)' },
   archetypeGlow: { position:'absolute', top:'-40%', left:'50%', transform:'translateX(-50%)', width:'320px', height:'320px', background:'radial-gradient(circle, rgba(229,169,60,0.22) 0%, transparent 70%)', pointerEvents:'none' },
-  archetypeLabel: { position:'relative', fontSize:'12px', letterSpacing:'2px', textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:'14px' },
-  archetypeName: { position:'relative', fontSize:'clamp(28px, 6vw, 44px)', fontWeight:'700', color:'#fff', fontFamily:'Cormorant Garamond, serif', lineHeight:1.1, marginBottom:'16px' },
-  archetypeDesc: { position:'relative', fontSize:'16px', lineHeight:'1.8', color:'rgba(255,255,255,0.85)', maxWidth:'640px', margin:'0 auto' },
+  archetypeLabel: { position:'relative', fontSize:'12px', letterSpacing:'2px', textTransform:'uppercase', color:'var(--text-light)', marginBottom:'14px' },
+  archetypeName: { position:'relative', fontSize:'clamp(28px, 6vw, 44px)', fontWeight:'700', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1.1, marginBottom:'16px' },
+  archetypeDesc: { position:'relative', fontSize:'16px', lineHeight:'1.8', color:'var(--text-muted)', maxWidth:'640px', margin:'0 auto' },
 
   layerStack: { display:'flex', flexDirection:'column', gap:'18px' },
   workLayer: { paddingLeft:'18px', borderLeft:'2px solid var(--border)' },
@@ -214,7 +214,7 @@ const v = {
   frictionItem: { paddingBottom:'24px', borderBottom:'1px solid var(--border)' },
   frictionTension: { fontSize:'17px', fontWeight:'600', color:'var(--text)', marginBottom:'14px', fontFamily:'Cormorant Garamond, serif' },
   pullRow: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'12px', marginBottom:'14px' },
-  pullBox: (c) => ({ position:'relative', background:'var(--bg)', borderRadius:'10px', padding:'14px 14px 14px 16px', borderLeft:`3px solid ${c}` }),
+  pullBox: (c) => ({ position:'relative', background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'14px 14px 14px 16px', borderLeft:`3px solid ${c}` }),
   pullTag: (c) => ({ display:'inline-flex', alignItems:'center', justifyContent:'center', width:'20px', height:'20px', borderRadius:'50%', background:c, color:'#fff', fontSize:'11px', fontWeight:'700', marginBottom:'8px' }),
   pullText: { fontSize:'14px', lineHeight:'1.6', color:'var(--text)' },
   frictionMeta: { fontSize:'13.5px', lineHeight:'1.65', color:'var(--text-muted)', marginTop:'8px' },
@@ -222,11 +222,11 @@ const v = {
 
   decisionStack: { display:'flex', flexDirection:'column' },
 
-  energyBox: (c) => ({ background:'var(--bg)', borderRadius:'10px', padding:'18px', borderTop:`3px solid ${c}` }),
+  energyBox: (c) => ({ background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'18px', borderTop:`3px solid ${c}` }),
   energyLabel: (c) => ({ fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:c, marginBottom:'10px' }),
 
   signalStack: { display:'flex', flexDirection:'column', gap:'18px' },
-  signalItem: { background:'var(--bg)', borderRadius:'10px', padding:'16px' },
+  signalItem: { background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'16px' },
   signalFeel: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'6px' },
   signalPattern: { fontSize:'14px', lineHeight:'1.6', color:'var(--text-muted)', marginBottom:'8px' },
   signalExit: { fontSize:'14px', fontWeight:'600', color:'var(--green)', lineHeight:'1.6' }

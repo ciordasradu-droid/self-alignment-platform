@@ -15,12 +15,12 @@
   --gold-soft:   rgba(224, 179, 106, 0.34);
   --gold-faint:  rgba(224, 179, 106, 0.14);
   --pearl:       #f4ecd9;
-  --gold-deep:   #e08a3c;
+  --gold-deep:   #c9963f;
 
   /* Core palette — recalibrată pentru adâncime */
   --purple: #e0b36a;
   --purple-light: rgba(224, 179, 106, 0.14);
-  --purple-dark: #e08a3c;
+  --purple-dark: #c9963f;
   /* v5, sect. 3: verde/teal interzis ca accent — ruta prin auriu, nu prin
      verde. Numele variabilei ramane (folosit in zeci de fisiere), valoarea nu. */
   --green: #e0b36a;
@@ -41,8 +41,8 @@
   /* Warm/cool glow tokens (for soft auras + selected states) */
   --purple-glow: rgba(224, 179, 106, 0.14);
   --purple-glow-soft: rgba(224, 179, 106, 0.14);
-  --green-glow: rgba(74, 155, 127, 0.35);
-  --green-glow-soft: rgba(74, 155, 127, 0.14);
+  --green-glow: rgba(229, 169, 60, 0.35);
+  --green-glow-soft: rgba(229, 169, 60, 0.14);
   --orange-glow: rgba(229, 169, 60, 0.35);
   --orange-glow-soft: rgba(229, 169, 60, 0.14);
   --amber-glow: rgba(212, 165, 116, 0.30);
@@ -54,13 +54,13 @@
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-glow: 0 0 24px var(--purple-glow-soft);
   --shadow-glow-purple: 0 0 24px rgba(224, 179, 106, 0.14);
-  --shadow-glow-green: 0 0 24px rgba(74, 155, 127, 0.20);
-  --shadow-glow-orange: 0 0 24px rgba(232, 130, 74, 0.20);
+  --shadow-glow-green: 0 0 24px rgba(229, 169, 60, 0.20);
+  --shadow-glow-orange: 0 0 24px rgba(229, 169, 60, 0.20);
 
   /* Soft gradients */
   --gradient-warm: linear-gradient(135deg, var(--purple-light) 0%, var(--orange-light) 100%);
-  --gradient-purple: linear-gradient(135deg, #e0b36a 0%, #e08a3c 100%);
-  --gradient-purple-orange: linear-gradient(135deg, #e0b36a 0%, #e08a3c 100%);
+  --gradient-purple: linear-gradient(135deg, #e0b36a 0%, #c9963f 100%);
+  --gradient-purple-orange: linear-gradient(135deg, #e0b36a 0%, #c9963f 100%);
   --gradient-amber: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
   --gradient-timeline: linear-gradient(180deg, var(--purple) 0%, rgba(224, 179, 106, 0.14) 100%);
 
@@ -160,8 +160,8 @@ input:focus, textarea:focus, select:focus {
   z-index: -1;
   background:
     radial-gradient(ellipse 90% 55% at 50% 100%, var(--gold-faint) 0%, transparent 60%),
-    radial-gradient(ellipse at 18% 22%, rgba(168, 146, 232, 0.10) 0%, transparent 52%),
-    radial-gradient(ellipse at 84% 74%, rgba(111, 211, 174, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 18% 22%, rgba(212, 165, 116, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse at 84% 74%, rgba(224, 179, 106, 0.06) 0%, transparent 50%);
   animation: cosmic-breathing 18s var(--ease-soft) infinite;
 }
 /* caustice — rețea de lumină refractată, foarte discretă */
@@ -296,6 +296,26 @@ input:focus, textarea:focus, select:focus {
 .ritual-night {
   background: rgba(6, 6, 16, 0.55) !important;
   border-color: rgba(229, 169, 60, 0.10) !important;
+}
+
+/* ---------- Mod-noapte pe tot Azi, de la ora serii (secț. 3/4) ----------
+   Aurul devine chihlimbar (mai domol, nu stins) și tot ce e pe ecran
+   moștenește tonul — un singur schimb de variabile, fără alb pur nicăieri.
+   Animațiile continue de pe Azi (inel, puls) încetinesc — seara nu grăbește. */
+.night-mode {
+  --gold: #b8813f;
+  --gold-soft: rgba(184, 129, 63, 0.30);
+  --gold-faint: rgba(184, 129, 63, 0.14);
+  --amber: #b8813f;
+  --amber-glow: rgba(184, 129, 63, 0.26);
+  --border: rgba(184, 129, 63, 0.14);
+}
+.night-mode .wd-ring,
+.night-mode .water-loader i {
+  animation-duration: 3.6s !important;
+}
+.night-mode .one-breath-ripple {
+  animation-duration: 4.2s !important;
 }
 
 /* ---------- LEGEA 3 — navigarea curge ---------- */
@@ -463,50 +483,8 @@ input:focus, textarea:focus, select:focus {
 .rating-btn:active {
   transform: scale(0.96);
 }
-.rating-btn-purple.rating-btn:hover { box-shadow: 0 0 18px var(--purple-glow-soft); }
-.rating-btn-green.rating-btn:hover  { box-shadow: 0 0 18px var(--green-glow-soft); }
-.rating-btn-orange.rating-btn:hover { box-shadow: 0 0 18px var(--orange-glow-soft); }
-
-/* FeelingCheckin emotion buttons */
-.feeling-btn {
-  transition: transform 0.20s var(--ease-out), box-shadow 0.20s ease, background-color 0.20s ease, border-color 0.20s ease, color 0.20s ease;
-}
-.feeling-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(224, 179, 106, 0.14);
-  border-color: var(--purple) !important;
-  color: var(--purple);
-}
-.feeling-btn:active {
-  transform: translateY(0) scale(0.97);
-}
-
-/* DailyIntention list buttons */
-.intention-btn {
-  position: relative;
-  transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease, border-color 0.22s ease;
-}
-.intention-btn::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: transparent;
-  border-radius: 12px 0 0 12px;
-  transition: background 0.22s ease;
-}
-.intention-btn:hover {
-  transform: translateX(2px);
-  box-shadow: 0 4px 14px rgba(224, 179, 106, 0.14);
-}
-.intention-btn:hover::before {
-  background: var(--purple);
-}
-.intention-btn:active {
-  transform: translateX(2px) scale(0.99);
-}
+/* rating-btn/feeling-btn/intention-btn (pre-v5 check-in UI) — șterse, orfane
+   după rescrierea pe ritualuri (0 referințe în JS, confirmat prin grep). */
 
 /* Stats row (dashboard) â€” gentle hover lift on each stat card */
 .stats-row > div {
@@ -523,7 +501,6 @@ input:focus, textarea:focus, select:focus {
 
 /* Selected state aura â€” apply with category color via inline style if needed */
 .aura-purple { box-shadow: 0 0 18px var(--purple-glow); }
-.aura-green  { box-shadow: 0 0 18px var(--green-glow); }
 .aura-orange { box-shadow: 0 0 18px var(--orange-glow); }
 
 /* Streak/score gradient text */
@@ -580,24 +557,9 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Done state â€” celebratory checkmark badge */
-.checkmark-celebrate {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--green-light);
-  color: var(--green);
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 auto 14px;
-  box-shadow: 0 0 24px var(--green-glow-soft);
-}
-
 /* Question box left accent */
 .question-accent-orange {
-  border-left: 3px solid rgba(232, 130, 74, 0.55);
+  border-left: 3px solid var(--gold-soft);
 }
 
 /* ============================================================
@@ -620,175 +582,8 @@ input:focus, textarea:focus, select:focus {
 .dashboard-cards-stagger > *:nth-child(11) { animation-delay: 0.88s; }
 .dashboard-cards-stagger > *:nth-child(n+12) { animation-delay: 0.96s; }
 
-/* ============================================================
-   FEELING CHECK-IN â€” 8 emotion gradients, circular cards
-   ============================================================ */
-
-.feeling-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 14px;
-  padding: 4px 0;
-}
-
-.feeling-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 4px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
-}
-
-.feeling-circle {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  position: relative;
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.06));
-}
-
-.feeling-card:hover .feeling-circle {
-  transform: translateY(-3px) scale(1.06);
-}
-
-.feeling-card:active .feeling-circle {
-  transform: translateY(0) scale(1.02);
-}
-
-.feeling-card.selected .feeling-circle {
-  transform: scale(1.15);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(224, 179, 106, 0.14);
-  animation: ring-bloom 0.6s var(--ease-out);
-}
-
-.feeling-card.dimmed { opacity: 0.4; transform: scale(0.96); }
-
-.feeling-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-align: center;
-  transition: color 0.3s ease, font-weight 0.3s ease;
-}
-.feeling-card.selected .feeling-label { color: var(--text); font-weight: 600; }
-
-/* 8 emotion gradient backgrounds, indexed by position */
-.feeling-bg-0 { background: linear-gradient(135deg, #7dc7a8 0%, #4a9b7f 100%); } /* satisfied â€” green-teal */
-.feeling-bg-1 { background: linear-gradient(135deg, #e8824a 0%, #c44d4d 100%); } /* frustrated â€” red-orange */
-.feeling-bg-2 { background: linear-gradient(135deg, #f5d976 0%, #e8a945 100%); } /* energized â€” yellow-amber */
-.feeling-bg-3 { background: linear-gradient(135deg, #b0bcc8 0%, #6b7e93 100%); } /* exhausted â€” gray-blue */
-.feeling-bg-4 { background: linear-gradient(135deg, #e0b36a 0%, #5a4994 100%); } /* in-flow â€” purple-indigo */
-.feeling-bg-5 { background: linear-gradient(135deg, #f29555 0%, #d4513c 100%); } /* forcing â€” orange-red */
-.feeling-bg-6 { background: linear-gradient(135deg, #f5b8c4 0%, #e08a9c 100%); } /* content â€” pink-rose */
-.feeling-bg-7 { background: linear-gradient(135deg, #f0c97a 0%, #d99454 100%); } /* restless â€” amber-yellow */
-
-@keyframes ring-bloom {
-  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9), 0 0 0 0 rgba(224, 179, 106, 0.14); }
-  60% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 32px 4px rgba(224, 179, 106, 0.14); }
-  100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 28px rgba(224, 179, 106, 0.14); }
-}
-
-.feeling-done-wrap {
-  text-align: center;
-  padding: 32px 16px 18px;
-}
-.feeling-done-circle {
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 44px;
-  filter: drop-shadow(0 8px 24px rgba(224, 179, 106, 0.14));
-}
-.feeling-done-name {
-  font-size: 26px;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 8px;
-}
-.feeling-done-message {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-style: italic;
-  line-height: 1.6;
-  max-width: 320px;
-  margin: 0 auto;
-}
-
-/* ============================================================
-   CHECK-IN RATING â€” emoji slider
-   ============================================================ */
-
-.rating-slider {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 18px 4px 12px;
-}
-
-.rating-slider::before {
-  content: '';
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  top: 50%;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #d4756e 0%, #d99454 30%, #d4b454 50%, #88b86a 75%, #4a9b7f 100%);
-  opacity: 0.35;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.rating-emoji {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-width: 40px;
-  max-width: 56px;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: grayscale(0.4);
-  transition: transform 0.22s var(--ease-out), box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease, filter 0.22s ease;
-}
-
-.rating-emoji:hover { transform: scale(1.08); filter: grayscale(0); }
-.rating-emoji:active { transform: scale(0.96); }
-
-.rating-emoji.selected {
-  filter: grayscale(0);
-  transform: scale(1.18) translateY(-6px);
-}
-.rating-emoji-1.selected { border-color: #d4756e; background: #fff1ef; box-shadow: 0 8px 22px rgba(212, 117, 110, 0.4); }
-.rating-emoji-2.selected { border-color: #d99454; background: #fdf3e8; box-shadow: 0 8px 22px rgba(217, 148, 84, 0.4); }
-.rating-emoji-3.selected { border-color: #d4b454; background: #fef9e6; box-shadow: 0 8px 22px rgba(212, 180, 84, 0.4); }
-.rating-emoji-4.selected { border-color: #88b86a; background: #eff8e6; box-shadow: 0 8px 22px rgba(136, 184, 106, 0.4); }
-.rating-emoji-5.selected { border-color: #4a9b7f; background: #e8f7f2; box-shadow: 0 8px 22px rgba(74, 155, 127, 0.45); }
+/* feeling-check-in + rating-emoji (pre-v5 check-in UI) — șterse, orfane
+   (0 referințe în JS, confirmat prin grep; ritualurile noi le-au înlocuit). */
 
 /* ============================================================
    DAILY THOUGHT â€” animated gradient border + mandala bg
@@ -799,8 +594,7 @@ input:focus, textarea:focus, select:focus {
 }
 @keyframes glow-shift {
   0%, 100% { box-shadow: 0 0 0 1.5px rgba(224, 179, 106, 0.14), 0 8px 28px rgba(224, 179, 106, 0.14); }
-  33%      { box-shadow: 0 0 0 1.5px rgba(212, 165, 116, 0.55), 0 8px 28px rgba(212, 165, 116, 0.18); }
-  66%      { box-shadow: 0 0 0 1.5px rgba(74, 155, 127, 0.50), 0 8px 28px rgba(74, 155, 127, 0.18); }
+  50%      { box-shadow: 0 0 0 1.5px rgba(212, 165, 116, 0.45), 0 8px 28px rgba(212, 165, 116, 0.18); }
 }
 
 .mandala-bg {
@@ -821,156 +615,14 @@ input:focus, textarea:focus, select:focus {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   INTENTION â€” gradient left border, dramatic hover, breathing selected
-   ============================================================ */
+/* .intention-card/.intention-selected (pre-v5) — șterse, orfane. */
 
-.intention-card {
-  position: relative;
-  border-left: 3px solid transparent !important;
-  background-image: linear-gradient(var(--bg), var(--bg)),
-                    linear-gradient(180deg, var(--purple) 0%, var(--orange) 100%) !important;
-  background-origin: border-box !important;
-  background-clip: padding-box, border-box !important;
-  transition: transform 0.28s var(--ease-out), box-shadow 0.28s ease, border-left-width 0.28s ease, padding-left 0.28s ease;
-}
-.intention-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 36px rgba(232, 130, 74, 0.16);
-}
-.intention-card:active { transform: translateY(-3px); }
-
-.intention-selected {
-  text-align: center;
-  padding: 32px 24px;
-  background: radial-gradient(ellipse at center, rgba(212, 165, 116, 0.12) 0%, transparent 70%);
-  border-radius: 16px;
-  animation: breathe-slow 4s var(--ease-soft) infinite;
-}
-@keyframes breathe-slow {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.01); }
-}
-
-/* ============================================================
-   ALIGNMENT SCORE â€” circular ring + animated gradient text
-   ============================================================ */
-
-.score-ring-wrap {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  margin: 8px auto 16px;
-}
-.score-ring-svg { position: absolute; inset: 0; transform: rotate(-90deg); }
-.score-ring-track { fill: none; stroke: var(--border); stroke-width: 8; }
-.score-ring-progress {
-  fill: none;
-  stroke: url(#scoreGradient);
-  stroke-width: 8;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1.2s var(--ease-out);
-  filter: drop-shadow(0 0 6px rgba(224, 179, 106, 0.14));
-}
-.score-ring-center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-.score-number {
-  font-size: 56px;
-  font-weight: 700;
-  font-family: 'Nunito', system-ui, sans-serif;
-  line-height: 1;
-  background: linear-gradient(135deg, var(--purple) 0%, var(--amber) 50%, var(--orange) 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: gradient-flow 6s ease-in-out infinite;
-}
+/* score-ring/streak-fire/day-dot-fill/celebrate/check-svg (pre-v5) — șterse,
+   orfane (0 referințe în JS). @keyframes gradient-flow păstrat — folosit
+   încă de gradient-text-fast/cta-premium/onboarding-title-huge. */
 @keyframes gradient-flow {
   0%, 100% { background-position: 0% 50%; }
   50%      { background-position: 100% 50%; }
-}
-.score-of-100 { font-size: 14px; color: var(--text-muted); }
-
-/* ============================================================
-   STREAK â€” fire emoji flicker + sequential day fill
-   ============================================================ */
-
-.streak-fire {
-  display: inline-block;
-  margin-right: 6px;
-  animation: flicker 1.6s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(232, 130, 74, 0.5));
-  transform-origin: bottom center;
-}
-@keyframes flicker {
-  0%, 100% { transform: scale(1) rotate(-1.5deg); opacity: 1; }
-  25%      { transform: scale(1.06) rotate(2deg); opacity: 0.92; }
-  50%      { transform: scale(1.02) rotate(-2deg); opacity: 1; }
-  75%      { transform: scale(1.04) rotate(1deg); opacity: 0.95; }
-}
-
-.day-dot-fill {
-  animation: day-fill 0.45s var(--ease-bounce) backwards;
-}
-@keyframes day-fill {
-  0%   { transform: scale(0.4); opacity: 0; background-color: var(--border); }
-  60%  { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.day-fill-1 { animation-delay: 0.05s; }
-.day-fill-2 { animation-delay: 0.15s; }
-.day-fill-3 { animation-delay: 0.25s; }
-.day-fill-4 { animation-delay: 0.35s; }
-.day-fill-5 { animation-delay: 0.45s; }
-.day-fill-6 { animation-delay: 0.55s; }
-.day-fill-7 { animation-delay: 0.65s; }
-
-/* ============================================================
-   CELEBRATION â€” SVG checkmark draw + confetti
-   ============================================================ */
-
-.celebrate-wrap {
-  position: relative;
-  text-align: center;
-  padding: 28px 16px 12px;
-  overflow: visible;
-}
-
-.celebrate-glow {
-  animation: golden-pulse 1.8s var(--ease-soft);
-}
-@keyframes golden-pulse {
-  0%, 100% { box-shadow: var(--shadow); }
-  35%      { box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.35), 0 0 38px rgba(212, 165, 116, 0.45); }
-}
-
-.check-svg {
-  display: block;
-  margin: 0 auto 18px;
-  filter: drop-shadow(0 8px 22px rgba(74, 155, 127, 0.35));
-}
-.check-circle-bg { fill: var(--green-light); }
-.check-path {
-  fill: none;
-  stroke: var(--green);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 28;
-  stroke-dashoffset: 28;
-  animation: draw-check 0.55s 0.18s var(--ease-out) forwards;
-}
-@keyframes draw-check {
-  to { stroke-dashoffset: 0; }
 }
 
 .confetti-layer {
@@ -1346,93 +998,8 @@ input:focus, textarea:focus, select:focus {
 .mock-line-3 { width: 82%; opacity: 0.22; filter: blur(0.6px); }
 .mock-line-4 { width: 60%; opacity: 0.18; filter: blur(0.9px); }
 
-/* Mock rating preview (used in story card 2) â€” uses real emoji slider styling */
-.mock-rating {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 4px;
-  position: relative;
-}
-.mock-rating::before {
-  content: '';
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  top: 50%;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #d4756e 0%, #d99454 30%, #d4b454 50%, #88b86a 75%, #4a9b7f 100%);
-  opacity: 0.35;
-  transform: translateY(-50%);
-  z-index: 0;
-}
-.mock-rating-emoji {
-  position: relative;
-  z-index: 1;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: #fff;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.mock-rating-emoji.active {
-  border-color: #4a9b7f;
-  background: #e8f7f2;
-  transform: scale(1.18) translateY(-4px);
-  box-shadow: 0 6px 18px rgba(74, 155, 127, 0.45);
-}
-
-/* Mock streak preview (used in story card 3) */
-.mock-streak {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  border-radius: 14px;
-  padding: 16px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-.mock-streak-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.mock-streak-num {
-  font-size: 32px;
-  font-weight: 700;
-  font-family: 'Cormorant Garamond', serif;
-  background: linear-gradient(135deg, var(--orange) 0%, var(--amber) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  line-height: 1;
-}
-.mock-streak-fire {
-  font-size: 22px;
-  filter: drop-shadow(0 0 6px rgba(232, 130, 74, 0.5));
-}
-.mock-streak-dots {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-}
-.mock-streak-dot {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--border);
-}
-.mock-streak-dot.filled {
-  background: linear-gradient(90deg, var(--purple), var(--amber));
-  box-shadow: 0 0 8px rgba(224, 179, 106, 0.14);
-}
+/* mock-rating/mock-streak (pre-v5 landing preview) — șterse, orfane
+   (landing folosește acum .mock-water, nu acestea). */
 
 /* Mock pillars (used in story card 4) */
 .mock-pillars {
@@ -1750,25 +1317,7 @@ input:focus, textarea:focus, select:focus {
   100% { background-position: 0 200%; }
 }
 
-.unlock-sparkle {
-  position: relative;
-}
-.unlock-sparkle::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
-  top: 1px;
-  right: 1px;
-  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.7);
-  animation: sparkle-twinkle 2.6s ease-in-out infinite;
-}
-@keyframes sparkle-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.5); }
-  50%      { opacity: 1; transform: scale(1.1); }
-}
+/* unlock-sparkle (pre-v5, parte din ProgressiveUnlock.js) — șters, orfan. */
 
 /* ============================================================
    REDUCED MOTION â€” respect user preference
