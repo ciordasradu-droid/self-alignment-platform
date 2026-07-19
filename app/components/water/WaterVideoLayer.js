@@ -26,6 +26,7 @@ const FADE = 1.1 // secunde de suprapunere la cusatura
 export default function WaterVideoLayer({ src = '/videos/atmosfera.mp4', poster = '/videos/atmosfera-poster.jpg' }) {
   const [mounted, setMounted] = useState(false)
   const [motion, setMotion] = useState(true) // false = reduced-motion: doar poster
+  const [broken, setBroken] = useState(false) // true = video n-a putut porni: doar poster
   const slotA = useRef(null)
   const slotB = useRef(null)
   const vids = [slotA, slotB]
@@ -113,16 +114,19 @@ export default function WaterVideoLayer({ src = '/videos/atmosfera.mp4', poster 
   const layer = (
     <div className="watervideo" aria-hidden="true">
       {/* posterul (primul cadru) — sub video, mereu prezent: gol de incarcare +
-          singurul strat vizibil la reduced-motion */}
+          fallback la reduced-motion SAU daca placa nu poate porni */}
       <img className="watervideo-poster" src={poster} alt="" />
-      {motion && (
+      {motion && !broken && (
         <>
           <video ref={slotA} className="watervideo-el" style={{ opacity: 1 }}
-                 src={src} poster={poster} muted playsInline autoPlay preload="auto" />
+                 src={src} poster={poster} muted playsInline autoPlay preload="auto"
+                 onError={() => setBroken(true)} />
           <video ref={slotB} className="watervideo-el" style={{ opacity: 0 }}
-                 src={src} poster={poster} muted playsInline preload="auto" />
+                 src={src} poster={poster} muted playsInline preload="auto"
+                 onError={() => setBroken(true)} />
         </>
       )}
+      <div className="watervideo-gradient" />
     </div>
   )
   return createPortal(layer, document.body)
