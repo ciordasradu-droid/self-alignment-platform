@@ -14,14 +14,16 @@
 //   pagina ar cadea sub containing-block-ul lui .flow-in (transform+filter) si
 //   s-ar prabusi la inaltime 0. In body scapa de orice stramos transformat.
 //
-// Cand vin placile Veo per stadiu: se schimba props `src`/`poster`, nu codul.
+// Placile Veo (v5 sect. 4): atmosfera = fundalul global implicit. picatura
+// e procesata si gata in public/videos/, dar NECONECTATA inca la nicio
+// interactiune noua — asta ar fi o decizie de produs separata.
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const FADE = 1.1 // secunde de suprapunere la cusatura
 
-export default function WaterVideoLayer({ src = '/ocean.mp4', poster = '/ocean-poster.jpg' }) {
+export default function WaterVideoLayer({ src = '/videos/atmosfera.mp4', poster = '/videos/atmosfera-poster.jpg' }) {
   const [mounted, setMounted] = useState(false)
   const [motion, setMotion] = useState(true) // false = reduced-motion: doar poster
   const slotA = useRef(null)
