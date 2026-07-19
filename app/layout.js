@@ -5,6 +5,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import WaterVideoLayer from "./components/water/WaterVideoLayer";
+import InteractionLayer from "./components/water/InteractionLayer";
 import ServiceWorker from "./components/ServiceWorker";
 
 const geistSans = Geist({
@@ -53,6 +54,8 @@ export default function RootLayout({ children }) {
         />
         {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
         <WaterVideoLayer />
+        {/* LEGEA 2 — orice atingere naste o unda, peste tot (pas 5, 2D). */}
+        <InteractionLayer />
         <div id="app-surface">{children}</div>
         <ServiceWorker />
       </body>

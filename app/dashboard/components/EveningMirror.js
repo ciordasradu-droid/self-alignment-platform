@@ -31,6 +31,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
   const [saving, setSaving] = useState(false)
   const [sent, setSent] = useState(done)
   const [dimmed, setDimmed] = useState(false)
+  const [rainStage, setRainStage] = useState('idle') // idle | falling | splash
 
   const who = name ? `, ${name}` : ''
   // Duminică seara, intenția devine pentru săptămâna care vine, nu pentru
@@ -38,26 +39,38 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
   const isSunday = new Date().getDay() === 0
   const intentionLabel = lx(lang, isSunday ? 'intentionWeek' : 'intention')
 
-  const save = async () => {
-    if (saving) return
-    setSaving(true)
-    try {
-      await fetch('/api/ritual', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kind: 'evening',
-          evening_journal: journal.trim(),
-          gratitude: gratitude.trim(),
-          intention: intention.trim(),
-        }),
-      })
-    } catch (e) { /* prezența rămâne */ }
+  const finish = () => {
     setSent(true)
     setSaving(false)
     if (onComplete) onComplete()
     // ecranul se stinge lent, după ce mesajul de închidere apare
     setTimeout(() => setDimmed(true), 900)
+  }
+
+  const save = () => {
+    if (saving) return
+    setSaving(true)
+    fetch('/api/ritual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'evening',
+        evening_journal: journal.trim(),
+        gratitude: gratitude.trim(),
+        intention: intention.trim(),
+      }),
+    }).catch(() => {}) // prezența rămâne chiar și la o eroare de rețea
+
+    // gestul: picătura 2D care cade + inele + strop — înlocuiește butonul
+    // static de dinainte. Textul butonului rămâne interimar (TODO bloc 5,
+    // lacrima vie 3D), doar gestul de aici e cel real acum.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) { finish(); return }
+    setRainStage('falling')
+    setTimeout(() => {
+      setRainStage('splash')
+      setTimeout(finish, 400)
+    }, 380)
   }
 
   if (sent) {
@@ -72,61 +85,78 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
 
   return (
     <div className="glass ritual-night flow-in" style={s.card}>
-      <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
-
-      {/* pas 1 — jurnalul apare singur */}
-      <p style={s.label}>{lx(lang, 'journal')}</p>
-      <textarea
-        value={journal}
-        onChange={(e) => setJournal(e.target.value)}
-        onFocus={() => setJournalTouched(true)}
-        rows={4}
-        className="input-clean journal-paper"
-        style={s.textarea}
-      />
-
-      {/* pas 2 — recunoștința, la atingerea jurnalului */}
-      {journalTouched && (
-        <div className="flow-in">
-          <p style={s.label}>{lx(lang, 'gratitude')}</p>
-          <textarea
-            value={gratitude}
-            onChange={(e) => setGratitude(e.target.value)}
-            onFocus={() => setGratitudeTouched(true)}
-            rows={2}
-            className="input-clean journal-paper"
-            style={s.textarea}
-          />
+      {rainStage !== 'idle' && (
+        <div style={s.rainOverlay} aria-hidden="true">
+          {rainStage === 'falling' && <span style={s.rainDrop} />}
+          {rainStage === 'splash' && (
+            <>
+              <span style={{ ...s.rainRing, animationDelay: '0ms' }} />
+              <span style={{ ...s.rainRing, animationDelay: '90ms' }} />
+            </>
+          )}
         </div>
       )}
+      <div style={rainStage !== 'idle' ? s.contentFading : null}>
+        <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
 
-      {/* pas 3 — intenția pentru mâine, continuată de dimineața următoare */}
-      {gratitudeTouched && (
-        <div className="flow-in">
-          <p style={s.label}>{intentionLabel}</p>
-          <textarea
-            value={intention}
-            onChange={(e) => setIntention(e.target.value)}
-            rows={2}
-            className="input-clean journal-paper"
-            style={s.textarea}
-          />
+        {/* pas 1 — jurnalul apare singur */}
+        <p style={s.label}>{lx(lang, 'journal')}</p>
+        <textarea
+          value={journal}
+          onChange={(e) => setJournal(e.target.value)}
+          onFocus={() => setJournalTouched(true)}
+          rows={4}
+          className="input-clean journal-paper"
+          style={s.textarea}
+        />
 
-          {/* TODO(bloc 5, lacrima vie): "Leave it in the water" e butonul
-              INTERIMAR. Gestul final e picătura care cade cu textul — vine
-              cu three.js izolat pe Azi (lacrima interactivă), nu înainte. */}
-          <button onClick={save} disabled={saving} className="pill-btn" style={s.btn}>
-            {saving ? lx(lang, 'saving') : lx(lang, 'save')}
-          </button>
-        </div>
-      )}
+        {/* pas 2 — recunoștința, la atingerea jurnalului */}
+        {journalTouched && (
+          <div className="flow-in">
+            <p style={s.label}>{lx(lang, 'gratitude')}</p>
+            <textarea
+              value={gratitude}
+              onChange={(e) => setGratitude(e.target.value)}
+              onFocus={() => setGratitudeTouched(true)}
+              rows={2}
+              className="input-clean journal-paper"
+              style={s.textarea}
+            />
+          </div>
+        )}
+
+        {/* pas 3 — intenția pentru mâine, continuată de dimineața următoare */}
+        {gratitudeTouched && (
+          <div className="flow-in">
+            <p style={s.label}>{intentionLabel}</p>
+            <textarea
+              value={intention}
+              onChange={(e) => setIntention(e.target.value)}
+              rows={2}
+              className="input-clean journal-paper"
+              style={s.textarea}
+            />
+
+            {/* TODO(bloc 5, lacrima vie): "Leave it in the water" e butonul
+                INTERIMAR — textul rămâne așa până vine lacrima 3D. Gestul
+                (picătura 2D + inele + strop) e cel real acum. */}
+            <button onClick={save} disabled={saving} className="pill-btn" style={s.btn}>
+              {saving ? lx(lang, 'saving') : lx(lang, 'save')}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 const s = {
-  card: { padding: '28px 24px', marginBottom: '24px', transition: 'opacity 3.5s ease, filter 3.5s ease' },
+  card: { position: 'relative', padding: '28px 24px', marginBottom: '24px', transition: 'opacity 3.5s ease, filter 3.5s ease' },
   dimmed: { opacity: 0.55, filter: 'brightness(0.8)' },
+  contentFading: { transition: 'opacity 380ms var(--ease-out)', opacity: 0.15 },
+  rainOverlay: { position: 'absolute', inset: 0, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', borderRadius: 'inherit' },
+  rainDrop: { display: 'block', width: '10px', height: '14px', borderRadius: '50% 50% 50% 0', background: 'radial-gradient(circle at 35% 30%, #fff 0%, var(--pearl) 60%, var(--gold) 100%)', boxShadow: '0 0 10px var(--gold-soft)', animation: 'rain-fall 380ms var(--ease-out) forwards' },
+  rainRing: { position: 'absolute', bottom: '18px', width: '90px', height: '30px', borderRadius: '50%', border: '1px solid var(--gold-soft)', boxShadow: '0 0 14px var(--gold-faint)', animation: 'rain-splash 380ms var(--ease-out) forwards' },
   greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', color: 'var(--text)', marginBottom: '18px' },
   label: { fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', color: 'var(--text)', margin: '18px 0 10px' },
   textarea: { width: '100%', resize: 'none', fontFamily: 'Cormorant Garamond, serif', lineHeight: 1.7, boxSizing: 'border-box' },

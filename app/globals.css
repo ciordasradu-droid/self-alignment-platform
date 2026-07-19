@@ -189,7 +189,9 @@ input:focus, textarea:focus, select:focus {
   100% { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
 }
 
-/* ---------- LEGEA 2 — RIPPLE: feedback tactil universal ---------- */
+/* ---------- LEGEA 2 — RIPPLE: feedback tactil universal (pas 5, interaction
+   layer 2D). Inel ELIPTIC (scaleY < scaleX) — evocă suprafața apei, nu un
+   cerc plat. Durată 300-450ms, ca orice tranziție din aplicație. ---------- */
 #water-ripples {
   position: fixed;
   inset: 0;
@@ -199,16 +201,34 @@ input:focus, textarea:focus, select:focus {
 }
 .water-ripple {
   position: absolute;
+  width: 90px;
+  height: 56px;
+  margin: -28px 0 0 -45px;
   border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
+  transform: scale(0.15);
   border: 1px solid var(--gold-soft);
   box-shadow: 0 0 14px var(--gold-faint), inset 0 0 12px rgba(255, 255, 255, 0.08);
-  animation: ripple-spread 900ms var(--ease-out) forwards;
+  animation: ripple-spread 380ms var(--ease-out) forwards;
 }
 @keyframes ripple-spread {
-  0%   { transform: translate(-50%, -50%) scale(0);   opacity: 0.85; }
-  70%  { opacity: 0.30; }
-  100% { transform: translate(-50%, -50%) scale(1);   opacity: 0; }
+  0%   { transform: scale(0.15); opacity: 0.8; }
+  60%  { opacity: 0.32; }
+  100% { transform: scale(1);    opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* static, nu animat — un semnal scurt, fara miscare */
+  .water-ripple { animation: none; transform: scale(0.5); opacity: 0.4; }
+}
+
+/* ---------- Gestul de seară — picătura 2D cade + inele + strop (pas 5) --- */
+@keyframes rain-fall {
+  0%   { transform: translateY(-90px) scale(0.8); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.9; }
+}
+@keyframes rain-splash {
+  0%   { transform: scale(0.2); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 
 /* ---------- LEGEA 5 — gheață topită (glassmorphism) ---------- */
