@@ -199,6 +199,11 @@ export default function Onboarding() {
   const [day, setDay] = useState('')
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
+  const [hour, setHour] = useState('')
+  const [minute, setMinute] = useState('')
+  const [ampm, setAmpm] = useState('AM')
+  const [timeUnknown, setTimeUnknown] = useState(false)
+  const use12h = lang === 'en'
   const [startingPoint, setStartingPoint] = useState('')
   const [consentChecked, setConsentChecked] = useState(false)
   const [noProfileYet, setNoProfileYet] = useState(false)
@@ -228,6 +233,27 @@ export default function Onboarding() {
       }))
     }
   }, [day, month, year])
+
+  // Ora — stocată intern mereu în 24h ("HH:MM"), indiferent de formatul
+  // afișat (12h AM/PM doar pentru EN, restul 24h). "Nu știu ora" -> prânz,
+  // convenția standard când ora exactă lipsește (nu schimbă semnul solar,
+  // doar precizia ascendentului/porților fine din Human Design).
+  useEffect(() => {
+    if (timeUnknown) {
+      setFormData(prev => ({ ...prev, time_of_birth: '12:00', time_unknown: true }))
+      return
+    }
+    if (hour === '' || minute === '') {
+      setFormData(prev => ({ ...prev, time_of_birth: '', time_unknown: false }))
+      return
+    }
+    let h24 = parseInt(hour, 10)
+    if (use12h) {
+      if (ampm === 'AM') { if (h24 === 12) h24 = 0 }
+      else { if (h24 !== 12) h24 += 12 }
+    }
+    setFormData(prev => ({ ...prev, time_of_birth: `${String(h24).padStart(2, '0')}:${minute}`, time_unknown: false }))
+  }, [hour, minute, ampm, timeUnknown, use12h])
 
   const pickLanguage = (code) => {
     changeLanguage(code)
@@ -365,9 +391,44 @@ export default function Onboarding() {
 
             <div className="ob-field">
               <label className="ob-label">{t(lang, 'time_of_birth')}</label>
-              <input type="time" className="input-clean" value={formData.time_of_birth}
-                     onChange={e => setFormData(prev => ({ ...prev, time_of_birth: e.target.value }))} />
-              <p className="ob-hint">{t(lang, 'time_hint')}</p>
+              {!timeUnknown && (
+                <div className="ob-daterow">
+                  <select className="input-clean select-clean ob-datepart" value={hour}
+                          onChange={e => setHour(e.target.value)}>
+                    <option value="">—</option>
+                    {(use12h
+                      ? Array.from({ length: 12 }, (_, i) => i + 1)
+                      : Array.from({ length: 24 }, (_, i) => i)
+                    ).map(h => (
+                      <option key={h} value={String(h)}>{use12h ? h : String(h).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                  <select className="input-clean select-clean ob-datepart" value={minute}
+                          onChange={e => setMinute(e.target.value)}>
+                    <option value="">—</option>
+                    {Array.from({ length: 60 }, (_, i) => i).map(m => (
+                      <option key={m} value={String(m).padStart(2, '0')}>{String(m).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                  {use12h && (
+                    <select className="input-clean select-clean ob-dateyear" value={ampm}
+                            onChange={e => setAmpm(e.target.value)}>
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  )}
+                </div>
+              )}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={timeUnknown}
+                  onChange={e => setTimeUnknown(e.target.checked)}
+                  style={{ width: '18px', height: '18px', flexShrink: 0 }}
+                />
+                <span className="ob-hint" style={{ marginTop: 0 }}>{t(lang, 'time_unknown')}</span>
+              </label>
+              <p className="ob-hint">{timeUnknown ? t(lang, 'time_unknown_hint') : t(lang, 'time_hint')}</p>
             </div>
 
             <div className="ob-field ob-cityfield">

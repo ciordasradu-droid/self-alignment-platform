@@ -1423,10 +1423,13 @@ input:focus, textarea:focus, select:focus {
   gap: 4px;
   padding: 8px;
   border-radius: 28px;
-  background: rgba(10, 9, 21, 0.6);
+  /* v5 recidiva 4: 0.6 lăsa textul care defilează pe dedesubt vizibil prin
+     bară în timpul scroll-ului — mărit la 0.88, blur mai mare, ca sticla să
+     ascundă efectiv conținutul, nu doar să-l tonteze. */
+  background: rgba(10, 9, 21, 0.88);
   border: 1px solid rgba(229, 169, 60, 0.15);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
 }
 .room-nav-tab {
   display: flex;
