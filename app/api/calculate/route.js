@@ -11,7 +11,7 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { full_name, date_of_birth, time_of_birth, lat, lng, language } = body
+    const { full_name, date_of_birth, time_of_birth, lat, lng, language, time_unknown } = body
 
     const calculatedData = calculateFullProfile(
       full_name,
@@ -19,7 +19,8 @@ export async function POST(request) {
       time_of_birth,
       lat,
       lng,
-      language || 'en'
+      language || 'en',
+      !!time_unknown
     )
 
     const { data, error } = await supabaseAdmin

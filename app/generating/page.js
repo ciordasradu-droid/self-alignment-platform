@@ -107,6 +107,7 @@ function GeneratingContent() {
           full_name: formData.full_name,
           date_of_birth: formData.date_of_birth,
           time_of_birth: formData.time_of_birth,
+          time_unknown: !!formData.time_unknown,
           lat: formData.lat,
           lng: formData.lng,
           language

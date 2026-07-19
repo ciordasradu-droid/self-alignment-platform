@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react'
 import DailyInsight from './DailyInsight'
 import { waterState } from '../../components/water/waterState'
+import { getEffectiveWeekday } from '../../../lib/simWeekday'
 
 const L = {
   en: { greet: 'Good morning', sleepQ: 'How did you sleep?', sleepPh: 'Write a word or two…', intentionQ: 'Yesterday you left this intention:', carry: 'Carry it forward', change: 'Change it', changePh: 'Write the new intention…', freshQ: 'What intention do you carry into today?', freshPh: 'Write it here…', start: 'Begin the day', wish: 'May your day be gentle', done: 'Your day has begun.', weekTag: 'The Week, Seen', weekQ1: 'What did you continue even when it was hard?', weekQ2: 'What pattern showed up more than once this week?', weekQ3: 'What do you want to bring into next week?', weekPh1: 'The hard things you kept doing…', weekPh2: 'Recurring patterns you noticed…', weekPh3: 'One intention for next week…' },
@@ -39,7 +40,7 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
   // Sâmbăta, din ziua 30, Gândul Zilei devine Privirea săptămânii (secț. 5).
   // Înainte de ziua 30, sâmbăta e o zi ca oricare — nu există încă destul
   // istoric pentru o privire reală înapoi.
-  const isSaturday = new Date().getDay() === 6
+  const isSaturday = getEffectiveWeekday() === 6
   const weekReviewActive = isSaturday && accountDay >= 30
 
   // apa se luminează la deschiderea ritualului — un singur gest atmosferic,

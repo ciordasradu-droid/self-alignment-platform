@@ -7,6 +7,7 @@
 // Mod-noapte: sticlă mai adâncă, mai puțin aur, pentru un ecran calm.
 
 import { useState } from 'react'
+import { getEffectiveWeekday } from '../../../lib/simWeekday'
 
 const L = {
   en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', intention: 'For tomorrow, I want to…', intentionWeek: 'For the coming week, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.' },
@@ -37,7 +38,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
   const who = name ? `, ${name}` : ''
   // Duminică seara, intenția devine pentru săptămâna care vine, nu pentru
   // ziua de mâine (secț. 5, weekend).
-  const isSunday = new Date().getDay() === 0
+  const isSunday = getEffectiveWeekday() === 0
   const intentionLabel = lx(lang, isSunday ? 'intentionWeek' : 'intention')
 
   const finish = () => {
