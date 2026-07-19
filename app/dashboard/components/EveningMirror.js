@@ -9,16 +9,16 @@
 import { useState } from 'react'
 
 const L = {
-  en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', intention: 'For tomorrow, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.' },
-  ro: { greet: 'Bună seara', journal: 'Lasă-ți gândurile aici', gratitude: 'Pentru ce ești recunoscător azi?', intention: 'Pentru mâine îmi doresc să…', save: 'Lasă în apă', saving: '…', saved: 'Ai fost prezent pentru tine azi.', goodnight: 'Somn lin.' },
-  es: { greet: 'Buenas noches', journal: 'Deja aquí tus pensamientos', gratitude: '¿Por qué estás agradecido hoy?', intention: 'Para mañana quiero…', save: 'Déjalo en el agua', saving: '…', saved: 'Hoy estuviste presente para ti.', goodnight: 'Que duermas bien.' },
-  fr: { greet: 'Bonsoir', journal: 'Laisse tes pensées ici', gratitude: 'De quoi es-tu reconnaissant aujourd\'hui ?', intention: 'Pour demain, je veux…', save: 'Laisse-le dans l\'eau', saving: '…', saved: 'Tu as été présent pour toi aujourd\'hui.', goodnight: 'Dors bien.' },
-  de: { greet: 'Guten Abend', journal: 'Lass deine Gedanken hier', gratitude: 'Wofür bist du heute dankbar?', intention: 'Für morgen möchte ich…', save: 'Lass es im Wasser', saving: '…', saved: 'Du warst heute für dich da.', goodnight: 'Schlaf gut.' },
-  it: { greet: 'Buonasera', journal: 'Lascia qui i tuoi pensieri', gratitude: 'Per cosa sei grato oggi?', intention: 'Per domani voglio…', save: 'Lascialo nell acqua', saving: '…', saved: 'Oggi sei stato presente per te.', goodnight: 'Dormi bene.' },
-  pt: { greet: 'Boa noite', journal: 'Deixa aqui os teus pensamentos', gratitude: 'Pelo que estás grato hoje?', intention: 'Para amanhã quero…', save: 'Deixa na água', saving: '…', saved: 'Hoje estiveste presente para ti.', goodnight: 'Dorme bem.' },
-  nl: { greet: 'Goedenavond', journal: 'Laat je gedachten hier', gratitude: 'Waar ben je vandaag dankbaar voor?', intention: 'Voor morgen wil ik…', save: 'Laat het in het water', saving: '…', saved: 'Je was er vandaag voor jezelf.', goodnight: 'Slaap zacht.' },
-  pl: { greet: 'Dobry wieczór', journal: 'Zostaw tu swoje myśli', gratitude: 'Za co jesteś dziś wdzięczny?', intention: 'Na jutro chcę…', save: 'Zostaw w wodzie', saving: '…', saved: 'Dziś byłeś obecny dla siebie.', goodnight: 'Śpij spokojnie.' },
-  hu: { greet: 'Jó estét', journal: 'Hagyd itt a gondolataidat', gratitude: 'Miért vagy hálás ma?', intention: 'Holnapra azt szeretném…', save: 'Hagyd a vízben', saving: '…', saved: 'Ma jelen voltál önmagad számára.', goodnight: 'Aludj jól.' },
+  en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', intention: 'For tomorrow, I want to…', intentionWeek: 'For the coming week, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.' },
+  ro: { greet: 'Bună seara', journal: 'Lasă-ți gândurile aici', gratitude: 'Pentru ce ești recunoscător azi?', intention: 'Pentru mâine îmi doresc să…', intentionWeek: 'Pentru săptămâna care vine îmi doresc să…', save: 'Lasă în apă', saving: '…', saved: 'Ai fost prezent pentru tine azi.', goodnight: 'Somn lin.' },
+  es: { greet: 'Buenas noches', journal: 'Deja aquí tus pensamientos', gratitude: '¿Por qué estás agradecido hoy?', intention: 'Para mañana quiero…', intentionWeek: 'Para la semana que viene, quiero…', save: 'Déjalo en el agua', saving: '…', saved: 'Hoy estuviste presente para ti.', goodnight: 'Que duermas bien.' },
+  fr: { greet: 'Bonsoir', journal: 'Laisse tes pensées ici', gratitude: 'De quoi es-tu reconnaissant aujourd\'hui ?', intention: 'Pour demain, je veux…', intentionWeek: 'Pour la semaine qui vient, je veux…', save: 'Laisse-le dans l\'eau', saving: '…', saved: 'Tu as été présent pour toi aujourd\'hui.', goodnight: 'Dors bien.' },
+  de: { greet: 'Guten Abend', journal: 'Lass deine Gedanken hier', gratitude: 'Wofür bist du heute dankbar?', intention: 'Für morgen möchte ich…', intentionWeek: 'Für die kommende Woche möchte ich…', save: 'Lass es im Wasser', saving: '…', saved: 'Du warst heute für dich da.', goodnight: 'Schlaf gut.' },
+  it: { greet: 'Buonasera', journal: 'Lascia qui i tuoi pensieri', gratitude: 'Per cosa sei grato oggi?', intention: 'Per domani voglio…', intentionWeek: 'Per la settimana che viene, voglio…', save: 'Lascialo nell acqua', saving: '…', saved: 'Oggi sei stato presente per te.', goodnight: 'Dormi bene.' },
+  pt: { greet: 'Boa noite', journal: 'Deixa aqui os teus pensamentos', gratitude: 'Pelo que estás grato hoje?', intention: 'Para amanhã quero…', intentionWeek: 'Para a semana que vem, quero…', save: 'Deixa na água', saving: '…', saved: 'Hoje estiveste presente para ti.', goodnight: 'Dorme bem.' },
+  nl: { greet: 'Goedenavond', journal: 'Laat je gedachten hier', gratitude: 'Waar ben je vandaag dankbaar voor?', intention: 'Voor morgen wil ik…', intentionWeek: 'Voor de komende week wil ik…', save: 'Laat het in het water', saving: '…', saved: 'Je was er vandaag voor jezelf.', goodnight: 'Slaap zacht.' },
+  pl: { greet: 'Dobry wieczór', journal: 'Zostaw tu swoje myśli', gratitude: 'Za co jesteś dziś wdzięczny?', intention: 'Na jutro chcę…', intentionWeek: 'Na nadchodzący tydzień chcę…', save: 'Zostaw w wodzie', saving: '…', saved: 'Dziś byłeś obecny dla siebie.', goodnight: 'Śpij spokojnie.' },
+  hu: { greet: 'Jó estét', journal: 'Hagyd itt a gondolataidat', gratitude: 'Miért vagy hálás ma?', intention: 'Holnapra azt szeretném…', intentionWeek: 'A következő hétre azt szeretném…', save: 'Hagyd a vízben', saving: '…', saved: 'Ma jelen voltál önmagad számára.', goodnight: 'Aludj jól.' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -33,6 +33,10 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
   const [dimmed, setDimmed] = useState(false)
 
   const who = name ? `, ${name}` : ''
+  // Duminică seara, intenția devine pentru săptămâna care vine, nu pentru
+  // ziua de mâine (secț. 5, weekend).
+  const isSunday = new Date().getDay() === 0
+  const intentionLabel = lx(lang, isSunday ? 'intentionWeek' : 'intention')
 
   const save = async () => {
     if (saving) return
@@ -99,7 +103,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
       {/* pas 3 — intenția pentru mâine, continuată de dimineața următoare */}
       {gratitudeTouched && (
         <div className="flow-in">
-          <p style={s.label}>{lx(lang, 'intention')}</p>
+          <p style={s.label}>{intentionLabel}</p>
           <textarea
             value={intention}
             onChange={(e) => setIntention(e.target.value)}

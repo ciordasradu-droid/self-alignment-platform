@@ -86,6 +86,7 @@ function DashboardContent() {
             name={firstName}
             done={today.morning}
             continuedIntention={today.continuedIntention}
+            accountDay={data?.day || 1}
             onComplete={refresh}
           />
         ) : (

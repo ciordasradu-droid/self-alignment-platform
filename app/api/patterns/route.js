@@ -1,9 +1,16 @@
 export const maxDuration = 60
 
+// TIPARE — sinteza reala din texte (secț. 5/7, z14). Fara scor, fara profil
+// de "umbra": doar jurnal/recunostinta/intentii/somn, citite din checkins
+// (rituale), sintetizate printr-un prompt liber cu Regula de Voce. Arata
+// si ce merge (nu doar ce revine) — trei categorii, dar niciuna nu e
+// diagnostic clinic.
+
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { VOICE_RULES } from '../../../lib/prompts/profile'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -24,103 +31,88 @@ export async function POST(request) {
     const body = await request.json()
     const { language = 'en' } = body
 
-    // Get check-ins from the checkins table (written by dashboard API, has user_id)
     const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
-      .select('created_at, score, answers')
+      .select('created_at, answers')
       .eq('user_id', user_id)
       .order('created_at', { ascending: false })
-      .limit(30)
+      .limit(60)
 
     if (checkinError) throw checkinError
 
-    const allCheckins = (checkins || []).map(c => ({
-      date: c.created_at?.split('T')[0],
-      alignment_score: c.score,
-      responses: c.answers,
-      questions: null
-    }))
+    // Extragem DOAR textul — jurnal, recunostinta, intentii, somn. Nimic
+    // numeric, niciun scor. Fiecare intrare cu text real devine o linie.
+    const entries = []
+    for (const c of (checkins || [])) {
+      const date = c.created_at?.split('T')[0]
+      const a = c.answers || {}
+      if (a.kind === 'evening') {
+        if (a.evening_journal) entries.push({ date, field: 'jurnal', text: a.evening_journal })
+        if (a.gratitude) entries.push({ date, field: 'recunostinta', text: a.gratitude })
+        if (a.intention) entries.push({ date, field: 'intentie (pentru maine)', text: a.intention })
+      } else if (a.kind === 'morning') {
+        if (a.sleep) entries.push({ date, field: 'somn', text: a.sleep })
+        if (a.intention) entries.push({ date, field: 'intentie (continuata)', text: a.intention })
+      }
+    }
 
-    // Need at least 7 check-ins for meaningful patterns
-    if (allCheckins.length < 7) {
+    // Nevoie de suficient text real, nu doar zile trecute — sub acest prag
+    // sinteza ar inventa tipare din nimic.
+    if (entries.length < 10) {
       return NextResponse.json({ insufficient: true })
     }
 
-    // Get user's profile for context
-    const { data: profileData } = await supabaseAdmin
+    // Profilul — schema reala: interpreted_profiles.sections +
+    // calculated_profiles.calculated_data (nu "profile", coloana veche).
+    const { data: interpreted } = await supabaseAdmin
       .from('interpreted_profiles')
-      .select('profile')
+      .select('sections, calculated_profile_id')
       .eq('user_id', user_id)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
-    const profile = profileData?.profile || {}
-    const hdType = profile.human_design_type || 'Generator'
-    const hdStrategy = profile.human_design_strategy || ''
+    let hdType = 'Generator'
+    if (interpreted?.calculated_profile_id) {
+      const { data: calc } = await supabaseAdmin
+        .from('calculated_profiles')
+        .select('calculated_data')
+        .eq('id', interpreted.calculated_profile_id)
+        .maybeSingle()
+      hdType = calc?.calculated_data?.human_design?.type || hdType
+    }
+
     const languageName = LANGUAGE_NAMES[language] || 'English'
+    const textCorpus = entries
+      .map(e => `[${e.date} · ${e.field}] ${e.text}`)
+      .join('\n')
 
-    // Build check-in summary for the prompt
-    const checkinSummary = allCheckins.map(c => {
-      const scores = c.responses ? Object.entries(c.responses).map(([k, v]) => `${k}:${v}`).join(', ') : ''
-      return `${c.date} | Score: ${c.alignment_score || 'N/A'} | ${scores}`
-    }).join('\n')
+    const prompt = `${VOICE_RULES}
 
-    // Calculate trends
-    const scores = allCheckins
-      .filter(c => c.alignment_score)
-      .map(c => c.alignment_score)
+You are reading someone's real journal entries, gratitude notes, intentions, and sleep notes from the last weeks — written by them, in their own words. Find what is actually emerging across these entries. This is reflection, not diagnosis: never produce a psychological profile, never label a "shadow side", never diagnose a condition.
 
-    const recentAvg = scores.length >= 3
-      ? Math.round(scores.slice(0, 3).reduce((a, b) => a + b, 0) / 3)
-      : null
-    const olderAvg = scores.length >= 7
-      ? Math.round(scores.slice(-4).reduce((a, b) => a + b, 0) / Math.min(4, scores.slice(-4).length))
-      : null
+PERSON'S HUMAN DESIGN TYPE (context only, don't lecture about it): ${hdType}
 
-    const trend = recentAvg && olderAvg
-      ? recentAvg > olderAvg ? 'improving' : recentAvg < olderAvg ? 'declining' : 'stable'
-      : 'insufficient data'
+THEIR WRITTEN ENTRIES (chronological, most recent first):
+${textCorpus}
 
-    const languageInstruction = language !== 'en'
-      ? `\n\nCRITICAL: Write your ENTIRE response in ${languageName}. Every word must be in ${languageName}.`
-      : ''
+WHAT TO LOOK FOR:
+- "strength" — something that is genuinely working, visible across multiple entries (not flattery — a real, specific pattern of what's going well)
+- "watch" — something that keeps recurring and might be worth their attention (a gentle observation, never framed as a flaw or diagnosis)
+- "invitation" — one reflective question or gentle nudge that follows naturally from what they've written
 
-    const prompt = `You are a warm, perceptive alignment guide. Analyze this person's check-in history and reveal the patterns emerging in their journey.
+RULES:
+- Quote or closely paraphrase their own words when it strengthens the observation — this must feel like THEY wrote it, reflected back, not like a report about them.
+- 2-3 sentences per insight, no more.
+- Never predict the future. Never tell them what to do — help them see what's already there.
+- Plain language, ${languageName} only.
 
-PERSON'S PROFILE:
-- Human Design Type: ${hdType}
-- Strategy: ${hdStrategy}
-- Check-ins completed: ${allCheckins.length}
-- Score trend: ${trend} (recent avg: ${recentAvg}, older avg: ${olderAvg})
-
-CHECK-IN HISTORY (most recent first):
-${checkinSummary}
-
-ANALYSIS RULES:
-- Look for REAL patterns in the data — recurring high/low scores, category trends, consistency gaps
-- Connect patterns to their Human Design type naturally (don't lecture about HD)
-- Be specific to THEIR data, not generic advice
-- Warm but honest — name what you see, including uncomfortable patterns
-- 2-3 sentences per insight, no more
-- Never predict the future
-- Never tell them what to do — help them see what's happening
-
-Return ONLY a JSON object, no markdown:
+Return ONLY a JSON object, no markdown, no code fences:
 {
-  "strength": {
-    "title": "short title (5 words max)",
-    "body": "2-3 sentences about a positive pattern you see emerging"
-  },
-  "watch": {
-    "title": "short title (5 words max)", 
-    "body": "2-3 sentences about a pattern to be mindful of"
-  },
-  "invitation": {
-    "title": "short title (5 words max)",
-    "body": "2-3 sentences with a reflective invitation based on what you see"
-  }
-}${languageInstruction}`
+  "strength": { "title": "short title (5 words max)", "body": "2-3 sentences" },
+  "watch": { "title": "short title (5 words max)", "body": "2-3 sentences" },
+  "invitation": { "title": "short title (5 words max)", "body": "2-3 sentences" }
+}`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
@@ -131,17 +123,16 @@ Return ONLY a JSON object, no markdown:
     const text = message.content[0].text.replace(/```json|```/g, '').trim()
     const patterns = JSON.parse(text)
 
-    // Cache in Supabase for future reference
     await supabaseAdmin
       .from('patterns_insights')
       .upsert([{
         user_id,
         patterns,
-        checkin_count: allCheckins.length,
+        checkin_count: entries.length,
         language,
         created_at: new Date().toISOString()
       }], { onConflict: 'user_id' })
-      .catch(() => {}) // Don't fail if table doesn't exist yet
+      .then(() => {}, () => {}) // nu esueaza daca tabela lipseste
 
     return NextResponse.json({ success: true, patterns })
 

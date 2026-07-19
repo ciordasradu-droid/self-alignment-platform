@@ -1,16 +1,14 @@
 'use client'
 
 // DRUMUL — camera creșterii (sect. 7, locked). De sus în jos: stadiul curent
-// (mic, viu) → harta unlock-urilor cu orizont vizibil → conținutul deblocat
-// (Jurnal/Tipare/Revizuire/Angajament) → Prezența ta (discret, jos).
-//
-// Redesign-ul profund al fiecarui unlock (Angajamentul in 4 parti, Tiparele
-// din texte) e bloc separat in calup — aici e harta + relocarea structurala.
+// (mic, viu) → harta unlock-urilor cu orizont vizibil → rândul de acces
+// (proba gratuită) → conținutul deblocat (Jurnal/Tipare/Angajament) →
+// Prezența ta (discret, jos). Revizuirea săptămânală nu mai e card separat
+// aici — trăiește în ritualul de dimineață de sâmbătă (z30+, secț. 5).
 
 import { useState, useEffect, Suspense } from 'react'
 import FreeJournal from '../dashboard/components/FreeJournal'
 import PatternsInsight from '../dashboard/components/PatternsInsight'
-import WeeklyReview from '../dashboard/components/WeeklyReview'
 import CommitmentDocument from '../dashboard/components/CommitmentDocument'
 import Presence from '../components/Presence'
 import RoomNav from '../components/RoomNav'
@@ -29,10 +27,35 @@ const ROADMAP = [
 ]
 
 const L = {
-  en: { title: 'Your Path', subtitle: 'Everything here opens with time. You can see the full map.', opens: 'Opens on day', unlocked: 'Open' },
-  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu timpul. Poți vedea harta completă.', opens: 'Se deschide în ziua', unlocked: 'Deschis' },
+  en: { title: 'Your Path', subtitle: 'Everything here opens with time. You can see the full map.', opens: 'Opens on day', unlocked: 'Open', access_line: 'You\'re here on the free trial — subscribe to keep your path going.', access_link: 'See the plan →' },
+  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu timpul. Poți vedea harta completă.', opens: 'Se deschide în ziua', unlocked: 'Deschis', access_line: 'Ești aici prin proba gratuită — abonează-te ca să-ți continui drumul.', access_link: 'Vezi planul →' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
+
+// TODO(texte de lucru): rand de acces pentru neabonati (proba gratuita, nu
+// abonament real), sub harta. Simplu, pana vine formularea finala.
+function AccessLine({ lang }) {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    try {
+      const cookies = document.cookie
+      const hasSub = /(?:^|;\s*)subscribed=/.test(cookies)
+      const hasTrial = /(?:^|;\s*)try_free=/.test(cookies)
+      setShow(hasTrial && !hasSub)
+    } catch (e) {}
+  }, [])
+  if (!show) return null
+  return (
+    <div style={{ textAlign: 'center', padding: '4px 20px 20px' }}>
+      <p style={{ fontSize: '12.5px', color: 'rgba(244,240,234,0.5)', lineHeight: 1.5, marginBottom: '8px' }}>
+        {lx(lang, 'access_line')}
+      </p>
+      <a href="/subscribe" style={{ fontSize: '12.5px', color: 'var(--amber)', fontWeight: 600 }}>
+        {lx(lang, 'access_link')}
+      </a>
+    </div>
+  )
+}
 
 function isUnlocked(day, accountAge) { return accountAge + 1 >= day }
 
@@ -120,10 +143,10 @@ function DrumulContent() {
       </header>
 
       <Roadmap lang={lang} accountAge={age} />
+      <AccessLine lang={lang} />
 
       {isUnlocked(3, age) && <FreeJournal lang={lang} />}
       {isUnlocked(14, age) && <PatternsInsight lang={lang} />}
-      {isUnlocked(30, age) && <WeeklyReview />}
       {isUnlocked(60, age) && <CommitmentDocument lang={lang} />}
 
       <Presence streak={streak} lang={lang} />
