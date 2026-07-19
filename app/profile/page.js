@@ -31,9 +31,10 @@ import { headerBoxExplanations as ptExpl, hdTerms as ptHd } from '../../lib/prom
 import { headerBoxExplanations as nlExpl, hdTerms as nlHd } from '../../lib/prompts/terminology/nl'
 import { headerBoxExplanations as plExpl, hdTerms as plHd } from '../../lib/prompts/terminology/pl'
 import { headerBoxExplanations as huExpl, hdTerms as huHd } from '../../lib/prompts/terminology/hu'
+import { headerBoxExplanations as ruExpl, hdTerms as ruHd } from '../../lib/prompts/terminology/ru'
 
-const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl }
-const HD_TERMS = { ro: roHd, en: enHd, es: esHd, fr: frHd, de: deHd, it: itHd, pt: ptHd, nl: nlHd, pl: plHd, hu: huHd }
+const EXPLANATIONS = { ro: roExpl, en: enExpl, es: esExpl, fr: frExpl, de: deExpl, it: itExpl, pt: ptExpl, nl: nlExpl, pl: plExpl, hu: huExpl, ru: ruExpl }
+const HD_TERMS = { ro: roHd, en: enHd, es: esHd, fr: frHd, de: deHd, it: itHd, pt: ptHd, nl: nlHd, pl: plHd, hu: huHd, ru: ruHd }
 
 // Mesaj pentru cardul "planul se scrie acum" (regenerare automată în fundal)
 const PLAN_PENDING = {
@@ -47,6 +48,7 @@ const PLAN_PENDING = {
   nl: 'Je uitlijningsplan wordt nu geschreven. Het verschijnt hier over 1-2 minuten — je kunt je profiel verder lezen.',
   pl: 'Twój plan wyrównania jest właśnie pisany. Pojawi się tutaj za 1-2 minuty — możesz dalej czytać swój profil.',
   hu: 'Az igazítási terved éppen most készül. 1-2 perc múlva megjelenik itt — közben olvashatod tovább a profilod.',
+  ru: 'Твой план согласия с собой пишется прямо сейчас. Он появится здесь через 1-2 минуты — пока можешь дальше читать свой профиль.',
 }
 
 function getExplanations(lang) { return EXPLANATIONS[lang] || EXPLANATIONS['en'] }

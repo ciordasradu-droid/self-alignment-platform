@@ -12,7 +12,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 const LANGUAGE_NAMES = {
   en: 'English', ro: 'Romanian', es: 'Spanish', fr: 'French',
   de: 'German', it: 'Italian', pt: 'Portuguese', nl: 'Dutch',
-  pl: 'Polish', hu: 'Hungarian'
+  pl: 'Polish', hu: 'Hungarian', ru: 'Russian'
 }
 
 class TruncationError extends Error {

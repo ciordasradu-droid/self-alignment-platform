@@ -17,6 +17,7 @@ const L = {
   nl: { title:'Houd hem op je telefoon', sub:'Installeer hem en hij opent als elke app — volledig scherm, één tik.', btn:'Installeren', ios:'Tik op Delen, dan “Zet op beginscherm”.' },
   pl: { title:'Miej ją w telefonie', sub:'Zainstaluj — otwiera się jak każda aplikacja, pełny ekran, jedno dotknięcie.', btn:'Zainstaluj', ios:'Dotknij Udostępnij, potem „Do ekranu początkowego".' },
   hu: { title:'Tartsd a telefonodon', sub:'Telepítsd, és úgy nyílik, mint bármelyik app — teljes képernyő, egy koppintás.', btn:'Telepítés', ios:'Koppints a Megosztásra, majd „Főképernyőhöz adás”.' },
+  ru: { title:'Держи на телефоне', sub:'Установи — и открывается как любое приложение: во весь экран, в одно касание.', btn:'Установить', ios:'Нажми Поделиться, затем «На экран Домой».' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 

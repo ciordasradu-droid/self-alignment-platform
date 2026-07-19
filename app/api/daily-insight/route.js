@@ -11,7 +11,7 @@ const anthropic = new Anthropic({
 
 const LANGUAGE_NAMES = {
   en: 'English', ro: 'Romanian', es: 'Spanish', fr: 'French', de: 'German',
-  it: 'Italian', pt: 'Portuguese', nl: 'Dutch', pl: 'Polish', hu: 'Hungarian'
+  it: 'Italian', pt: 'Portuguese', nl: 'Dutch', pl: 'Polish', hu: 'Hungarian', ru: 'Russian'
 }
 
 // Gândul Zilei, conectat la calculul real (secț. 5, bloc 3): zi/lună/an

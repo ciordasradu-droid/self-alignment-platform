@@ -27,6 +27,7 @@ const FLAG_BARS = {
   pl: { dir: 'h', colors: ['#FFFFFF', '#DC143C'] },
   es: { dir: 'h', colors: ['#AA151B', '#F1BF00', '#AA151B'] },
   pt: { dir: 'v', colors: ['#046A38', '#DA291C', '#DA291C'] },
+  ru: { dir: 'h', colors: ['#FFFFFF', '#0039A6', '#D52B1E'] },
 }
 
 function Flag({ code }) {
@@ -62,7 +63,7 @@ const TX = {
   your_language: {
     en: 'Your language', ro: 'Limba ta', es: 'Tu idioma', fr: 'Ta langue',
     de: 'Deine Sprache', it: 'La tua lingua', pt: 'A tua língua',
-    nl: 'Jouw taal', pl: 'Twój język', hu: 'A nyelved',
+    nl: 'Jouw taal', pl: 'Twój język', hu: 'A nyelved', ru: 'Твой язык',
   },
   // Fraza de viziune — propozitia-mama a produsului (sect. 2, locked).
   vision: {
@@ -76,20 +77,21 @@ const TX = {
     nl: 'Het leven draait niet om manifesteren, maar om in lijn komen met jezelf.',
     pl: 'Życie nie polega na manifestowaniu. Polega na dostrojeniu się do siebie.',
     hu: 'Az élet nem a manifesztálásról szól, hanem arról, hogy összhangba kerülj önmagaddal.',
+    ru: 'Жизнь — это не про то, чтобы что-то себе намечтать. Это про то, чтобы быть в согласии с собой.',
   },
   continue: {
     en: 'Continue', ro: 'Continuă', es: 'Continuar', fr: 'Continuer', de: 'Weiter',
-    it: 'Continua', pt: 'Continuar', nl: 'Verder', pl: 'Dalej', hu: 'Tovább',
+    it: 'Continua', pt: 'Continuar', nl: 'Verder', pl: 'Dalej', hu: 'Tovább', ru: 'Далее',
   },
   back: {
     en: 'back', ro: 'înapoi', es: 'atrás', fr: 'retour', de: 'zurück',
-    it: 'indietro', pt: 'voltar', nl: 'terug', pl: 'wstecz', hu: 'vissza',
+    it: 'indietro', pt: 'voltar', nl: 'terug', pl: 'wstecz', hu: 'vissza', ru: 'назад',
   },
   birth_title: {
     en: 'Where it all began', ro: 'De unde pornește totul', es: 'Donde empieza todo',
     fr: 'Là où tout commence', de: 'Wo alles beginnt', it: 'Da dove parte tutto',
     pt: 'Onde tudo começa', nl: 'Waar het allemaal begint', pl: 'Skąd wszystko się zaczyna',
-    hu: 'Ahonnan minden indul',
+    hu: 'Ahonnan minden indul', ru: 'Откуда всё началось',
   },
   // PUNCT DE PLECARE [text de lucru] — hraneste Angajamentul z60.
   start_q: {
@@ -103,6 +105,7 @@ const TX = {
     nl: 'Wat zou je anders willen in je leven?',
     pl: 'Co chcesz, aby było inne w twoim życiu?',
     hu: 'Mit szeretnél, hogy más legyen az életedben?',
+    ru: 'Что бы ты хотел изменить в своей жизни?',
   },
   // Transparenta (principiul 9) + orizont vizibil (principiul 5).
   start_hint: {
@@ -116,12 +119,13 @@ const TX = {
     nl: 'Je antwoord blijft van jou. Over 60 dagen lees je het terug.',
     pl: 'Twoja odpowiedź należy do ciebie. Przeczytasz ją ponownie za 60 dni.',
     hu: 'A válaszod a tiéd marad. 60 nap múlva újra elolvasod.',
+    ru: 'Твой ответ останется твоим. Ты перечитаешь его через 60 дней.',
   },
   generate: {
     en: 'Create my profile', ro: 'Creează-mi profilul', es: 'Crear mi perfil',
     fr: 'Créer mon profil', de: 'Mein Profil erstellen', it: 'Crea il mio profilo',
     pt: 'Criar o meu perfil', nl: 'Maak mijn profiel', pl: 'Stwórz mój profil',
-    hu: 'Profilom elkészítése',
+    hu: 'Profilom elkészítése', ru: 'Создать мой профиль',
   },
   ready_note: {
     en: 'Ready in 2–3 minutes. Once, for good.',
@@ -134,6 +138,7 @@ const TX = {
     nl: 'Klaar in 2–3 minuten. Eén keer, voorgoed.',
     pl: 'Gotowy w 2–3 minuty. Raz, na zawsze.',
     hu: 'Kész 2–3 perc alatt. Egyszer, örökre.',
+    ru: 'Готово за 2–3 минуты. Один раз, навсегда.',
   },
   // Poziționare (secț. 8, GDPR minim) — vizibil înaintea generării, nu ascuns.
   disclaimer: {
@@ -147,6 +152,7 @@ const TX = {
     nl: 'Dit is een reflectiemiddel — geen medisch, psychologisch of financieel advies.',
     pl: 'To narzędzie do refleksji — nie porada medyczna, psychologiczna ani finansowa.',
     hu: 'Ez egy önreflexiós eszköz — nem orvosi, pszichológiai vagy pénzügyi tanács.',
+    ru: 'Это инструмент для рефлексии — не медицинский, психологический или финансовый совет.',
   },
   // Gardianul de profil (middleware): un cont fara profil ajunge aici — un
   // rand cald, nu un redirect neexplicat.
@@ -161,6 +167,7 @@ const TX = {
     nl: 'Laten we eerst je profiel maken — al de rest begint hier.',
     pl: 'Zróbmy najpierw twój profil — od tego zaczyna się reszta.',
     hu: 'Először készítsük el a profilodat — innen indul minden más.',
+    ru: 'Давай сначала создадим твой профиль — отсюда начинается всё остальное.',
   },
   consent: {
     en: 'I understand this is a reflection tool, not professional advice.',
@@ -173,6 +180,7 @@ const TX = {
     nl: 'Ik begrijp dat dit een reflectiemiddel is, geen professioneel advies.',
     pl: 'Rozumiem, że to narzędzie do refleksji, a nie porada profesjonalna.',
     hu: 'Megértettem, hogy ez egy önreflexiós eszköz, nem szakmai tanács.',
+    ru: 'Я понимаю, что это инструмент для рефлексии, а не профессиональный совет.',
   },
 }
 const tx = (lang, key) => TX[key][lang] || TX[key].en

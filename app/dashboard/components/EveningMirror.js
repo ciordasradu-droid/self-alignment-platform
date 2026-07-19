@@ -19,6 +19,7 @@ const L = {
   nl: { greet: 'Goedenavond', journal: 'Laat je gedachten hier', gratitude: 'Waar ben je vandaag dankbaar voor?', intention: 'Voor morgen wil ik…', intentionWeek: 'Voor de komende week wil ik…', save: 'Laat het in het water', saving: '…', saved: 'Je was er vandaag voor jezelf.', goodnight: 'Slaap zacht.' },
   pl: { greet: 'Dobry wieczór', journal: 'Zostaw tu swoje myśli', gratitude: 'Za co jesteś dziś wdzięczny?', intention: 'Na jutro chcę…', intentionWeek: 'Na nadchodzący tydzień chcę…', save: 'Zostaw w wodzie', saving: '…', saved: 'Dziś byłeś obecny dla siebie.', goodnight: 'Śpij spokojnie.' },
   hu: { greet: 'Jó estét', journal: 'Hagyd itt a gondolataidat', gratitude: 'Miért vagy hálás ma?', intention: 'Holnapra azt szeretném…', intentionWeek: 'A következő hétre azt szeretném…', save: 'Hagyd a vízben', saving: '…', saved: 'Ma jelen voltál önmagad számára.', goodnight: 'Aludj jól.' },
+  ru: { greet: 'Добрый вечер', journal: 'Оставь свои мысли здесь', gratitude: 'За что ты благодарен(на) сегодня?', intention: 'На завтра я хочу…', intentionWeek: 'На предстоящую неделю я хочу…', save: 'Оставить это в воде', saving: '…', saved: 'Сегодня ты был(а) рядом с собой.', goodnight: 'Спокойной ночи.' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 

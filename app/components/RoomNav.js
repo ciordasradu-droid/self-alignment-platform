@@ -24,6 +24,7 @@ const L = {
   nl: { azi: 'Vandaag', drumul: 'Pad', tu: 'Jij' },
   pl: { azi: 'Dziś', drumul: 'Droga', tu: 'Ty' },
   hu: { azi: 'Ma', drumul: 'Út', tu: 'Te' },
+  ru: { azi: 'Сегодня', drumul: 'Путь', tu: 'Ты' },
 }
 
 const TABS = [

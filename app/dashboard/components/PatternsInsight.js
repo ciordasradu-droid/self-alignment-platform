@@ -140,6 +140,19 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Erosseg",
       watch: "Figyelendo",
       invitation: "Meghivas",
+    },
+    ru: {
+      tag: "Закономерности",
+      title: "Что проявляется на твоём пути",
+      subtitle: "AI-синтез твоих чек-инов. Закономерности, которые ты сам можешь не замечать.",
+      generate: "Раскрыть мои закономерности",
+      regenerate: "Обновить",
+      loading: "Анализирую твои чек-ины...",
+      no_data: "Нужно как минимум 7 чек-инов, прежде чем закономерности смогут проявиться.",
+      last_updated: "Последнее обновление",
+      strength: "Сильная сторона",
+      watch: "Присмотреться",
+      invitation: "Приглашение",
     }
   }
 

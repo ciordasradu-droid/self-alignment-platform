@@ -13,6 +13,7 @@ const FLAG_BARS = {
   pl: { dir: 'h', colors: ['#FFFFFF', '#DC143C'] },
   es: { dir: 'h', colors: ['#AA151B', '#F1BF00', '#AA151B'] },
   pt: { dir: 'v', colors: ['#046A38', '#DA291C', '#DA291C'] },
+  ru: { dir: 'h', colors: ['#FFFFFF', '#0039A6', '#D52B1E'] },
 }
 
 export default function Flag({ code }) {

@@ -3,7 +3,7 @@
 // Destinație: app/page.js  (ÎNLOCUIEȘTE COMPLET)
 // Schimbări față de versiunea anterioară:
 // - selector de limbă în nav (global, salvat în localStorage prin lib/language.js)
-// - toate textele landing-ului vin din lib/landing.js (10 limbi)
+// - toate textele landing-ului vin din lib/landing.js (11 limbi)
 // - structura, stilurile și animațiile rămân identice
 
 import Link from 'next/link'

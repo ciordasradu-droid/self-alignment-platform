@@ -25,6 +25,7 @@ export default function FreeJournal({ lang = 'en' }) {
     nl: { title: 'Dagboek', subtitle: 'Een privé ruimte. Geen vragen. Alleen jij.', placeholder: 'Schrijf vrij...', save: 'Opslaan', saved: 'Opgeslagen', past: 'Eerdere items', no_entries: 'Nog geen items. Begin wanneer je klaar bent.' },
     pl: { title: 'Dziennik', subtitle: 'Prywatna przestrzeń. Bez pytań. Tylko ty.', placeholder: 'Pisz swobodnie...', save: 'Zapisz', saved: 'Zapisano', past: 'Wcześniejsze wpisy', no_entries: 'Brak wpisów. Zacznij, gdy będziesz gotowy.' },
     hu: { title: 'Napló', subtitle: 'Egy privát tér. Kérdések nélkül. Csak te.', placeholder: 'Írj szabadon...', save: 'Mentés', saved: 'Mentve', past: 'Korábbi bejegyzések', no_entries: 'Még nincsenek bejegyzések. Kezdj el írni, amikor készen állsz.' },
+    ru: { title: 'Дневник', subtitle: 'Личное пространство. Без вопросов. Только ты.', placeholder: 'Пиши свободно...', save: 'Сохранить', saved: 'Сохранено', past: 'Прошлые записи', no_entries: 'Пока нет записей. Начни писать, когда будешь готов(а).' },
   }
 
   const t = labels[lang] || labels['en']

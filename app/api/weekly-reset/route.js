@@ -17,7 +17,8 @@ const LANGUAGE_NAMES = {
   pt: 'Portuguese',
   nl: 'Dutch',
   pl: 'Polish',
-  hu: 'Hungarian'
+  hu: 'Hungarian',
+  ru: 'Russian'
 }
 
 export async function POST(request) {

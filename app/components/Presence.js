@@ -16,6 +16,7 @@ const L = {
   nl: { title: 'Jouw Aanwezigheid', days: ['M','D','W','D','V','Z','Z'] },
   pl: { title: 'Twoja Obecność', days: ['P','W','Ś','C','P','S','N'] },
   hu: { title: 'A Jelenléted', days: ['H','K','Sz','Cs','P','Sz','V'] },
+  ru: { title: 'Твоё Присутствие', days: ['П','В','С','Ч','П','С','В'] },
 }
 
 export default function Presence({ streak = 0, lang = 'en' }) {

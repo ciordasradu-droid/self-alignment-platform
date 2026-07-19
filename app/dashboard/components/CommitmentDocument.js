@@ -141,6 +141,19 @@ const LABELS = {
     reread_note: 'Ezt bármikor újraolvashatod, az Útról.',
     placeholder1: 'Írd le ki vagy...', placeholder2: 'Írd le merre tartasz...', placeholder3: 'Írd le mit hagysz magad mögött...',
   },
+  ru: {
+    tag: 'День 60', title: 'Обязательство Перед Собой',
+    subtitle: 'Этот документ — только между тобой и тобой. Никто другой его не увидит. Распечатай его, подпиши от руки и держи там, где будешь его видеть.',
+    part0_title: 'С Чего Ты Начал(а)', part0_note: 'В начале своего пути ты написал(а) это:', part0_empty: 'Мы не нашли сохранённую точку отсчёта — можешь всё равно продолжить ниже.',
+    section1_title: 'Кто Я', section1_prompt: 'Своими словами — кто ты? Что тебя определяет? Что ты знаешь о себе такого, чему никто не учил?',
+    section2_title: 'К Чему Я Иду', section2_prompt: 'Что ты строишь? Какое направление ощущается настоящим? Кем ты хочешь стать?',
+    section3_title: 'Что Я Оставляю Позади', section3_prompt: 'Какие закономерности, привычки или убеждения тебе больше не служат? Что ты больше не хочешь нести с собой?',
+    date_label: 'Дата', name_label: 'Полное Имя', signature_label: 'Подпись',
+    acknowledgment: 'Я признаю это обязательство перед собой.',
+    generate: 'Создать Моё Обязательство', print: 'Распечатать Документ', download_pdf: 'Скачать PDF', edit: 'Редактировать',
+    reread_note: 'Ты можешь перечитать это в любое время, из раздела Путь.',
+    placeholder1: 'Напиши, кто ты...', placeholder2: 'Напиши, к чему ты идёшь...', placeholder3: 'Напиши, что оставляешь позади...',
+  },
 }
 
 export default function CommitmentDocument({ lang = 'en' }) {

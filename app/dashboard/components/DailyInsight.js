@@ -18,7 +18,8 @@ const LABELS = {
   pt: { tag: "Pensamento do Dia", reflect: "Reflita sobre isto hoje" },
   nl: { tag: "Gedachte van de Dag", reflect: "Denk hier vandaag over na" },
   pl: { tag: "Mysl Dnia", reflect: "Zastanow sie nad tym dzis" },
-  hu: { tag: "A Nap Gondolata", reflect: "Gondolkodj el ezen ma" }
+  hu: { tag: "A Nap Gondolata", reflect: "Gondolkodj el ezen ma" },
+  ru: { tag: "Мысль Дня", reflect: "Подумай об этом сегодня" }
 }
 
 // Ambele formate (sect. 5) vin din aceeași bancă de conținut — 'quick' arată

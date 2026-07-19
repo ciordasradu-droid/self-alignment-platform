@@ -19,6 +19,7 @@ const L = {
   nl: { btn:'Eén ademhaling', during:'Adem in… en uit.', done:'Je aanwezigheid blijft.' },
   pl: { btn:'Jeden oddech', during:'Wdech… i wydech.', done:'Twoja obecność zostaje.' },
   hu: { btn:'Egy lélegzet', during:'Lélegezz be… és ki.', done:'A jelenléted megmarad.' },
+  ru: { btn:'Один вдох', during:'Вдохни… и выдохни.', done:'Твоё присутствие остаётся.' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
