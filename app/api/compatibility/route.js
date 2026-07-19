@@ -7,6 +7,7 @@ import { NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { checkRateLimit } from '../../../lib/rateLimit'
 import { buildCompatibilityPrompt } from '../../../lib/prompts/compatibility'
 import { calculateFullProfile } from '../../../lib/calculations/index'
 import { jsonrepair } from 'jsonrepair'
@@ -47,6 +48,11 @@ export async function POST(request) {
   try {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+    const rl = await checkRateLimit(user.id, 'compatibility', { limit: 10, windowSeconds: 3600 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } })
+    }
 
     const body = await request.json()
     const { type = 'life', language = 'en', personA, personB } = body

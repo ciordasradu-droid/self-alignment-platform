@@ -2,6 +2,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { checkRateLimit } from '../../../lib/rateLimit'
 import { buildProfilePrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
@@ -96,6 +97,11 @@ export async function POST(request) {
   try {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+    const rl = await checkRateLimit(user.id, 'interpret', { limit: 5, windowSeconds: 3600 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } })
+    }
 
     const body = await request.json()
     const { calculated_profile_id, full_name, calculated_data, language = 'en' } = body

@@ -14,8 +14,18 @@ import { useLanguage, LANGUAGES } from '../../lib/language'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
 
 const L = {
-  en: { title: 'Settings', language: 'Language', subscription: 'Subscription', logout: 'Log out', close: 'Close' },
-  ro: { title: 'Setări', language: 'Limbă', subscription: 'Abonament', logout: 'Ieși din cont', close: 'Închide' },
+  en: {
+    title: 'Settings', language: 'Language', subscription: 'Subscription', logout: 'Log out', close: 'Close',
+    export_data: 'Export my data', exporting: 'Preparing...',
+    delete_account: 'Delete my account', delete_confirm: 'This permanently deletes your profile, check-ins, and everything else. This cannot be undone.',
+    delete_yes: 'Yes, delete everything', delete_cancel: 'Cancel', deleting: 'Deleting...',
+  },
+  ro: {
+    title: 'Setări', language: 'Limbă', subscription: 'Abonament', logout: 'Ieși din cont', close: 'Închide',
+    export_data: 'Exportă-mi datele', exporting: 'Se pregătește...',
+    delete_account: 'Șterge-mi contul', delete_confirm: 'Asta șterge definitiv profilul, check-in-urile și tot restul. Nu se poate anula.',
+    delete_yes: 'Da, șterge tot', delete_cancel: 'Anulează', deleting: 'Se șterge...',
+  },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -40,6 +50,9 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
   const shown = pageLang || lang
   const [loggingOut, setLoggingOut] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   useEffect(() => setMounted(true), [])
 
   if (!open || !mounted) return null
@@ -47,6 +60,32 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
   const handleLogout = async () => {
     setLoggingOut(true)
     try {
+      await createSupabaseBrowser().auth.signOut()
+    } catch (e) {}
+    window.location.href = '/'
+  }
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const res = await fetch('/api/account/export')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'my-data.json'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (e) {}
+    setExporting(false)
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await fetch('/api/account/delete', { method: 'POST' })
       await createSupabaseBrowser().auth.signOut()
     } catch (e) {}
     window.location.href = '/'
@@ -80,6 +119,29 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
           <button onClick={handleLogout} disabled={loggingOut} style={{ ...ov.linkRow, opacity: loggingOut ? 0.6 : 1 }}>
             {lx(shown, 'logout')}
           </button>
+          <button onClick={handleExport} disabled={exporting} style={{ ...ov.linkRow, opacity: exporting ? 0.6 : 1 }}>
+            {exporting ? lx(shown, 'exporting') : lx(shown, 'export_data')}
+          </button>
+
+          {!confirmingDelete ? (
+            <button onClick={() => setConfirmingDelete(true)} style={{ ...ov.linkRow, color: 'rgba(224,138,138,0.85)' }}>
+              {lx(shown, 'delete_account')}
+            </button>
+          ) : (
+            <div style={{ padding: '14px 4px', borderTop: '1px solid rgba(244,240,234,0.08)' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.65)', marginBottom: '12px', lineHeight: 1.5 }}>
+                {lx(shown, 'delete_confirm')}
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => setConfirmingDelete(false)} disabled={deleting} style={ov.cancelBtn}>
+                  {lx(shown, 'delete_cancel')}
+                </button>
+                <button onClick={handleDelete} disabled={deleting} style={{ ...ov.dangerBtn, opacity: deleting ? 0.6 : 1 }}>
+                  {deleting ? lx(shown, 'deleting') : lx(shown, 'delete_yes')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>,
@@ -95,4 +157,6 @@ const ov = {
   flagGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' },
   flagBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 12px', borderRadius: '20px', border: '1px solid', background: 'transparent', cursor: 'pointer', minHeight: '44px' },
   linkRow: { display: 'block', width: '100%', textAlign: 'left', padding: '14px 4px', background: 'none', border: 'none', borderTop: '1px solid rgba(244,240,234,0.08)', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px', textDecoration: 'none' },
+  cancelBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(244,240,234,0.18)', background: 'transparent', color: 'rgba(244,240,234,0.85)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
+  dangerBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(224,138,138,0.4)', background: 'rgba(224,138,138,0.12)', color: 'rgba(244,240,234,0.95)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
 }

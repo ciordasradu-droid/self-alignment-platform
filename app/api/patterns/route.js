@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { checkRateLimit } from '../../../lib/rateLimit'
 import { VOICE_RULES } from '../../../lib/prompts/profile'
 
 const anthropic = new Anthropic({
@@ -27,6 +28,11 @@ export async function POST(request) {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     const user_id = user.id
+
+    const rl = await checkRateLimit(user_id, 'patterns', { limit: 10, windowSeconds: 3600 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } })
+    }
 
     const body = await request.json()
     const { language = 'en' } = body
