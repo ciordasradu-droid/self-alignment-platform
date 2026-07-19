@@ -148,6 +148,20 @@ const TX = {
     pl: 'To narzędzie do refleksji — nie porada medyczna, psychologiczna ani finansowa.',
     hu: 'Ez egy önreflexiós eszköz — nem orvosi, pszichológiai vagy pénzügyi tanács.',
   },
+  // Gardianul de profil (middleware): un cont fara profil ajunge aici — un
+  // rand cald, nu un redirect neexplicat.
+  no_profile_warm: {
+    en: 'Let\'s make your profile first — everything else starts from here.',
+    ro: 'Hai să-ți facem întâi profilul — de aici pornește tot restul.',
+    es: 'Primero hagamos tu perfil — todo lo demás parte de aquí.',
+    fr: "Faisons d'abord ton profil — tout le reste part de là.",
+    de: 'Lass uns zuerst dein Profil erstellen — alles andere beginnt hier.',
+    it: 'Facciamo prima il tuo profilo — tutto il resto parte da qui.',
+    pt: 'Vamos primeiro criar o teu perfil — tudo o resto parte daqui.',
+    nl: 'Laten we eerst je profiel maken — al de rest begint hier.',
+    pl: 'Zróbmy najpierw twój profil — od tego zaczyna się reszta.',
+    hu: 'Először készítsük el a profilodat — innen indul minden más.',
+  },
   consent: {
     en: 'I understand this is a reflection tool, not professional advice.',
     ro: 'Am înțeles că acesta e un instrument de reflecție, nu un sfat profesionist.',
@@ -179,6 +193,15 @@ export default function Onboarding() {
   const [year, setYear] = useState('')
   const [startingPoint, setStartingPoint] = useState('')
   const [consentChecked, setConsentChecked] = useState(false)
+  const [noProfileYet, setNoProfileYet] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (new URLSearchParams(window.location.search).get('reason') === 'no_profile') {
+        setNoProfileYet(true)
+      }
+    } catch (e) {}
+  }, [])
 
   const [cityValue, setCityValue] = useState('')
   const [citySuggestions, setCitySuggestions] = useState([])
@@ -284,6 +307,7 @@ export default function Onboarding() {
         {/* 0 — LIMBA (steaguri; decizie sect. 6/9) */}
         {step === 0 && (
           <section className="ob-card ob-enter" key="s0">
+            {noProfileYet && <p className="ob-hint" style={{ marginBottom: '16px' }}>{tx(lang, 'no_profile_warm')}</p>}
             <h1 className="ob-title">{tx(lang, 'your_language')}</h1>
             <div className="ob-flags">
               {LANGUAGES.map(l => (

@@ -103,6 +103,15 @@ body {
   background-attachment: fixed;
 }
 
+/* Rezerva GLOBALĂ pentru bara de jos — o singură sursă a acestei valori,
+   nu duplicată pe fiecare pagină (room-shell, profil etc.). RoomNav.js
+   adaugă/scoate clasa la montare; padding-ul e pe body, deci acoperă
+   orice conținut, indiferent de structura paginii. Marjă generoasă
+   (nu doar înălțimea barei) — telefonul real are chrome dinamic. */
+body.has-room-nav {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+}
+
 h1, h2, h3, h4 {
   font-family: 'Cormorant Garamond', serif;
   line-height: 1.2;
@@ -1371,7 +1380,7 @@ input:focus, textarea:focus, select:focus {
   min-height: 100dvh;
   max-width: 640px;
   margin: 0 auto;
-  padding: calc(24px + env(safe-area-inset-top)) 20px calc(140px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) 20px 24px;
 }
 .room-nav {
   position: fixed;

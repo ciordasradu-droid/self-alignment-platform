@@ -720,8 +720,8 @@ function ProfileContent() {
 }
 
 const s = {
-  wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px calc(140px + env(safe-area-inset-bottom))' },
-  center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px calc(140px + env(safe-area-inset-bottom))', fontSize:'18px' },
+  wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px 24px' },
+  center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px 24px', fontSize:'18px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
   title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },

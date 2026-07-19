@@ -64,7 +64,29 @@ export async function middleware(request) {
     return NextResponse.redirect(url)
   }
 
-  // 3. Subscription gate — Azi si Drumul (accountability) cer abonament sau
+  // 3. Gardianul de profil — Azi/Drumul/Tu cer un profil generat. Profilul
+  // e usa produsului: fara el, ritualurile n-au ce sa afiseze si n-au ce sa
+  // salveze. Un cont autentificat fara profil e trimis la onboarding, nu
+  // la un ecran gol de ritual. Vine INAINTE de gardianul de abonament —
+  // n-are sens sa ceri un abonament pentru un profil care nu exista inca.
+  const needsProfile = ['/dashboard', '/drumul', '/profile'].some((p) => path === p || path.startsWith(p + '/'))
+  if (needsProfile && user) {
+    const { data: profileRow } = await supabase
+      .from('interpreted_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    if (!profileRow) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      url.search = ''
+      url.searchParams.set('reason', 'no_profile')
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // 4. Subscription gate — Azi si Drumul (accountability) cer abonament sau
   // proba gratuita. Tu (profilul, platit separat cu 4€) ramane accesibil.
   const needsSubscription = ['/dashboard', '/drumul'].some((p) => path === p || path.startsWith(p + '/'))
   if (needsSubscription) {

@@ -65,7 +65,14 @@ function Icon({ tab, active }) {
 export default function RoomNav({ lang = 'en' }) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    // Padding-ul de jos e GLOBAL (pe body), nu per-cameră — orice ecran unde
+    // bara e montată primește automat spațiu, fără o valoare duplicată pe
+    // fiecare pagină (sursa suprapunerii raportate la Poarta 1).
+    document.body.classList.add('has-room-nav')
+    return () => document.body.classList.remove('has-room-nav')
+  }, [])
   const t = L[lang] || L.en
 
   if (!mounted) return null
