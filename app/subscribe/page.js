@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getUserId } from '../../lib/userId'
 import { t as tr } from '../../lib/translations'
 
 const SUBSCRIBE_LABELS = {
@@ -100,11 +99,10 @@ export default function SubscribePage() {
 
   const handleSubscribe = async () => {
     setLoading(true)
-    const userId = getUserId()
     const res = await fetch('/api/stripe/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan, user_id: userId })
+      body: JSON.stringify({ plan })
     })
     const data = await res.json()
     if (data.url) {

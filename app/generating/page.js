@@ -10,7 +10,6 @@
 import { useState, useEffect, Suspense } from 'react'
 import WaterLoader from '../components/water/WaterLoader'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 
 // Localized "still working" messages shown when a request hits the timeout
@@ -98,7 +97,6 @@ function GeneratingContent() {
 
   const generateProfile = async (formData) => {
     try {
-      const userId = getUserId()
       const language = formData.language || 'en'
 
       // Step 1 — calculate chart data
@@ -111,7 +109,6 @@ function GeneratingContent() {
           time_of_birth: formData.time_of_birth,
           lat: formData.lat,
           lng: formData.lng,
-          user_id: userId,
           language
         })
       })
@@ -128,7 +125,6 @@ function GeneratingContent() {
           full_name: formData.full_name,
           calculated_profile_id: calcData.calculated_profile_id,
           calculated_data: calcData.data,
-          user_id: userId,
           language
         })
       })

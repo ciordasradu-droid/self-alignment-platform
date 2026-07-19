@@ -8,7 +8,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { getUserId } from '../../lib/userId'
 import { useLanguage, LANGUAGES } from '../../lib/language'
 import { t } from '../../lib/translations'
 
@@ -139,7 +138,7 @@ export default function CompatibilityPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: getUserId(), type, language: lang,
+          type, language: lang,
           personA: { full_name: personA.full_name, date_of_birth: personA.date_of_birth, time_of_birth: personA.time_of_birth, lat: personA.lat, lng: personA.lng },
           personB: { full_name: personB.full_name, date_of_birth: personB.date_of_birth, time_of_birth: personB.time_of_birth, lat: personB.lat, lng: personB.lng },
         })

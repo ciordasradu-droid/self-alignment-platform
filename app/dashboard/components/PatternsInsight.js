@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getUserId } from "../../../lib/userId"
 
 export default function PatternsInsight({ lang = "en" }) {
   const [patterns, setPatterns] = useState(null)
@@ -174,11 +173,10 @@ export default function PatternsInsight({ lang = "en" }) {
     setError(null)
 
     try {
-      const userId = getUserId()
       const res = await fetch("/api/patterns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, language: lang })
+        body: JSON.stringify({ language: lang })
       })
 
       const data = await res.json()

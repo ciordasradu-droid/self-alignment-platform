@@ -11,7 +11,6 @@
 import { useState, useEffect, Suspense } from 'react'
 import WaterLoader from '../components/water/WaterLoader'
 import { generateProfilePDF } from '../../lib/generatePDF'
-import { getUserId } from '../../lib/userId'
 import { t } from '../../lib/translations'
 import V4Sections, { isV4 } from './V4Sections'
 import Chapter from '../components/Chapter'
@@ -430,8 +429,7 @@ function ProfileContent() {
   useEffect(() => {
     localStorage.removeItem('profile')
 
-    const userId = getUserId()
-    fetch(`/api/profile?user_id=${userId}`)
+    fetch('/api/profile')
       .then(r => r.json())
       .then(data => {
         if (data.success) {
