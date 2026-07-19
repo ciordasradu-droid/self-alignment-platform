@@ -67,8 +67,8 @@ const s = {
   center: { maxWidth:'480px', margin:'120px auto', padding:'0 24px', textAlign:'center' },
   banner: { background:'var(--purple-light)', border:'1px solid var(--purple)', borderRadius:'12px', padding:'12px 18px', marginBottom:'28px', textAlign:'center' },
   bannerText: { fontSize:'14px', color:'var(--purple)', fontWeight:'500' },
-  startBox: { background:'linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%)', borderRadius:'var(--radius)', padding:'40px', textAlign:'center', marginTop:'32px' },
-  startTitle: { fontSize:'26px', fontWeight:'600', color:'#fff', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif', lineHeight:1.3 },
-  startSub: { fontSize:'15px', color:'rgba(255,255,255,0.8)', marginBottom:'24px', lineHeight:1.6, maxWidth:'440px', margin:'0 auto 24px' },
+  startBox: { position:'relative', overflow:'hidden', background:'var(--surface)', backdropFilter:'blur(16px) saturate(120%)', border:'1px solid var(--border)', boxShadow:'0 24px 60px rgba(224, 179, 106, 0.14)', borderRadius:'var(--radius)', padding:'40px', textAlign:'center', marginTop:'32px' },
+  startTitle: { fontSize:'26px', fontWeight:'600', color:'var(--text)', marginBottom:'12px', fontFamily:'Cormorant Garamond, serif', lineHeight:1.3 },
+  startSub: { fontSize:'15px', color:'var(--text-muted)', marginBottom:'24px', lineHeight:1.6, maxWidth:'440px', margin:'0 auto 24px' },
   startBtn: { display:'inline-block', padding:'14px 30px', background:'var(--gold)', color:'#20142a', borderRadius:'999px', fontSize:'15px', fontWeight:'600' },
 }

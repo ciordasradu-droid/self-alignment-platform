@@ -95,12 +95,12 @@ export async function POST(request) {
     const body = await request.json()
     const { interpreted_profile_id, calculated_data, sections, swot, language = 'en' } = body
 
-    const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot)
+    const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot, language)
     const alignmentPlan = await callClaude(planPrompt, language, 4000)
 
     let actionPlan = []
     try {
-      const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections)
+      const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections, language)
       const actionPlanRaw = await callClaude(actionPlanPrompt, language, 3000)
       actionPlan = actionPlanRaw.practices || []
     } catch (e) {

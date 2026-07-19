@@ -17,7 +17,13 @@
   --pearl:       #f4ecd9;
   --gold-deep:   #c9963f;
 
-  /* Core palette — recalibrată pentru adâncime */
+  /* Core palette — recalibrată pentru adâncime.
+     ATENȚIE grep: --purple, --green, --amber sunt aliasuri ale auriului —
+     numele mint. Un grep după "gold"/hex-uri aurii NU prinde `background:
+     var(--purple)` etc. Orice audit viitor pentru "fundal auriu" trebuie să
+     caute și `var(--purple)`, `var(--green)`, `var(--amber)`,
+     `var(--purple-dark)` folosite ca background/background-image, nu doar
+     literalul "gold". Vezi app/profile/page.js ctaBox — exact acest caz. */
   --purple: #e0b36a;
   --purple-light: rgba(224, 179, 106, 0.14);
   --purple-dark: #c9963f;
@@ -109,7 +115,7 @@ body {
    orice conținut, indiferent de structura paginii. Marjă generoasă
    (nu doar înălțimea barei) — telefonul real are chrome dinamic. */
 body.has-room-nav {
-  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  padding-bottom: calc(168px + env(safe-area-inset-bottom));
 }
 
 h1, h2, h3, h4 {

@@ -21,6 +21,9 @@ export const metadata = {
   title: "Profil de Aliniere",
   description: "Astrologie, Human Design și numerologie, sintetizate într-un profil personal și un plan de aliniere.",
   manifest: "/manifest.json",
+  other: {
+    google: "notranslate",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -42,14 +45,14 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" translate="no" className="notranslate" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var l=localStorage.getItem('app_language');if(l){document.documentElement.lang=l}}catch(e){}",
+              "try{var SUP=['en','ro','es','fr','de','it','pt','nl','pl','hu','ru'];var l=localStorage.getItem('app_language');if(!l){var n=(navigator.language||'en').slice(0,2).toLowerCase();if(SUP.indexOf(n)!==-1)l=n}if(l){document.documentElement.lang=l}}catch(e){}",
           }}
         />
         {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
