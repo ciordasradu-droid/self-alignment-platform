@@ -115,7 +115,7 @@ body {
    orice conținut, indiferent de structura paginii. Marjă generoasă
    (nu doar înălțimea barei) — telefonul real are chrome dinamic. */
 body.has-room-nav {
-  padding-bottom: calc(168px + env(safe-area-inset-bottom));
+  padding-bottom: calc(200px + env(safe-area-inset-bottom));
 }
 
 h1, h2, h3, h4 {
@@ -939,7 +939,7 @@ input:focus, textarea:focus, select:focus {
 
 .story-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 22px;
 }
 
@@ -1085,7 +1085,7 @@ input:focus, textarea:focus, select:focus {
 }
 .trust-indicators {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
   gap: 14px;
 }
 .trust-indicator {

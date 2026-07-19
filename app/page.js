@@ -339,7 +339,7 @@ const s = {
   trust: { padding:'clamp(20px, 3vw, 40px) 0 clamp(40px, 6vw, 80px)' },
 
   // 3-column grid
-  threeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'22px', marginTop:'40px' },
+  threeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(260px, 100%), 1fr))', gap:'22px', marginTop:'40px' },
 
   // Steps
   stepCard: { background:'var(--surface)', borderRadius:'20px', padding:'32px', border:'1px solid var(--border)', boxShadow:'var(--shadow)' },
@@ -350,7 +350,7 @@ const s = {
   // Pricing
   pricingSection: { padding:'clamp(60px, 10vw, 100px) 0', position:'relative' },
   pricingTitle: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', marginBottom:'14px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', letterSpacing:'-0.4px', textAlign:'center' },
-  pricingGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:'24px', maxWidth:'780px', margin:'40px auto 0', alignItems:'stretch' },
+  pricingGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap:'24px', maxWidth:'780px', margin:'40px auto 0', alignItems:'stretch' },
   priceDesc: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7', margin:'18px 0 26px' },
   priceBtnGhost: { display:'inline-block', padding:'14px 30px', background:'var(--text)', color:'#fff', borderRadius:'12px', fontSize:'15px', fontWeight:'500', alignSelf:'center', marginTop:'auto' },
 

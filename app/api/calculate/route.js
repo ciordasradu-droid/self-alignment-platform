@@ -38,6 +38,18 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Un profil nou trebuie să înceapă cu o zi curată — altfel un check-in
+    // făcut mai devreme azi (cu profilul vechi) rămâne agățat de user_id și
+    // ritualul de seară apare "deja făcut" pe profilul proaspăt. Ștergem
+    // DOAR check-in-urile de azi, nu tot istoricul (streak-ul/Prezența rămân).
+    const todayStr = new Date().toISOString().split('T')[0]
+    await supabaseAdmin
+      .from('checkins')
+      .delete()
+      .eq('user_id', user.id)
+      .gte('created_at', `${todayStr}T00:00:00.000Z`)
+      .lt('created_at', `${todayStr}T23:59:59.999Z`)
+
     return NextResponse.json({
       success: true,
       calculated_profile_id: data[0].id,

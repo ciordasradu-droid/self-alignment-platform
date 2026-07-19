@@ -258,7 +258,7 @@ const s = {
   profileNoteLink: { fontSize:'15px', color:'var(--purple)', fontWeight:'600' },
   guaranteeSection: { marginTop:'48px' },
   guaranteeTitle: { fontSize:'28px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', textAlign:'center', marginBottom:'24px' },
-  guaranteeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px' },
+  guaranteeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap:'16px' },
   guaranteeCard: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'24px', textAlign:'center' },
   guaranteeCardTitle: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'8px' },
   guaranteeCardText: { fontSize:'13px', color:'var(--text-muted)', lineHeight:'1.6' }

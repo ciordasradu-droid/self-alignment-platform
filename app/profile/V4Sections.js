@@ -213,7 +213,7 @@ const v = {
   frictionStack: { display:'flex', flexDirection:'column', gap:'24px' },
   frictionItem: { paddingBottom:'24px', borderBottom:'1px solid var(--border)' },
   frictionTension: { fontSize:'17px', fontWeight:'600', color:'var(--text)', marginBottom:'14px', fontFamily:'Cormorant Garamond, serif' },
-  pullRow: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'12px', marginBottom:'14px' },
+  pullRow: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap:'12px', marginBottom:'14px' },
   pullBox: (c) => ({ position:'relative', background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'14px 14px 14px 16px', borderLeft:`3px solid ${c}` }),
   pullTag: (c) => ({ display:'inline-flex', alignItems:'center', justifyContent:'center', width:'20px', height:'20px', borderRadius:'50%', background:c, color:'#fff', fontSize:'11px', fontWeight:'700', marginBottom:'8px' }),
   pullText: { fontSize:'14px', lineHeight:'1.6', color:'var(--text)' },
