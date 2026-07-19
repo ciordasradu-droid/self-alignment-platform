@@ -16,6 +16,7 @@ import RoomNav from '../components/RoomNav'
 import { useUser } from '../../lib/useUser'
 import { t } from '../../lib/translations'
 import { useLanguage } from '../../lib/language'
+import { getForcedRitual } from '../../lib/simRitual'
 
 const L = {
   en: { to_evening: 'Go to this evening', to_morning: 'Go to this morning' },
@@ -64,13 +65,14 @@ function DashboardContent() {
   // Ritualul potrivit orei. FĂRĂ blocaj (principiul 4): celălalt rămâne
   // accesibil printr-un link discret — ora sugerează, nu interzice.
   const hour = new Date().getHours()
-  const naturally = hour < 12 ? 'morning' : hour >= 17 ? 'evening' : (today.morning ? 'evening' : 'morning')
+  const forcedRitual = getForcedRitual() // testare (secț. QA) — vezi lib/simRitual.js
+  const naturally = forcedRitual || (hour < 12 ? 'morning' : hour >= 17 ? 'evening' : (today.morning ? 'evening' : 'morning'))
   const showing = ritual || naturally
   const other = showing === 'morning' ? 'evening' : 'morning'
 
   // Mod-noapte pe tot Azi de la ora serii (secț. 3/4) — indiferent care
   // ritual e afișat manual, ceasul decide atmosfera întregului ecran.
-  const isNight = hour >= 17 || hour < 6
+  const isNight = forcedRitual ? forcedRitual === 'evening' : (hour >= 17 || hour < 6)
 
   return (
     <main className={`room-shell${isNight ? ' night-mode' : ''}`}>
