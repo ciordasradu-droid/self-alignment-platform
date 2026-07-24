@@ -41,7 +41,7 @@ const MOCK_PROFILE = {
   alignment_plan: {
     directional_clarity: { life_direction: 'Spre exprimare constanta.', prioritize: ['Scrisul zilnic'], eliminate: ['Amanarea deciziilor mici'] },
     structured_plan: { thirty_day_focus: 'Ritmul de dimineata.', weekly_template: ['Luni: plan'], daily_template: ['Un rand scris'] },
-    behavioral_anchors: { keystone_habits: ['Jurnal seara'], forbidden_behaviors: ['Sa raspunzi la mesaje inainte de a te trezi complet'], non_negotiables: ['O ora offline dupa 21:00'] },
+    behavioral_anchors: { keystone_habits: ['Jurnal seara'], drains_to_notice: ['Sa raspunzi la mesaje inainte de a te trezi complet'], non_negotiables: ['O ora offline dupa 21:00'] },
   },
 }
 

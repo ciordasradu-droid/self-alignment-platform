@@ -670,9 +670,9 @@ function ProfileContent() {
                   </ul>
                 </div>
                 <div style={s.anchorBox}>
-                  <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'forbidden')}</p>
+                  <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'drains_to_notice')}</p>
                   <ul style={s.list}>
-                    {alignment_plan?.behavioral_anchors?.forbidden_behaviors?.map((item, i) => (
+                    {alignment_plan?.behavioral_anchors?.drains_to_notice?.map((item, i) => (
                       <li key={i} style={s.listItem}>{item}</li>
                     ))}
                   </ul>

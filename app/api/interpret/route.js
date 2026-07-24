@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { checkRateLimit } from '../../../lib/rateLimit'
-import { buildProfilePrompt } from '../../../lib/prompts/profile'
+import { buildProfilePrompt, buildProofreadPrompt } from '../../../lib/prompts/profile'
 import { jsonrepair } from 'jsonrepair'
 
 export const maxDuration = 300
@@ -131,7 +131,19 @@ export async function POST(request) {
     after(async () => {
       try {
         const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
-        const sections = await callClaude(profilePrompt, language, 10000)
+        let sections = await callClaude(profilePrompt, language, 10000)
+
+        // Second pass, every language: fixes non-EN grammar degradation on long
+        // generations (EN stayed clean on the same data) AND acts as a lexicon
+        // safety net for rare single-shot misses (Umbra-word, system
+        // personification, etc.) that the generation prompt already forbids.
+        try {
+          const proofreadPrompt = buildProofreadPrompt(JSON.stringify(sections), language)
+          const proofread = await callClaude(proofreadPrompt, language, 10000)
+          sections = proofread
+        } catch (proofErr) {
+          console.error('[interpret] proofread pass failed, keeping original sections:', proofErr.message)
+        }
 
         const swot = {
           strengths: sections.strengths?.slice(0, 4) || [],
