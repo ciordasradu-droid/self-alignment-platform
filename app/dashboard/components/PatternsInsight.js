@@ -8,6 +8,8 @@ export default function PatternsInsight({ lang = "en" }) {
   const [error, setError] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
   const [lastGenerated, setLastGenerated] = useState(null)
+  const [firstMirror, setFirstMirror] = useState(false)
+  const [subscribeRequired, setSubscribeRequired] = useState(false)
 
   const labels = {
     en: {
@@ -22,6 +24,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Strength",
       watch: "Watch",
       invitation: "Invitation",
+      first_mirror: "Your first mirror is ready. This is what the subscription does: it shows you what you can't see on your own.",
+      next_mirror: "The next mirror is part of the subscription.",
+      see_plan: "See the plan →",
     },
     ro: {
       tag: "Tipare",
@@ -35,6 +40,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Punct forte",
       watch: "De urmarit",
       invitation: "Invitatie",
+      first_mirror: "Prima ta oglinda e gata. Asta face abonamentul: iti arata ce nu vezi singur.",
+      next_mirror: "Urmatoarea oglinda e parte din abonament.",
+      see_plan: "Vezi planul →",
     },
     es: {
       tag: "Patrones",
@@ -48,6 +56,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Fortaleza",
       watch: "Observar",
       invitation: "Invitacion",
+      first_mirror: "Tu primer espejo esta listo. Esto hace el plan: te muestra lo que no ves solo.",
+      next_mirror: "El proximo espejo es parte del plan.",
+      see_plan: "Ver el plan →",
     },
     fr: {
       tag: "Tendances",
@@ -61,6 +72,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Force",
       watch: "A surveiller",
       invitation: "Invitation",
+      first_mirror: "Ton premier miroir est pret. Voila ce que fait l'abonnement : il te montre ce que tu ne vois pas seul.",
+      next_mirror: "Le prochain miroir fait partie de l'abonnement.",
+      see_plan: "Voir le plan →",
     },
     de: {
       tag: "Muster",
@@ -74,6 +88,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Staerke",
       watch: "Beobachten",
       invitation: "Einladung",
+      first_mirror: "Dein erster Spiegel ist fertig. Das macht das Abo: es zeigt dir, was du selbst nicht siehst.",
+      next_mirror: "Der naechste Spiegel ist Teil des Abos.",
+      see_plan: "Plan ansehen →",
     },
     it: {
       tag: "Modelli",
@@ -87,6 +104,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Punto di forza",
       watch: "Da osservare",
       invitation: "Invito",
+      first_mirror: "Il tuo primo specchio e pronto. Ecco cosa fa l'abbonamento: ti mostra cio che non vedi da solo.",
+      next_mirror: "Il prossimo specchio fa parte dell'abbonamento.",
+      see_plan: "Vedi il piano →",
     },
     pt: {
       tag: "Padroes",
@@ -100,6 +120,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Forca",
       watch: "Observar",
       invitation: "Convite",
+      first_mirror: "O teu primeiro espelho esta pronto. E isso que a assinatura faz: mostra-te o que nao ves sozinho.",
+      next_mirror: "O proximo espelho faz parte da assinatura.",
+      see_plan: "Ver o plano →",
     },
     nl: {
       tag: "Patronen",
@@ -113,6 +136,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Kracht",
       watch: "Aandachtspunt",
       invitation: "Uitnodiging",
+      first_mirror: "Je eerste spiegel is klaar. Dit doet het abonnement: het toont je wat je zelf niet ziet.",
+      next_mirror: "De volgende spiegel is onderdeel van het abonnement.",
+      see_plan: "Bekijk het plan →",
     },
     pl: {
       tag: "Wzorce",
@@ -126,6 +152,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Sila",
       watch: "Do obserwacji",
       invitation: "Zaproszenie",
+      first_mirror: "Twoje pierwsze lustro jest gotowe. To robi subskrypcja: pokazuje ci to, czego sam nie widzisz.",
+      next_mirror: "Kolejne lustro jest czescia subskrypcji.",
+      see_plan: "Zobacz plan →",
     },
     hu: {
       tag: "Mintak",
@@ -139,6 +168,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Erosseg",
       watch: "Figyelendo",
       invitation: "Meghivas",
+      first_mirror: "Az elso tukrod elkeszult. Ezt csinalja az elofizetes: megmutatja, amit magadtol nem latsz.",
+      next_mirror: "A kovetkezo tukor az elofizetes resze.",
+      see_plan: "Terv megtekintese →",
     },
     ru: {
       tag: "Закономерности",
@@ -152,6 +184,9 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Сильная сторона",
       watch: "Присмотреться",
       invitation: "Приглашение",
+      first_mirror: "Твоё первое зеркало готово. Вот что делает подписка: показывает то, что ты сам не видишь.",
+      next_mirror: "Следующее зеркало — часть подписки.",
+      see_plan: "Смотреть план →",
     }
   }
 
@@ -171,6 +206,7 @@ export default function PatternsInsight({ lang = "en" }) {
   const generatePatterns = async () => {
     setLoading(true)
     setError(null)
+    setSubscribeRequired(false)
 
     try {
       const res = await fetch("/api/patterns", {
@@ -181,6 +217,12 @@ export default function PatternsInsight({ lang = "en" }) {
 
       const data = await res.json()
 
+      if (res.status === 402 || data.subscribe_required) {
+        setSubscribeRequired(true)
+        setLoading(false)
+        return
+      }
+
       if (!res.ok) throw new Error(data.error || "Failed to generate patterns")
 
       if (data.insufficient) {
@@ -190,6 +232,7 @@ export default function PatternsInsight({ lang = "en" }) {
       }
 
       setPatterns(data.patterns)
+      setFirstMirror(!!data.first_generation)
       const today = new Date().toLocaleDateString(lang === "en" ? "en-US" : lang, {
         month: "short", day: "numeric"
       })
@@ -240,6 +283,13 @@ export default function PatternsInsight({ lang = "en" }) {
             <p style={s.errorText}>{error}</p>
           )}
 
+          {subscribeRequired && !loading && (
+            <div style={s.upsellBox}>
+              <p style={s.upsellText}>{t.next_mirror}</p>
+              <a href="/subscribe" style={s.upsellLink}>{t.see_plan}</a>
+            </div>
+          )}
+
           {patterns && !loading && (
             <div style={s.patternsWrap}>
 
@@ -267,14 +317,21 @@ export default function PatternsInsight({ lang = "en" }) {
                 </div>
               )}
 
-              <div style={s.footer}>
-                {lastGenerated && (
-                  <p style={s.lastUpdated}>{t.last_updated}: {lastGenerated}</p>
-                )}
-                <button onClick={generatePatterns} style={s.refreshBtn}>
-                  {t.regenerate}
-                </button>
-              </div>
+              {firstMirror ? (
+                <div style={s.upsellBox}>
+                  <p style={s.upsellText}>{t.first_mirror}</p>
+                  <a href="/subscribe" style={s.upsellLink}>{t.see_plan}</a>
+                </div>
+              ) : (
+                <div style={s.footer}>
+                  {lastGenerated && (
+                    <p style={s.lastUpdated}>{t.last_updated}: {lastGenerated}</p>
+                  )}
+                  <button onClick={generatePatterns} style={s.refreshBtn}>
+                    {t.regenerate}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -304,4 +361,7 @@ const s = {
   footer: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px" },
   lastUpdated: { fontSize: "12px", color: "var(--text-muted)" },
   refreshBtn: { padding: "8px 16px", background: "transparent", color: "var(--purple)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", fontWeight: "500", cursor: "pointer" },
+  upsellBox: { textAlign: "center", padding: "18px 8px 4px", borderTop: "1px solid var(--border)", marginTop: "16px" },
+  upsellText: { fontSize: "14px", color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "10px" },
+  upsellLink: { fontSize: "13.5px", color: "var(--amber, var(--purple))", fontWeight: "600" },
 }

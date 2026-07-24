@@ -6,6 +6,7 @@ import { checkRateLimit } from '../../../lib/rateLimit'
 import { calculatePersonalDayMonth } from '../../../lib/calculations/numerology'
 import { VOICE_RULES } from '../../../lib/prompts/profile'
 import { getDailyThoughtAngle } from '../../../lib/dailyThoughts'
+import { getTrialStatus } from '../../../lib/trial'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -44,6 +45,13 @@ export async function POST(request) {
 
     if (existing) {
       return NextResponse.json({ success: true, insight: existing.insight })
+    }
+
+    // A6 — gandul zilei PERSONALIZAT se opreste la expirarea probei (fara
+    // abonament). Clientul are deja fallback-ul static; nu mai chemam Claude.
+    const { subscribed, trialEnded } = await getTrialStatus(supabaseAdmin, user_id)
+    if (trialEnded && !subscribed) {
+      return NextResponse.json({ success: true, insight: null, subscribe_required: true })
     }
 
     const { personal_day, personal_month } = calculatePersonalDayMonth(profile.date_of_birth, language)

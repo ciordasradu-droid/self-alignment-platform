@@ -12,6 +12,7 @@ import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { checkRateLimit } from '../../../lib/rateLimit'
 import { VOICE_RULES } from '../../../lib/prompts/profile'
+import { getTrialStatus } from '../../../lib/trial'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -36,6 +37,15 @@ export async function POST(request) {
 
     const body = await request.json()
     const { language = 'en' } = body
+
+    // A5/A6 — proba gratuita include PRIMA oglinda. Un rand deja existent
+    // in patterns_insights inseamna ca oglinda a fost livrata deja; orice
+    // cerere ulterioara e o REGENERARE, care se opreste la expirarea probei
+    // (nu se confisca insa oglinda deja generata — ramane accesibila).
+    const { subscribed, trialEnded } = await getTrialStatus(supabaseAdmin, user_id)
+    if (trialEnded && !subscribed) {
+      return NextResponse.json({ subscribe_required: true }, { status: 402 })
+    }
 
     const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
@@ -140,7 +150,9 @@ Return ONLY a JSON object, no markdown, no code fences:
       }], { onConflict: 'user_id' })
       .then(() => {}, () => {}) // nu esueaza daca tabela lipseste
 
-    return NextResponse.json({ success: true, patterns })
+    // A5 — paywall-ul apare imediat DUPA ce oglinda e generata, arata
+    // rezultatul intai. first_generation=true doar la aceasta prima oglinda.
+    return NextResponse.json({ success: true, patterns, first_generation: !trialEnded && !subscribed })
 
   } catch (err) {
     console.error('Patterns error:', err.message)

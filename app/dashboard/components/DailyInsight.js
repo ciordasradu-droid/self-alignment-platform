@@ -54,7 +54,10 @@ export default function DailyInsight({ embedded = false }) {
           }),
         })
           .then((r) => r.json())
-          .then((d) => { if (d.success) setInsight(d.insight) })
+          // A6: daca gandul personalizat s-a oprit (proba expirata, fara
+          // abonament), server-ul intoarce insight:null — fallback-ul
+          // static ramas pe ecran de la pasul de mai sus e exact corect.
+          .then((d) => { if (d.success && d.insight) setInsight(d.insight) })
           .catch(() => {}) // fallback-ul static rămâne pe ecran
       }
     } catch (e) {
