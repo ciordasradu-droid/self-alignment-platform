@@ -19,8 +19,17 @@ import { useLanguage } from '../../lib/language'
 import { getForcedRitual } from '../../lib/simRitual'
 
 const L = {
-  en: { to_evening: 'Go to this evening', to_morning: 'Go to this morning' },
-  ro: { to_evening: 'Mergi la seara asta', to_morning: 'Mergi la dimineața asta' },
+  en: { to_evening: 'Go to this evening', to_morning: 'Go to this morning', returning: 'What you wrote is still here.' },
+  ro: { to_evening: 'Mergi la seara asta', to_morning: 'Mergi la dimineața asta', returning: 'Ce ai scris e tot aici.' },
+  es: { to_evening: 'Ir a esta noche', to_morning: 'Ir a esta mañana', returning: 'Lo que escribiste sigue aquí.' },
+  fr: { to_evening: 'Aller à ce soir', to_morning: 'Aller à ce matin', returning: 'Ce que tu as écrit est toujours là.' },
+  de: { to_evening: 'Zu diesem Abend gehen', to_morning: 'Zu diesem Morgen gehen', returning: 'Was du geschrieben hast, ist noch da.' },
+  it: { to_evening: 'Vai a stasera', to_morning: 'Vai a stamattina', returning: 'Quello che hai scritto è ancora qui.' },
+  pt: { to_evening: 'Ir para esta noite', to_morning: 'Ir para esta manhã', returning: 'O que escreveste continua aqui.' },
+  nl: { to_evening: 'Ga naar vanavond', to_morning: 'Ga naar vanochtend', returning: 'Wat je hebt geschreven is er nog steeds.' },
+  pl: { to_evening: 'Przejdź do dzisiejszego wieczoru', to_morning: 'Przejdź do dzisiejszego poranka', returning: 'To, co napisałeś, wciąż tu jest.' },
+  hu: { to_evening: 'Ugrás a mai estéhez', to_morning: 'Ugrás a mai reggelhez', returning: 'Amit írtál, még mindig itt van.' },
+  ru: { to_evening: 'Перейти к сегодняшнему вечеру', to_morning: 'Перейти к сегодняшнему утру', returning: 'То, что ты написал, всё ещё здесь.' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -80,6 +89,13 @@ function DashboardContent() {
       {/* locul apei/lacrimii: ecranul se deschide pe apă, nu pe carduri */}
       <div style={{ height: 'min(30vh, 220px)' }} aria-hidden="true" />
 
+      {/* A4 — Momentul Revenirii: un singur mesaj, cald, fără mențiunea
+          absenței și fără statistici. Se stinge singur după primul ritual
+          făcut azi (returning devine false din server). */}
+      {data?.returning && (
+        <p style={s.returning} className="anim-fade-in">{lx(lang, 'returning')}</p>
+      )}
+
       {/* ── RITUALUL — atinge apa de deasupra ── */}
       <div>
         {showing === 'morning' ? (
@@ -115,6 +131,7 @@ function DashboardContent() {
 
 const s = {
   switchBtn: { display: 'block', margin: '-8px auto 22px', padding: '10px 16px', background: 'transparent', border: 'none', color: 'rgba(244,240,234,0.55)', fontSize: '13px', cursor: 'pointer', minHeight: '44px' },
+  returning: { textAlign: 'center', fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', fontStyle: 'italic', color: 'rgba(244,240,234,0.7)', margin: '0 24px 18px' },
 }
 
 export default function DashboardPage() {

@@ -58,6 +58,15 @@ export async function GET(request) {
       c.created_at.split('T')[0] === today
     )
 
+    // A4 — Momentul Revenirii: absență de 3+ zile de la ultima activitate.
+    // Doar useri cu istoric real (nu cont proaspăt) pot fi "absenți".
+    let returning = false
+    if (!checkedInToday && (allCheckins || []).length > 0) {
+      const lastActiveMs = Math.max(...allCheckins.map(c => new Date(c.created_at.split('T')[0]).getTime()))
+      const daysSinceActive = Math.floor((new Date(today).getTime() - lastActiveMs) / 86400000)
+      returning = daysSinceActive >= 3
+    }
+
     // ZIUA DIN DRUM — determină stadiul apei (legea 7). Vine din vechimea
     // contului, nu din localStorage. Ziua 1 = ziua în care s-a creat contul.
     let { data: profile } = await supabaseAdmin
@@ -103,6 +112,7 @@ export async function GET(request) {
       day,
       activeDays,
       writtenEntries,
+      returning,
       today: {
         morning: !!morning,
         evening: !!evening,
