@@ -23,6 +23,7 @@ const LABELS = {
     generate: 'Generate My Commitment', print: 'Print This Document', download_pdf: 'Download as PDF', edit: 'Edit',
     reread_note: 'You can re-read this anytime, from The Path.',
     placeholder1: 'Write who you are...', placeholder2: 'Write what you are moving toward...', placeholder3: 'Write what you are leaving behind...',
+    annual_offer: 'The annual plan is available now, here — just this once.', annual_cta: 'See the annual plan',
   },
   ro: {
     tag: 'Ziua 60', title: 'Angajamentul cu Tine',
@@ -36,6 +37,7 @@ const LABELS = {
     generate: 'Generează Angajamentul Meu', print: 'Printează Documentul', download_pdf: 'Descarcă PDF', edit: 'Editează',
     reread_note: 'Poți reciti asta oricând, din Drum.',
     placeholder1: 'Scrie cine ești...', placeholder2: 'Scrie spre ce mergi...', placeholder3: 'Scrie ce lași în urmă...',
+    annual_offer: 'Planul anual e disponibil acum, aici — o singură dată.', annual_cta: 'Vezi planul anual',
   },
   es: {
     tag: 'Día 60', title: 'Compromiso Contigo Mismo',
@@ -49,6 +51,7 @@ const LABELS = {
     generate: 'Generar Mi Compromiso', print: 'Imprimir Documento', download_pdf: 'Descargar PDF', edit: 'Editar',
     reread_note: 'Puedes releer esto cuando quieras, desde el Camino.',
     placeholder1: 'Escribe quién eres...', placeholder2: 'Escribe hacia dónde vas...', placeholder3: 'Escribe qué dejas atrás...',
+    annual_offer: 'El plan anual está disponible ahora, aquí — solo esta vez.', annual_cta: 'Ver el plan anual',
   },
   fr: {
     tag: 'Jour 60', title: 'Engagement Avec Toi-Même',
@@ -62,6 +65,7 @@ const LABELS = {
     generate: 'Générer Mon Engagement', print: 'Imprimer le Document', download_pdf: 'Télécharger en PDF', edit: 'Modifier',
     reread_note: 'Tu peux relire ceci à tout moment, depuis le Chemin.',
     placeholder1: 'Écris qui tu es...', placeholder2: 'Écris vers quoi tu te diriges...', placeholder3: 'Écris ce que tu laisses derrière...',
+    annual_offer: "Le plan annuel est disponible maintenant, ici — juste cette fois.", annual_cta: 'Voir le plan annuel',
   },
   de: {
     tag: 'Tag 60', title: 'Verpflichtung Mit Dir Selbst',
@@ -75,6 +79,7 @@ const LABELS = {
     generate: 'Meine Verpflichtung Erstellen', print: 'Dokument Drucken', download_pdf: 'Als PDF herunterladen', edit: 'Bearbeiten',
     reread_note: 'Du kannst das jederzeit wieder lesen, vom Weg aus.',
     placeholder1: 'Schreib wer du bist...', placeholder2: 'Schreib wohin du gehst...', placeholder3: 'Schreib was du loslässt...',
+    annual_offer: 'Der Jahresplan ist jetzt hier verfügbar — nur dieses eine Mal.', annual_cta: 'Jahresplan ansehen',
   },
   it: {
     tag: 'Giorno 60', title: 'Impegno Con Te Stesso',
@@ -88,6 +93,7 @@ const LABELS = {
     generate: 'Genera Il Mio Impegno', print: 'Stampa Documento', download_pdf: 'Scarica PDF', edit: 'Modifica',
     reread_note: 'Puoi rileggerlo quando vuoi, dal Cammino.',
     placeholder1: 'Scrivi chi sei...', placeholder2: 'Scrivi verso cosa stai andando...', placeholder3: 'Scrivi cosa lasci andare...',
+    annual_offer: 'Il piano annuale è disponibile ora, qui — solo questa volta.', annual_cta: 'Vedi il piano annuale',
   },
   pt: {
     tag: 'Dia 60', title: 'Compromisso Contigo Mesmo',
@@ -101,6 +107,7 @@ const LABELS = {
     generate: 'Gerar O Meu Compromisso', print: 'Imprimir Documento', download_pdf: 'Descarregar PDF', edit: 'Editar',
     reread_note: 'Podes reler isto quando quiseres, a partir do Caminho.',
     placeholder1: 'Escreve quem és...', placeholder2: 'Escreve para onde vais...', placeholder3: 'Escreve o que deixas para trás...',
+    annual_offer: 'O plano anual está disponível agora, aqui — só desta vez.', annual_cta: 'Ver o plano anual',
   },
   nl: {
     tag: 'Dag 60', title: 'Toewijding Aan Jezelf',
@@ -114,6 +121,7 @@ const LABELS = {
     generate: 'Genereer Mijn Toewijding', print: 'Print Dit Document', download_pdf: 'Download als PDF', edit: 'Bewerken',
     reread_note: 'Je kunt dit altijd teruglezen, vanaf het Pad.',
     placeholder1: 'Schrijf wie je bent...', placeholder2: 'Schrijf waar je naartoe gaat...', placeholder3: 'Schrijf wat je achterlaat...',
+    annual_offer: 'Het jaarplan is nu hier beschikbaar — alleen deze ene keer.', annual_cta: 'Bekijk het jaarplan',
   },
   pl: {
     tag: 'Dzień 60', title: 'Zobowiązanie Wobec Siebie',
@@ -127,6 +135,7 @@ const LABELS = {
     generate: 'Wygeneruj Moje Zobowiązanie', print: 'Wydrukuj Dokument', download_pdf: 'Pobierz jako PDF', edit: 'Edytuj',
     reread_note: 'Możesz to przeczytać ponownie w każdej chwili, z Drogi.',
     placeholder1: 'Napisz kim jesteś...', placeholder2: 'Napisz dokąd zmierzasz...', placeholder3: 'Napisz co zostawiasz za sobą...',
+    annual_offer: 'Plan roczny jest dostępny teraz, tutaj — tylko ten jeden raz.', annual_cta: 'Zobacz plan roczny',
   },
   hu: {
     tag: '60. Nap', title: 'Elköteleződés Önmagad Felé',
@@ -140,6 +149,7 @@ const LABELS = {
     generate: 'Elköteleződésem Létrehozása', print: 'Dokumentum Nyomtatása', download_pdf: 'Letöltés PDF-ként', edit: 'Szerkesztés',
     reread_note: 'Ezt bármikor újraolvashatod, az Útról.',
     placeholder1: 'Írd le ki vagy...', placeholder2: 'Írd le merre tartasz...', placeholder3: 'Írd le mit hagysz magad mögött...',
+    annual_offer: 'Az éves csomag most elérhető, itt — csak ez egyszer.', annual_cta: 'Éves csomag megtekintése',
   },
   ru: {
     tag: 'День 60', title: 'Обязательство Перед Собой',
@@ -153,12 +163,17 @@ const LABELS = {
     generate: 'Создать Моё Обязательство', print: 'Распечатать Документ', download_pdf: 'Скачать PDF', edit: 'Редактировать',
     reread_note: 'Ты можешь перечитать это в любое время, из раздела Путь.',
     placeholder1: 'Напиши, кто ты...', placeholder2: 'Напиши, к чему ты идёшь...', placeholder3: 'Напиши, что оставляешь позади...',
+    annual_offer: 'Годовой план доступен сейчас, здесь — только в этот раз.', annual_cta: 'Смотреть годовой план',
   },
 }
 
 export default function CommitmentDocument({ lang = 'en' }) {
   const [sections, setSections] = useState({ who: '', toward: '', leaving: '' })
   const [generated, setGenerated] = useState(false)
+  // A7 — oferta planului anual apare O SINGURA DATA, exact la momentul in
+  // care documentul e generat acum (nu la fiecare recitire ulterioara din
+  // cache). Ramane false daca "generated" vine din localStorage la mount.
+  const [justGenerated, setJustGenerated] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [userName, setUserName] = useState('')
   const [startingPoint, setStartingPoint] = useState(null) // null = inca se incarca
@@ -212,6 +227,7 @@ export default function CommitmentDocument({ lang = 'en' }) {
     }
     localStorage.setItem('commitment_document', JSON.stringify(payload))
     setGenerated(true)
+    setJustGenerated(true)
     // plasa server-side — recitibil oricand, pe orice device (fara migrare
     // de schema, la fel ca starting_point).
     try {
@@ -348,6 +364,22 @@ export default function CommitmentDocument({ lang = 'en' }) {
         <button onClick={handleDownloadPDF} style={s.printBtn}>{t.download_pdf}</button>
         <button onClick={handlePrint} style={s.printBtnGhost}>{t.print}</button>
         <button onClick={() => setGenerated(false)} style={s.editBtn}>{t.edit}</button>
+
+        {/* A7 — planul anual, o singura data, exact la momentul Angajamentului */}
+        {justGenerated && (
+          <div style={s.annualOffer}>
+            <p style={s.annualOfferText}>{t.annual_offer}</p>
+            <button
+              onClick={() => {
+                try { localStorage.setItem('subscribe_intent_plan', 'annual') } catch (e) {}
+                window.location.href = '/subscribe'
+              }}
+              style={s.annualOfferBtn}
+            >
+              {t.annual_cta}
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -466,4 +498,7 @@ const s = {
   printBtn: { width: '100%', padding: '14px', background: 'var(--purple)', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '500', cursor: 'pointer', marginBottom: '8px' },
   printBtnGhost: { width: '100%', padding: '12px', background: 'transparent', color: 'var(--text)', border: '1.5px solid var(--border)', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', marginBottom: '8px' },
   editBtn: { width: '100%', padding: '12px', background: 'transparent', color: 'var(--text-muted)', border: '1.5px solid var(--border)', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' },
+  annualOffer: { marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border)', textAlign: 'center' },
+  annualOfferText: { fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '10px' },
+  annualOfferBtn: { padding: '10px 20px', background: 'transparent', color: 'var(--amber)', border: '1.5px solid var(--amber)', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
 }

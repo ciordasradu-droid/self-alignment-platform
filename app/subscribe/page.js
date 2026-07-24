@@ -93,6 +93,15 @@ export default function SubscribePage() {
         if (profile.language) setLang(profile.language)
       }
     } catch (e) {}
+
+    // A7 — oferta planului anual la momentul Angajamentului (z60) trimite
+    // aici cu anualul deja selectat, fara query param (fara Suspense nou).
+    try {
+      if (localStorage.getItem('subscribe_intent_plan') === 'annual') {
+        setPlan('annual')
+        localStorage.removeItem('subscribe_intent_plan')
+      }
+    } catch (e) {}
   }, [])
 
   const labels = SUBSCRIBE_LABELS[lang] || SUBSCRIBE_LABELS['en']

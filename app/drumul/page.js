@@ -26,6 +26,10 @@ const ROADMAP = [
   { threshold: 7,  metric: 'entries', key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
   { threshold: 30, metric: 'days',    key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Saturday\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de sâmbătă' },
   { threshold: 60, metric: 'days',    key: 'commitment', en: 'Commitment With Yourself',         ro: 'Angajamentul cu Tine',                en_d: 'a personal document — read again anytime',           ro_d: 'un document personal, recitit oricând' },
+  // A8 (decizie închisă 23.07): Cercul iese din harta afișată până la masă
+  // critică de useri; în loc, la ziua 90 (echivalent prezență), placeholder
+  // pentru reînnoirea Angajamentului. Fără componentă funcțională încă.
+  { threshold: 90, metric: 'days',    key: 'renewal',    en: 'Renewing Your Commitment',          ro: 'Reînnoirea Angajamentului',           en_d: 'revisit what you wrote at day 60, and what comes next', ro_d: 'recitești ce ai scris la ziua 60, și ce urmează' },
 ]
 
 const L = {
