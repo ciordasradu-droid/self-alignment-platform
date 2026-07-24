@@ -10,6 +10,7 @@ import { useState, useEffect, Suspense } from 'react'
 import FreeJournal from '../dashboard/components/FreeJournal'
 import PatternsInsight from '../dashboard/components/PatternsInsight'
 import CommitmentDocument from '../dashboard/components/CommitmentDocument'
+import EchoMoment from '../dashboard/components/EchoMoment'
 import Presence from '../components/Presence'
 import RoomNav from '../components/RoomNav'
 import WaterLoader from '../components/water/WaterLoader'
@@ -154,6 +155,8 @@ function DrumulContent() {
 
       <Roadmap lang={lang} presence={presence} />
       <AccessLine lang={lang} />
+
+      <EchoMoment lang={lang} />
 
       {isUnlocked(3, 'days', presence) && <FreeJournal lang={lang} />}
       {isUnlocked(7, 'entries', presence) && <PatternsInsight lang={lang} />}

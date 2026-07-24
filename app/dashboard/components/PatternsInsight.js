@@ -25,6 +25,7 @@ export default function PatternsInsight({ lang = "en" }) {
       watch: "Watch",
       invitation: "Invitation",
       first_mirror: "Your first mirror is ready. This is what the subscription does: it shows you what you can't see on your own.",
+      too_soon: "Your next mirror arrives in {n} days — it needs new material to reflect.",
       next_mirror: "The next mirror is part of the subscription.",
       see_plan: "See the plan →",
     },
@@ -41,6 +42,7 @@ export default function PatternsInsight({ lang = "en" }) {
       watch: "De urmarit",
       invitation: "Invitatie",
       first_mirror: "Prima ta oglinda e gata. Asta face abonamentul: iti arata ce nu vezi singur.",
+      too_soon: "Urmatoarea ta oglinda vine in {n} zile — are nevoie de material nou de reflectat.",
       next_mirror: "Urmatoarea oglinda e parte din abonament.",
       see_plan: "Vezi planul →",
     },
@@ -56,6 +58,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Fortaleza",
       watch: "Observar",
       invitation: "Invitacion",
+      too_soon: "Tu proximo espejo llega en {n} dias — necesita material nuevo para reflejar.",
       first_mirror: "Tu primer espejo esta listo. Esto hace el plan: te muestra lo que no ves solo.",
       next_mirror: "El proximo espejo es parte del plan.",
       see_plan: "Ver el plan →",
@@ -72,6 +75,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Force",
       watch: "A surveiller",
       invitation: "Invitation",
+      too_soon: "Ton prochain miroir arrive dans {n} jours — il lui faut du nouveau materiel a refleter.",
       first_mirror: "Ton premier miroir est pret. Voila ce que fait l'abonnement : il te montre ce que tu ne vois pas seul.",
       next_mirror: "Le prochain miroir fait partie de l'abonnement.",
       see_plan: "Voir le plan →",
@@ -88,6 +92,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Staerke",
       watch: "Beobachten",
       invitation: "Einladung",
+      too_soon: "Dein naechster Spiegel kommt in {n} Tagen — er braucht neues Material zum Spiegeln.",
       first_mirror: "Dein erster Spiegel ist fertig. Das macht das Abo: es zeigt dir, was du selbst nicht siehst.",
       next_mirror: "Der naechste Spiegel ist Teil des Abos.",
       see_plan: "Plan ansehen →",
@@ -104,6 +109,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Punto di forza",
       watch: "Da osservare",
       invitation: "Invito",
+      too_soon: "Il tuo prossimo specchio arriva tra {n} giorni — ha bisogno di nuovo materiale da riflettere.",
       first_mirror: "Il tuo primo specchio e pronto. Ecco cosa fa l'abbonamento: ti mostra cio che non vedi da solo.",
       next_mirror: "Il prossimo specchio fa parte dell'abbonamento.",
       see_plan: "Vedi il piano →",
@@ -120,6 +126,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Forca",
       watch: "Observar",
       invitation: "Convite",
+      too_soon: "O teu proximo espelho chega em {n} dias — precisa de material novo para refletir.",
       first_mirror: "O teu primeiro espelho esta pronto. E isso que a assinatura faz: mostra-te o que nao ves sozinho.",
       next_mirror: "O proximo espelho faz parte da assinatura.",
       see_plan: "Ver o plano →",
@@ -136,6 +143,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Kracht",
       watch: "Aandachtspunt",
       invitation: "Uitnodiging",
+      too_soon: "Je volgende spiegel komt over {n} dagen — hij heeft nieuw materiaal nodig om te weerspiegelen.",
       first_mirror: "Je eerste spiegel is klaar. Dit doet het abonnement: het toont je wat je zelf niet ziet.",
       next_mirror: "De volgende spiegel is onderdeel van het abonnement.",
       see_plan: "Bekijk het plan →",
@@ -152,6 +160,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Sila",
       watch: "Do obserwacji",
       invitation: "Zaproszenie",
+      too_soon: "Twoje kolejne lustro pojawi sie za {n} dni — potrzebuje nowego materialu do odbicia.",
       first_mirror: "Twoje pierwsze lustro jest gotowe. To robi subskrypcja: pokazuje ci to, czego sam nie widzisz.",
       next_mirror: "Kolejne lustro jest czescia subskrypcji.",
       see_plan: "Zobacz plan →",
@@ -168,6 +177,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Erosseg",
       watch: "Figyelendo",
       invitation: "Meghivas",
+      too_soon: "A kovetkezo tukrod {n} nap mulva erkezik — uj anyagra van szuksege a tukrozeshez.",
       first_mirror: "Az elso tukrod elkeszult. Ezt csinalja az elofizetes: megmutatja, amit magadtol nem latsz.",
       next_mirror: "A kovetkezo tukor az elofizetes resze.",
       see_plan: "Terv megtekintese →",
@@ -184,6 +194,7 @@ export default function PatternsInsight({ lang = "en" }) {
       strength: "Сильная сторона",
       watch: "Присмотреться",
       invitation: "Приглашение",
+      too_soon: "Твоё следующее зеркало появится через {n} дней — ему нужен новый материал для отражения.",
       first_mirror: "Твоё первое зеркало готово. Вот что делает подписка: показывает то, что ты сам не видишь.",
       next_mirror: "Следующее зеркало — часть подписки.",
       see_plan: "Смотреть план →",
@@ -219,6 +230,12 @@ export default function PatternsInsight({ lang = "en" }) {
 
       if (res.status === 402 || data.subscribe_required) {
         setSubscribeRequired(true)
+        setLoading(false)
+        return
+      }
+
+      if (res.status === 429 && data.too_soon) {
+        setError(t.too_soon.replace("{n}", data.days_remaining))
         setLoading(false)
         return
       }

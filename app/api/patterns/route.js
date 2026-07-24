@@ -42,9 +42,30 @@ export async function POST(request) {
     // in patterns_insights inseamna ca oglinda a fost livrata deja; orice
     // cerere ulterioara e o REGENERARE, care se opreste la expirarea probei
     // (nu se confisca insa oglinda deja generata — ramane accesibila).
-    const { subscribed, trialEnded } = await getTrialStatus(supabaseAdmin, user_id)
-    if (trialEnded && !subscribed) {
+    const { subscribed, trialEnded, hasPriorMirror } = await getTrialStatus(supabaseAdmin, user_id)
+    if (trialEnded) {
       return NextResponse.json({ subscribe_required: true }, { status: 402 })
+    }
+
+    // A3 — Tipare e viu, nu eveniment unic: oglinda se regenerează la
+    // fiecare 2 săptămâni din material nou, nu la fiecare apăsare de buton.
+    // Se aplică la orice REGENERARE (hasPriorMirror=true), abonat sau nu —
+    // gate-ul de mai sus deja a oprit non-abonatii fara abonament aici.
+    if (hasPriorMirror) {
+      const { data: lastRow } = await supabaseAdmin
+        .from('patterns_insights')
+        .select('created_at')
+        .eq('user_id', user_id)
+        .maybeSingle()
+      if (lastRow?.created_at) {
+        const daysSinceLast = (Date.now() - new Date(lastRow.created_at).getTime()) / 86400000
+        if (daysSinceLast < 14) {
+          return NextResponse.json({
+            too_soon: true,
+            days_remaining: Math.ceil(14 - daysSinceLast)
+          }, { status: 429 })
+        }
+      }
     }
 
     const { data: checkins, error: checkinError } = await supabaseAdmin
@@ -152,7 +173,10 @@ Return ONLY a JSON object, no markdown, no code fences:
 
     // A5 — paywall-ul apare imediat DUPA ce oglinda e generata, arata
     // rezultatul intai. first_generation=true doar la aceasta prima oglinda.
-    return NextResponse.json({ success: true, patterns, first_generation: !trialEnded && !subscribed })
+    // first_generation controleaza UI-ul de upsell (PatternsInsight.js) —
+    // relevant doar pentru cine NU e abonat inca (un abonat nu are nevoie
+    // de indemnul de abonare la propria prima oglinda).
+    return NextResponse.json({ success: true, patterns, first_generation: !hasPriorMirror && !subscribed })
 
   } catch (err) {
     console.error('Patterns error:', err.message)
