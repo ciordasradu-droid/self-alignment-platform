@@ -19,6 +19,32 @@ export async function GET(request) {
 
     if (checkinError) throw checkinError
 
+    // A2 — deblocările din Drumul se leagă de PREZENȚĂ (zile active / scris),
+    // nu de calendar. Zi activă = cel puțin un ritual făcut. Interogare
+    // separată, fără limita de 30 de mai sus (unlock-urile merg până la 60).
+    const { data: allCheckins, error: allCheckinsError } = await supabaseAdmin
+      .from('checkins')
+      .select('created_at, answers')
+      .eq('user_id', userId)
+
+    if (allCheckinsError) throw allCheckinsError
+
+    const activeDays = new Set((allCheckins || []).map(c => c.created_at.split('T')[0])).size
+
+    // Aceeași extragere ca în /api/patterns — DOAR text real scris de user.
+    let writtenEntries = 0
+    for (const c of (allCheckins || [])) {
+      const a = c.answers || {}
+      if (a.kind === 'evening') {
+        if (a.evening_journal) writtenEntries++
+        if (a.gratitude) writtenEntries++
+        if (a.intention) writtenEntries++
+      } else if (a.kind === 'morning') {
+        if (a.sleep) writtenEntries++
+        if (a.intention) writtenEntries++
+      }
+    }
+
     const { data: streak, error: streakError } = await supabaseAdmin
       .from('streaks')
       .select('*')
@@ -75,6 +101,8 @@ export async function GET(request) {
       streak: streak || { current_streak: 0, longest_streak: 0 },
       checkedInToday,
       day,
+      activeDays,
+      writtenEntries,
       today: {
         morning: !!morning,
         evening: !!evening,

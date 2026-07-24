@@ -16,19 +16,21 @@ import WaterLoader from '../components/water/WaterLoader'
 import { stageForDay, STAGES } from '../components/water/waterState'
 import { useLanguage } from '../../lib/language'
 
+// A2 (decizie închisă 23.07): deblocările se leagă de PREZENȚĂ, nu de
+// calendar. metric: 'days' = zile active (cel puțin un ritual făcut),
+// 'entries' = consemnări scrise reale (jurnal/recunoștință/intenție/somn).
 const ROADMAP = [
-  { day: 1,  key: 'checkin',    en: 'Rituals + Daily Thought',         ro: 'Ritualurile + Gândul Zilei',          en_d: 'you fall into rhythm with yourself',                ro_d: 'intri în ritm cu tine' },
-  { day: 3,  key: 'journal',    en: 'Free Journal',                     ro: 'Jurnal liber',                        en_d: 'a private space to write, any time — not only in the evening', ro_d: 'spațiu privat de scris, oricând, nu doar seara' },
-  { day: 7,  key: 'plan',       en: 'Alignment Plan',                   ro: 'Plan de aliniere',                    en_d: 'your personalized roadmap, from your profile',       ro_d: 'foaia personalizată de parcurs, din profil' },
-  { day: 14, key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
-  { day: 30, key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Saturday\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de sâmbătă' },
-  { day: 60, key: 'commitment', en: 'Commitment With Yourself',         ro: 'Angajamentul cu Tine',                en_d: 'a personal document — read again anytime',           ro_d: 'un document personal, recitit oricând' },
-  { day: 90, key: 'circle',     en: 'The Circle',                       ro: 'Cercul',                              en_d: '4 people, compatible by design',                     ro_d: '4 persoane, compatibile prin design' },
+  { threshold: 0,  metric: 'days',    key: 'checkin',    en: 'Rituals + Daily Thought',         ro: 'Ritualurile + Gândul Zilei',          en_d: 'you fall into rhythm with yourself',                ro_d: 'intri în ritm cu tine' },
+  { threshold: 3,  metric: 'days',    key: 'journal',    en: 'Free Journal',                     ro: 'Jurnal liber',                        en_d: 'a private space to write, any time — not only in the evening', ro_d: 'spațiu privat de scris, oricând, nu doar seara' },
+  { threshold: 7,  metric: 'days',    key: 'plan',       en: 'Alignment Plan',                   ro: 'Plan de aliniere',                    en_d: 'your personalized roadmap, from your profile',       ro_d: 'foaia personalizată de parcurs, din profil' },
+  { threshold: 7,  metric: 'entries', key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
+  { threshold: 30, metric: 'days',    key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Saturday\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de sâmbătă' },
+  { threshold: 60, metric: 'days',    key: 'commitment', en: 'Commitment With Yourself',         ro: 'Angajamentul cu Tine',                en_d: 'a personal document — read again anytime',           ro_d: 'un document personal, recitit oricând' },
 ]
 
 const L = {
-  en: { title: 'Your Path', subtitle: 'Everything here opens with time. You can see the full map.', opens: 'Opens on day', unlocked: 'Open', access_line: 'You\'re here on the free trial — subscribe to keep your path going.', access_link: 'See the plan →' },
-  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu timpul. Poți vedea harta completă.', opens: 'Se deschide în ziua', unlocked: 'Deschis', access_line: 'Ești aici prin proba gratuită — abonează-te ca să-ți continui drumul.', access_link: 'Vezi planul →' },
+  en: { title: 'Your Path', subtitle: 'Everything here opens with presence. You can see the full map.', opens_days: 'Opens after {n} active days', opens_entries: 'Opens after your {n}th written entry', unlocked: 'Open', access_line: 'You\'re here on the free trial — subscribe to keep your path going.', access_link: 'See the plan →' },
+  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu prezența ta. Poți vedea harta completă.', opens_days: 'Se deschide după {n} zile active', opens_entries: 'Se deschide după a {n}-a consemnare scrisă', unlocked: 'Deschis', access_line: 'Ești aici prin proba gratuită — abonează-te ca să-ți continui drumul.', access_link: 'Vezi planul →' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -57,9 +59,12 @@ function AccessLine({ lang }) {
   )
 }
 
-function isUnlocked(day, accountAge) { return accountAge + 1 >= day }
+function isUnlocked(threshold, metric, presence) {
+  const value = metric === 'entries' ? presence.writtenEntries : presence.activeDays
+  return value >= threshold
+}
 
-function Roadmap({ lang, accountAge }) {
+function Roadmap({ lang, presence }) {
   const t = L[lang] || L.en
   return (
     <div className="chapter">
@@ -72,8 +77,9 @@ function Roadmap({ lang, accountAge }) {
         </p>
         <div>
           {ROADMAP.map((r, i) => {
-            const unlocked = isUnlocked(r.day, accountAge)
+            const unlocked = isUnlocked(r.threshold, r.metric, presence)
             const isLast = i === ROADMAP.length - 1
+            const opensText = (r.metric === 'entries' ? lx(lang, 'opens_entries') : lx(lang, 'opens_days')).replace('{n}', r.threshold)
             return (
               <div key={r.key} style={{ display: 'flex', gap: '14px', minHeight: '54px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px', flexShrink: 0 }}>
@@ -91,9 +97,9 @@ function Roadmap({ lang, accountAge }) {
                   <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.6)', lineHeight: 1.5 }}>
                     {lang === 'ro' ? r.ro_d : r.en_d}
                   </p>
-                  {!unlocked && (
+                  {!unlocked && r.threshold > 0 && (
                     <p style={{ fontSize: '11.5px', color: 'rgba(244,240,234,0.4)', marginTop: '4px', fontStyle: 'italic' }}>
-                      {lx(lang, 'opens')} {r.day}
+                      {opensText}
                     </p>
                   )}
                 </div>
@@ -130,9 +136,9 @@ function DrumulContent() {
   if (loading) return <main style={{ padding: '120px 24px' }}><WaterLoader /></main>
 
   const day = data?.day || 1
-  const age = Math.max(0, day - 1)
   const stage = stageForDay(day)
   const streak = data?.streak?.current_streak || 0
+  const presence = { activeDays: data?.activeDays || 0, writtenEntries: data?.writtenEntries || 0 }
 
   return (
     <main className="room-shell">
@@ -142,12 +148,12 @@ function DrumulContent() {
         </p>
       </header>
 
-      <Roadmap lang={lang} accountAge={age} />
+      <Roadmap lang={lang} presence={presence} />
       <AccessLine lang={lang} />
 
-      {isUnlocked(3, age) && <FreeJournal lang={lang} />}
-      {isUnlocked(14, age) && <PatternsInsight lang={lang} />}
-      {isUnlocked(60, age) && <CommitmentDocument lang={lang} />}
+      {isUnlocked(3, 'days', presence) && <FreeJournal lang={lang} />}
+      {isUnlocked(7, 'entries', presence) && <PatternsInsight lang={lang} />}
+      {isUnlocked(60, 'days', presence) && <CommitmentDocument lang={lang} />}
 
       <Presence streak={streak} lang={lang} />
 
