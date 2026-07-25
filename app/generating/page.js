@@ -46,7 +46,7 @@ async function safeFetch(url, options, timeoutMs = 30000) {
 // Poll a status endpoint every intervalMs until status !== 'pending' or maxMs elapses.
 // Mobile-friendly: each poll is a short request, so backgrounded tabs and flaky
 // connections recover naturally on the next interval instead of dying mid-stream.
-async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}) {
+async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000, onTick = null } = {}) {
   const start = Date.now()
   while (Date.now() - start < maxMs) {
     let data
@@ -58,6 +58,7 @@ async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}
       await new Promise(r => setTimeout(r, intervalMs))
       continue
     }
+    if (onTick) onTick(data)
     if (data.status === 'complete') return data
     if (data.status === 'failed') throw new Error(data.error || 'Generation failed')
     await new Promise(r => setTimeout(r, intervalMs))
@@ -65,12 +66,18 @@ async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}
   throw new Error('Generation timed out')
 }
 
+// B2 (25.07): ordinea in care capitolele apar in prompt (nu neaparat ordinea
+// exacta in care Claude le scrie, dar aproape) — folosita doar ca sa aratam
+// bifele in ordine stabila, nu sarind aiurea daca sosesc putin altfel.
+const CHAPTER_ORDER = ['archetype', 'how_you_work', 'strengths', 'decision_system', 'energy_manual', 'central_tension', 'aligned_life']
+
 function GeneratingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [step, setStep] = useState(0)
   const [lang, setLang] = useState('en')
   const [error, setError] = useState(null)
+  const [revealedChapters, setRevealedChapters] = useState([])
 
   useEffect(() => {
     const data = searchParams.get('data')
@@ -137,7 +144,13 @@ function GeneratingContent() {
 
       const interpretData = await pollUntilComplete(
         `/api/interpret?id=${interpretedProfileId}`,
-        { intervalMs: 1500, maxMs: 240000 }
+        {
+          intervalMs: 1500, maxMs: 240000,
+          onTick: (data) => {
+            const keys = data.partial_sections ? Object.keys(data.partial_sections) : []
+            if (keys.length) setRevealedChapters(keys)
+          }
+        }
       )
 
       // Step 3 — start plan, then poll. Plan is non-fatal.
@@ -275,6 +288,21 @@ function GeneratingContent() {
             }} />
           ))}
         </div>
+
+        {/* B2 — capitolele apar pe masura ce sunt scrise, nu doar la final */}
+        {revealedChapters.length > 0 && (
+          <div style={{ marginTop:'28px', textAlign:'left', display:'inline-block' }}>
+            {CHAPTER_ORDER.filter(k => revealedChapters.includes(k)).map(key => (
+              <p key={key} className="anim-fade-in" style={{
+                fontSize:'14px', color:'var(--text-muted)', lineHeight:1.8,
+                display:'flex', alignItems:'center', gap:'8px'
+              }}>
+                <span style={{ color:'var(--purple)' }}>✓</span>
+                {key === 'archetype' ? t(lang, 'archetype_label') : t(lang, key)}
+              </p>
+            ))}
+          </div>
+        )}
       </main>
     </>
   )

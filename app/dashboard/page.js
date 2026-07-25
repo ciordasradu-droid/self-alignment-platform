@@ -37,7 +37,6 @@ function DashboardContent() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState(null)
-  const [ritual, setRitual] = useState(null) // ritualul ales manual de user
   const { user } = useUser()
   const [globalLang] = useLanguage()
   const [profileLang, setProfileLang] = useState('en')
@@ -71,13 +70,12 @@ function DashboardContent() {
   const today = data?.today || {}
   const firstName = (profile?.full_name || '').trim().split(/\s+/)[0] || ''
 
-  // Ritualul potrivit orei. FĂRĂ blocaj (principiul 4): celălalt rămâne
-  // accesibil printr-un link discret — ora sugerează, nu interzice.
+  // Ritualul potrivit orei — Azi arată UN SINGUR ritual contextual (sect. 6,
+  // D7 25.07: butonul de comutare a fost scos, contrazicea "un singur ritual").
   const hour = new Date().getHours()
   const forcedRitual = getForcedRitual() // testare (secț. QA) — vezi lib/simRitual.js
   const naturally = forcedRitual || (hour < 12 ? 'morning' : hour >= 17 ? 'evening' : (today.morning ? 'evening' : 'morning'))
-  const showing = ritual || naturally
-  const other = showing === 'morning' ? 'evening' : 'morning'
+  const showing = naturally
 
   // Mod-noapte pe tot Azi de la ora serii (secț. 3/4) — indiferent care
   // ritual e afișat manual, ceasul decide atmosfera întregului ecran.
@@ -115,10 +113,6 @@ function DashboardContent() {
             onComplete={refresh}
           />
         )}
-
-        <button onClick={() => setRitual(other)} style={s.switchBtn}>
-          {other === 'evening' ? lx(lang, 'to_evening') : lx(lang, 'to_morning')}
-        </button>
       </div>
 
       {/* zilele grele — fără vinovăție */}

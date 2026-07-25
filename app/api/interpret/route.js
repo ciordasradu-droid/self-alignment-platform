@@ -4,6 +4,7 @@ import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { checkRateLimit } from '../../../lib/rateLimit'
 import { buildProfilePrompt, buildProofreadPrompt } from '../../../lib/prompts/profile'
+import { findFailingSections } from '../../../lib/lexiconGate'
 import { jsonrepair } from 'jsonrepair'
 
 export const maxDuration = 300
@@ -23,7 +24,25 @@ class TruncationError extends Error {
   }
 }
 
-async function callClaude(prompt, language = 'en', maxTokens = 16000) {
+// B2 (25.07): reveal chapters as they arrive instead of only after the full
+// JSON is done. Best-effort — during streaming we periodically try to repair
+// + parse whatever text has arrived so far; when a NEW top-level key becomes
+// readable that wasn't in the previous partial parse, we hand it to onPartial.
+// Never throws: a failed partial-parse attempt is silently skipped, the next
+// chunk tries again. Does not affect the final, authoritative parse below.
+function tryPartialParse(text) {
+  const clean = text.trim().replace(/^```json\n?/i, '').replace(/^```\n?/i, '')
+  // Only attempt once we plausibly have at least one complete top-level key,
+  // to avoid wasting cycles on obviously-incomplete JSON.
+  if (!clean.includes('"') || clean.split('"').length < 5) return null
+  try {
+    return JSON.parse(jsonrepair(clean))
+  } catch (e) {
+    return null
+  }
+}
+
+async function callClaude(prompt, language = 'en', maxTokens = 16000, onPartial = null) {
   const languageName = LANGUAGE_NAMES[language] || 'English'
   const reinforcement = language === 'en'
     ? `\n\nFINAL REMINDER: Your entire response must be in English. No Spanish, no other languages. Every word must be English.`
@@ -41,9 +60,22 @@ async function callClaude(prompt, language = 'en', maxTokens = 16000) {
     const stream = await anthropic.messages.create(params)
     let fullText = ''
     let stopReason = null
+    let seenKeys = new Set()
+    let lastPartialAt = 0
     for await (const event of stream) {
       if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
         fullText += event.delta.text
+        if (onPartial && fullText.length - lastPartialAt > 200) {
+          lastPartialAt = fullText.length
+          const partial = tryPartialParse(fullText)
+          if (partial) {
+            const newKeys = Object.keys(partial).filter(k => !seenKeys.has(k) && partial[k])
+            if (newKeys.length > 0) {
+              newKeys.forEach(k => seenKeys.add(k))
+              onPartial(partial, newKeys)
+            }
+          }
+        }
       } else if (event.type === 'message_delta' && event.delta?.stop_reason) {
         stopReason = event.delta.stop_reason
       }
@@ -131,24 +163,41 @@ export async function POST(request) {
     after(async () => {
       try {
         const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
-        let sections = await callClaude(profilePrompt, language, 10000)
 
-        // Second pass, every language: fixes non-EN grammar degradation on long
-        // generations (EN stayed clean on the same data) AND acts as a lexicon
-        // safety net for rare single-shot misses (Umbra-word, system
-        // personification, etc.) that the generation prompt already forbids.
-        try {
-          const proofreadPrompt = buildProofreadPrompt(JSON.stringify(sections), language)
-          const proofread = await callClaude(proofreadPrompt, language, 10000)
-          sections = proofread
-        } catch (proofErr) {
-          console.error('[interpret] proofread pass failed, keeping original sections:', proofErr.message)
+        // B2 (25.07): reveal chapters as they arrive. Each time new top-level
+        // keys parse successfully mid-stream, write them to the DB right away
+        // (marked __partial__) so the client's existing poll picks them up —
+        // no new transport, just earlier + more frequent writes to the same row.
+        const onPartial = (partial, newKeys) => {
+          supabaseAdmin
+            .from('interpreted_profiles')
+            .update({ sections: { ...partial, __partial__: true } })
+            .eq('id', interpretedProfileId)
+            .then(() => {}, () => {})
+        }
+        let sections = await callClaude(profilePrompt, language, 10000, onPartial)
+
+        // B1 (25.07): la ce foloseste odata prima trecere sa fie curata (cazul
+        // frecvent), a doua trecere completa dubla ~105s de asteptare degeaba.
+        // Poarta lexicala ieftina (regex, zero apeluri de model) verifica FIECARE
+        // sectiune separat — doar cele care pica intra in a doua trecere, si
+        // DOAR ele se trimit la Claude (nu tot documentul). Pe un profil curat,
+        // costul devine aproape zero.
+        const { failing, clean } = findFailingSections(sections, language)
+        if (!clean) {
+          try {
+            const proofreadPrompt = buildProofreadPrompt(JSON.stringify(failing), language)
+            const corrected = await callClaude(proofreadPrompt, language, 4000)
+            sections = { ...sections, ...corrected }
+          } catch (proofErr) {
+            console.error('[interpret] proofread pass failed on sections', Object.keys(failing), '- keeping originals:', proofErr.message)
+          }
         }
 
         const swot = {
           strengths: sections.strengths?.slice(0, 4) || [],
-          weaknesses: sections.vulnerabilities?.slice(0, 4) || [],
-          opportunities: sections.opportunities || [],
+          weaknesses: [],
+          opportunities: [],
           threats: []
         }
 
@@ -200,6 +249,12 @@ export async function GET(request) {
     }
     if (data.sections.__error__) {
       return NextResponse.json({ status: 'failed', error: data.sections.__error__ })
+    }
+    // B2 — mid-generation partial write: still pending, but chapters written
+    // so far ride along so the client can reveal them while waiting.
+    if (data.sections.__partial__) {
+      const { __partial__, ...partialSections } = data.sections
+      return NextResponse.json({ status: 'pending', partial_sections: partialSections })
     }
     return NextResponse.json({
       status: 'complete',

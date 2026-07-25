@@ -87,10 +87,10 @@ async function pollUntilComplete(url, { intervalMs = 3000, maxMs = 240000 } = {}
 const HUB_L = {
   en: { lenses: 'Your three lenses', lens1: 'How', lens2: 'Where', lens3: 'Why',
         compat_t: 'Compatibility profile', compat_s: 'See how you work with someone — partner, friend or business.',
-        invite_t: 'Invite someone', invite_s: 'One invitation a month.', copy: 'Copy', copied: 'Copied' },
+        invite_t: 'Invite someone', invite_s: 'So you can see your compatibility, once they join.', invite_link_label: 'Your invite link', copy: 'Copy', copied: 'Copied' },
   ro: { lenses: 'Cele trei lentile ale tale', lens1: 'Cum', lens2: 'Unde', lens3: 'De ce',
         compat_t: 'Profil de compatibilitate', compat_s: 'Vezi cum funcționezi cu cineva — partener, prieten sau afaceri.',
-        invite_t: 'Invită pe cineva', invite_s: 'O invitație pe lună.', copy: 'Copiază', copied: 'Copiat' },
+        invite_t: 'Invită pe cineva', invite_s: 'Ca să-i poți vedea compatibilitatea cu tine, odată ce se alătură.', invite_link_label: 'Linkul tău de invitație', copy: 'Copiază', copied: 'Copiat' },
 }
 const hx = (lang, k) => (HUB_L[lang] || HUB_L.en)[k]
 
@@ -154,7 +154,7 @@ function InviteHub({ userId, lang }) {
       <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: '#f4f0ea', marginBottom: '3px' }}>{hx(lang, 'invite_t')}</p>
       <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.6)', marginBottom: '12px' }}>{hx(lang, 'invite_s')}</p>
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        <p style={{ flex: 1, fontSize: '12.5px', color: 'rgba(244,240,234,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'rgba(7,6,14,0.4)', borderRadius: '10px', padding: '9px 12px' }}>{link}</p>
+        <p style={{ flex: 1, fontSize: '12.5px', color: 'rgba(244,240,234,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'rgba(7,6,14,0.4)', borderRadius: '10px', padding: '9px 12px' }}>{hx(lang, 'invite_link_label')}</p>
         <button onClick={copy} style={{ padding: '9px 16px', minHeight: '40px', fontSize: '13px', flexShrink: 0, borderRadius: '20px', border: '1px solid rgba(229,169,60,0.3)', background: 'transparent', color: '#f0d9b0', cursor: 'pointer' }}>
           {copied ? hx(lang, 'copied') : hx(lang, 'copy')}
         </button>
@@ -427,8 +427,14 @@ function ProfileContent() {
   }
 
   useEffect(() => {
-    localStorage.removeItem('profile')
-
+    // D3 (25.07): NU se mai sterge cache-ul inainte de fetch. Stergerea eagera
+    // de aici era cauza numelui disparut din salut (Azi) si a ecranului gol
+    // "genereaza profilul" dupa navigare rapida — orice pagina care citea
+    // 'profile' din localStorage (inclusiv fallback-ul de mai jos, in ACELASI
+    // effect) gasea cache-ul deja golit de aceasta linie, inainte ca fetch-ul
+    // sa apuce sa-l repopuleze. Cache-ul se suprascrie doar la fetch reusit
+    // (mai jos); daca fetch-ul esueaza, fallback-ul foloseste cache-ul vechi,
+    // intact — mai bine date usor invechite decat un ecran gol.
     fetch('/api/profile')
       .then(r => r.json())
       .then(data => {
@@ -511,26 +517,22 @@ function ProfileContent() {
     )
   }
 
-  const { sections, swot, alignment_plan, full_name, personal_year, hd_data } = profile
+  const { sections, swot, full_name, personal_year, hd_data } = profile
   const useV4 = isV4(sections)
-  const hasPlan = !!(alignment_plan && alignment_plan.directional_clarity)
 
   const handleDownloadPDF = () => generateProfilePDF(profile)
   const chapterKey = full_name || 'anon'
 
-  // TOC — doar capitolele care chiar exista (v4). Trebuie sa oglindeasca
-  // exact id-urile Chapter din V4Sections + cele de mai jos.
+  // TOC — doar capitolele care chiar exista (v4, sect. A7 25.07: 6 capitole,
+  // Plan de Aliniere nu se mai randeaza aici — vezi Drumul, z7). Trebuie sa
+  // oglindeasca exact id-urile Chapter din V4Sections.
   const toc = useV4 ? [
     sections.how_you_work && (sections.how_you_work.surface || sections.how_you_work.engine || sections.how_you_work.core) && { id: 'how-you-work', label: t(lang, 'how_you_work') },
-    Array.isArray(sections.friction_map) && sections.friction_map.some(f => f?.tension) && { id: 'friction-map', label: t(lang, 'friction_map') },
-    sections.aligned_life && { id: 'aligned-life', label: t(lang, 'aligned_life') },
     Array.isArray(sections.strengths) && sections.strengths.length > 0 && { id: 'strengths', label: t(lang, 'strengths') },
-    Array.isArray(sections.vulnerabilities) && sections.vulnerabilities.length > 0 && { id: 'vulnerabilities', label: t(lang, 'vulnerabilities') },
     Array.isArray(sections.decision_system) && sections.decision_system.length > 0 && { id: 'decision-system', label: t(lang, 'decision_system') },
     sections.energy_manual && { id: 'energy-manual', label: t(lang, 'energy_manual') },
-    Array.isArray(sections.warning_signals) && sections.warning_signals.some(w => w?.signal) && { id: 'warning-signals', label: t(lang, 'warning_signals') },
-    { id: 'self-perspective', label: t(lang, 'self_perspective') },
-    hasPlan && { id: 'alignment-plan', label: t(lang, 'alignment_plan') },
+    sections.central_tension?.tension && { id: 'central-tension', label: t(lang, 'central_tension') },
+    sections.aligned_life && { id: 'aligned-life', label: t(lang, 'aligned_life') },
   ].filter(Boolean) : []
 
   return (
@@ -547,7 +549,7 @@ function ProfileContent() {
             <button onClick={handleDownloadPDF} style={s.dlBtn}>
               {t(lang, 'download_pdf')}
             </button>
-            <SettingsIcon onClick={() => setSettingsOpen(true)} />
+            <SettingsIcon onClick={() => setSettingsOpen(true)} lang={lang} />
           </div>
         </div>
 
@@ -582,134 +584,15 @@ function ProfileContent() {
 
         <HDCard hdData={hd_data} lang={lang} />
 
-        {/* v4 profiles render the new sections; old v3 profiles fall back to legacy */}
+        {/* v4 profiles render the new 6 sections (A7, 25.07); old v3 profiles
+            fall back to legacy. Plan de Aliniere si Self Perspective nu se
+            mai randeaza aici (A7) — profilul se opreste la recunoastere.
+            Cardul de upsell de mai jos a fost eliminat (D1, 25.07): contrazicea
+            decizia inchisa "upsell eliminat" din documentul-mama, sect. 7. */}
         {useV4
           ? <V4Sections sections={sections} lang={lang} s={s} storageKey={chapterKey} />
           : <LegacySections sections={sections} swot={swot} lang={lang} />
         }
-
-        {/* Self Perspective — opportunities + threats only */}
-        <Chapter id="self-perspective" title={t(lang, 'self_perspective')} storageKey={chapterKey} defaultOpen={!useV4}>
-          <div style={s.swotGrid}>
-            {[
-              { title: t(lang, 'opportunities'), items: swot?.opportunities, color:'var(--purple)', icon:'◦' },
-              ...(swot?.threats && swot.threats.length ? [{ title: t(lang, 'threats'), items: swot?.threats, color:'var(--orange)', icon:'◦' }] : []),
-            ].filter(q => q.items && q.items.length).map((q, i) => (
-              <div key={i} style={{...s.swotBox, borderTop:`3px solid ${q.color}`}}>
-                <p style={{...s.swotTitle, color: q.color}}>{q.title}</p>
-                <ul style={s.list}>
-                  {q.items?.map((item, j) => (
-                    <li key={j} style={s.listItem}><span style={{color: q.color, marginRight:'6px'}}>{q.icon}</span>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </Chapter>
-
-        {/* PLAN DE ALINIERE — complet, în curs de generare, sau deloc (niciodată gol) */}
-        {hasPlan ? (
-          <Chapter id="alignment-plan" title={t(lang, 'alignment_plan')} storageKey={chapterKey}>
-
-            <div style={s.planLayer}>
-              <div style={s.layerBadge('var(--purple)')}>{t(lang, 'layer1')}</div>
-              <p style={s.bodyText}>{alignment_plan?.directional_clarity?.life_direction}</p>
-              <div style={s.grid2}>
-                <div>
-                  <p style={s.planLabel}>{t(lang, 'prioritize')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.directional_clarity?.prioritize?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p style={s.planLabel}>{t(lang, 'eliminate')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.directional_clarity?.eliminate?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--orange)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div style={s.planLayer}>
-              <div style={s.layerBadge('var(--green)')}>{t(lang, 'layer2')}</div>
-              <p style={s.planLabel}>{t(lang, 'focus_30')}</p>
-              <p style={{...s.bodyText, marginBottom:'20px'}}>{alignment_plan?.structured_plan?.thirty_day_focus}</p>
-              <div style={s.grid2}>
-                <div>
-                  <p style={s.planLabel}>{t(lang, 'weekly_template')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.structured_plan?.weekly_template?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p style={s.planLabel}>{t(lang, 'daily_template')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.structured_plan?.daily_template?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div style={{...s.planLayer, borderBottom:'none', marginBottom:0, paddingBottom:0}}>
-              <div style={s.layerBadge('var(--orange)')}>{t(lang, 'layer3')}</div>
-              <div style={s.grid3}>
-                <div style={s.anchorBox}>
-                  <p style={{...s.planLabel, color:'var(--purple)'}}>{t(lang, 'keystone_habits')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.behavioral_anchors?.keystone_habits?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--purple)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={s.anchorBox}>
-                  <p style={{...s.planLabel, color:'var(--orange)'}}>{t(lang, 'drains_to_notice')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.behavioral_anchors?.drains_to_notice?.map((item, i) => (
-                      <li key={i} style={s.listItem}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={s.anchorBox}>
-                  <p style={{...s.planLabel, color:'var(--green)'}}>{t(lang, 'agreements')}</p>
-                  <ul style={s.list}>
-                    {alignment_plan?.behavioral_anchors?.non_negotiables?.map((item, i) => (
-                      <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </Chapter>
-        ) : planPending ? (
-          <div style={{...s.card, textAlign:'center', padding:'36px 28px'}}>
-            <div style={s.cardLabel('var(--purple-light)', 'var(--purple)')}>{t(lang, 'alignment_plan')}</div>
-            <div style={{ fontSize:'32px', marginBottom:'14px' }} aria-hidden="true">◦</div>
-            <p style={{ fontSize:'15px', lineHeight:'1.7', color:'var(--text-muted)', maxWidth:'420px', margin:'0 auto' }}>
-              {PLAN_PENDING[lang] || PLAN_PENDING.en}
-            </p>
-            <div style={{ marginTop:'18px', display:'flex', justifyContent:'center', gap:'6px' }} aria-hidden="true">
-              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.4 }} />
-              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.6 }} />
-              <span className="anim-fade-in" style={{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--purple)', opacity:0.9 }} />
-            </div>
-          </div>
-        ) : null}
-
-        <div style={s.ctaBox}>
-          <h2 style={s.ctaTitle}>{t(lang, 'cta_title')}</h2>
-          <p style={s.ctaText}>{t(lang, 'cta_text')}</p>
-          <div style={s.ctaBtns}>
-            <a href="/subscribe" style={s.ctaBtn}>{t(lang, 'cta_btn')}</a>
-          </div>
-        </div>
 
       </main>
 

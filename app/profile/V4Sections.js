@@ -18,12 +18,12 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
 
   const a = sections.archetype
   const work = sections.how_you_work
-  const frictions = Array.isArray(sections.friction_map)
-    ? sections.friction_map.filter(f => f && typeof f === 'object' && f.tension)
-    : []
+  const tension = (sections.central_tension && typeof sections.central_tension === 'object' && sections.central_tension.tension)
+    ? sections.central_tension
+    : null
   const energy = sections.energy_manual
-  const signals = Array.isArray(sections.warning_signals)
-    ? sections.warning_signals.filter(w => w && typeof w === 'object' && w.signal)
+  const watchFor = Array.isArray(sections.energy_manual?.watch_for)
+    ? sections.energy_manual.watch_for.filter(Boolean)
     : []
   const decision = Array.isArray(sections.decision_system) ? sections.decision_system : []
 
@@ -39,7 +39,7 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
         </div>
       )}
 
-      {/* HOW YOU WORK — 3 layers */}
+      {/* 1. CUM FUNCȚIONEZI — 3 layers */}
       {work && (work.surface || work.engine || work.core) && (
         <Chapter id="how-you-work" title={t(lang, 'how_you_work')} storageKey={storageKey}>
           <div style={v.layerStack}>
@@ -74,68 +74,18 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
         </Chapter>
       )}
 
-      {/* FRICTION MAP — polii nu mai poarta litere goale (A/B); ii distinge
-          doar culoarea + pozitia (sect. 6: "polii numiti pe inteles"). */}
-      {frictions.length > 0 && (
-        <Chapter id="friction-map" title={t(lang, 'friction_map')} storageKey={storageKey}>
-          <div style={v.frictionStack}>
-            {frictions.map((f, i) => (
-              <div key={i} style={v.frictionItem}>
-                {f.tension && <p style={v.frictionTension}>{f.tension}</p>}
-                <div style={v.pullRow}>
-                  {f.pull_a && (
-                    <div style={v.pullBox('var(--purple)')}>
-                      <p style={v.pullText}>{f.pull_a}</p>
-                    </div>
-                  )}
-                  {f.pull_b && (
-                    <div style={v.pullBox('var(--orange)')}>
-                      <p style={v.pullText}>{f.pull_b}</p>
-                    </div>
-                  )}
-                </div>
-                {f.daily_experience && (
-                  <p style={v.frictionMeta}><strong style={v.metaLabel}>{t(lang, 'friction_daily')}:</strong> {f.daily_experience}</p>
-                )}
-                {f.resolution && (
-                  <p style={v.frictionMeta}><strong style={v.metaLabel}>{t(lang, 'friction_resolution')}:</strong> {f.resolution}</p>
-                )}
-              </div>
+      {/* 2. PUNCTELE TALE FORTE */}
+      {Array.isArray(sections.strengths) && sections.strengths.length > 0 && (
+        <Chapter id="strengths" title={t(lang, 'strengths')} storageKey={storageKey}>
+          <ul style={s.list}>
+            {sections.strengths.map((item, i) => (
+              <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
             ))}
-          </div>
+          </ul>
         </Chapter>
       )}
 
-      {/* ALIGNED LIFE */}
-      {sections.aligned_life && (
-        <Chapter id="aligned-life" title={t(lang, 'aligned_life')} storageKey={storageKey}>
-          <p style={s.bodyText}>{sections.aligned_life}</p>
-        </Chapter>
-      )}
-
-      {/* STRENGTHS + VULNERABILITIES */}
-      <div style={s.grid2}>
-        {Array.isArray(sections.strengths) && sections.strengths.length > 0 && (
-          <Chapter id="strengths" title={t(lang, 'strengths')} storageKey={storageKey}>
-            <ul style={s.list}>
-              {sections.strengths.map((item, i) => (
-                <li key={i} style={s.listItem}><span style={{color:'var(--green)', marginRight:'8px'}}>◦</span>{item}</li>
-              ))}
-            </ul>
-          </Chapter>
-        )}
-        {Array.isArray(sections.vulnerabilities) && sections.vulnerabilities.length > 0 && (
-          <Chapter id="vulnerabilities" title={t(lang, 'vulnerabilities')} storageKey={storageKey}>
-            <ul style={s.list}>
-              {sections.vulnerabilities.map((item, i) => (
-                <li key={i} style={s.listItem}>{item}</li>
-              ))}
-            </ul>
-          </Chapter>
-        )}
-      </div>
-
-      {/* DECISION SYSTEM */}
+      {/* 3. SISTEMUL TĂU DE DECIZIE — de protejat, cel mai bun text din profil */}
       {decision.length > 0 && (
         <Chapter id="decision-system" title={t(lang, 'decision_system')} storageKey={storageKey}>
           <div style={v.decisionStack}>
@@ -146,8 +96,8 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
         </Chapter>
       )}
 
-      {/* ENERGY MANUAL */}
-      {energy && (energy.peak || energy.drain || energy.rhythm || energy.current_year) && (
+      {/* 4. MANUALUL ENERGIEI — absoarbe fostele Semnale de Alarmă, ca watch_for */}
+      {energy && (energy.peak || energy.drain || energy.rhythm || energy.current_year || watchFor.length > 0) && (
         <Chapter id="energy-manual" title={t(lang, 'energy_manual')} storageKey={storageKey}>
           <div style={s.grid2}>
             {energy.peak && (
@@ -175,21 +125,48 @@ export default function V4Sections({ sections, lang, s, storageKey = 'anon' }) {
               </div>
             )}
           </div>
+          {watchFor.length > 0 && (
+            <div style={v.watchForBox}>
+              <p style={v.energyLabel('var(--text-light)')}>{t(lang, 'energy_watch_for')}</p>
+              {watchFor.map((wf, i) => (
+                <p key={i} style={{...s.bodyText, marginBottom: i < watchFor.length - 1 ? '8px' : 0}}>{wf}</p>
+              ))}
+            </div>
+          )}
         </Chapter>
       )}
 
-      {/* WARNING SIGNALS */}
-      {signals.length > 0 && (
-        <Chapter id="warning-signals" title={t(lang, 'warning_signals')} storageKey={storageKey}>
-          <div style={v.signalStack}>
-            {signals.map((w, i) => (
-              <div key={i} style={v.signalItem}>
-                {w.signal && <p style={v.signalFeel}>{w.signal}</p>}
-                {w.pattern && <p style={v.signalPattern}>{w.pattern}</p>}
-                {w.exit && <p style={v.signalExit}>→ {w.exit}</p>}
-              </div>
-            ))}
+      {/* 5. TENSIUNEA CU CARE TRĂIEȘTI — UNA singură, polii numiți, fără litere */}
+      {tension && (
+        <Chapter id="central-tension" title={t(lang, 'central_tension')} storageKey={storageKey}>
+          <div style={v.frictionItem}>
+            {tension.tension && <p style={v.frictionTension}>{tension.tension}</p>}
+            <div style={v.pullRow}>
+              {tension.pull_a && (
+                <div style={v.pullBox('var(--purple)')}>
+                  <p style={v.pullText}>{tension.pull_a}</p>
+                </div>
+              )}
+              {tension.pull_b && (
+                <div style={v.pullBox('var(--orange)')}>
+                  <p style={v.pullText}>{tension.pull_b}</p>
+                </div>
+              )}
+            </div>
+            {tension.daily_experience && (
+              <p style={v.frictionMeta}><strong style={v.metaLabel}>{t(lang, 'friction_daily')}:</strong> {tension.daily_experience}</p>
+            )}
+            {tension.resolution && (
+              <p style={v.frictionMeta}><strong style={v.metaLabel}>{t(lang, 'friction_resolution')}:</strong> {tension.resolution}</p>
+            )}
           </div>
+        </Chapter>
+      )}
+
+      {/* 6. VIAȚA ÎN ALINIERE — capitolul de închidere */}
+      {sections.aligned_life && (
+        <Chapter id="aligned-life" title={t(lang, 'aligned_life')} storageKey={storageKey}>
+          <p style={s.bodyText}>{sections.aligned_life}</p>
         </Chapter>
       )}
     </>
@@ -224,10 +201,5 @@ const v = {
 
   energyBox: (c) => ({ background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'18px', borderTop:`3px solid ${c}` }),
   energyLabel: (c) => ({ fontSize:'12px', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.5px', color:c, marginBottom:'10px' }),
-
-  signalStack: { display:'flex', flexDirection:'column', gap:'18px' },
-  signalItem: { background:'var(--surface2)', backdropFilter:'blur(10px)', borderRadius:'10px', padding:'16px' },
-  signalFeel: { fontSize:'15px', fontWeight:'600', color:'var(--text)', marginBottom:'6px' },
-  signalPattern: { fontSize:'14px', lineHeight:'1.6', color:'var(--text-muted)', marginBottom:'8px' },
-  signalExit: { fontSize:'14px', fontWeight:'600', color:'var(--green)', lineHeight:'1.6' }
+  watchForBox: { marginTop:'16px', paddingTop:'16px', borderTop:'1px solid var(--border)' },
 }

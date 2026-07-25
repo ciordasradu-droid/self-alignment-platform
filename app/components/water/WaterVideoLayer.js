@@ -124,8 +124,14 @@ export default function WaterVideoLayer({ src = '/videos/ocean-base.mp4', poster
           <video ref={slotA} className="watervideo-el" style={{ opacity: 1 }}
                  src={src} poster={poster} muted playsInline autoPlay preload="auto"
                  onError={() => setBroken(true)} />
+          {/* D5 (25.07): doar placa CURENTA (slotA) preincarca integral —
+              sect. 4 din documentul-mama. slotB e "urmatoarea tura" a
+              aceleiasi placi, nu are nevoie sa fie descarcata din nou de doua
+              ori simultan; incepe sa se incarce complet abia cand slotA
+              porneste efectiv sa-i cedeze locul (vezi b.play() in bucla de
+              crossfade de mai jos), nu de la montare. */}
           <video ref={slotB} className="watervideo-el" style={{ opacity: 0 }}
-                 src={src} poster={poster} muted playsInline preload="auto"
+                 src={src} poster={poster} muted playsInline preload="metadata"
                  onError={() => setBroken(true)} />
         </>
       )}

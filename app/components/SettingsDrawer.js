@@ -29,9 +29,9 @@ const L = {
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
-export function SettingsIcon({ onClick }) {
+export function SettingsIcon({ onClick, lang = 'en' }) {
   return (
-    <button onClick={onClick} aria-label="Setări" style={{
+    <button onClick={onClick} aria-label={lx(lang, 'title')} style={{
       width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(229,169,60,0.15)',
       background: 'rgba(10,9,21,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: 'pointer', flexShrink: 0,
