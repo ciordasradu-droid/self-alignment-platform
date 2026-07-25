@@ -14,16 +14,19 @@
 //   pagina ar cadea sub containing-block-ul lui .flow-in (transform+filter) si
 //   s-ar prabusi la inaltime 0. In body scapa de orice stramos transformat.
 //
-// Placile Veo (v5 sect. 4): atmosfera = fundalul global implicit. picatura
-// e procesata si gata in public/videos/, dar NECONECTATA inca la nicio
-// interactiune noua — asta ar fi o decizie de produs separata.
+// Placa curenta (handoff 23.07, sect. B): ocean-base.mp4 — clip Pexels
+// (14077639), comprimat 720x1280/25fps/H.264 fara audio, ~8.5MB. Placa
+// provizorie pana cand plachile Veo finale (atmosfera/picatura per stadiu)
+// rezolva problema watermark-ului — inlocuirea de-atunci = schimb de
+// fisiere, zero cod. picatura.mp4 ramane in public/videos/, NECONECTATA
+// inca la nicio interactiune noua — decizie de produs separata.
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const FADE = 1.1 // secunde de suprapunere la cusatura
 
-export default function WaterVideoLayer({ src = '/videos/atmosfera.mp4', poster = '/videos/atmosfera-poster.jpg' }) {
+export default function WaterVideoLayer({ src = '/videos/ocean-base.mp4', poster = '/videos/ocean-base-poster.jpg' }) {
   const [mounted, setMounted] = useState(false)
   const [motion, setMotion] = useState(true) // false = reduced-motion: doar poster
   const [broken, setBroken] = useState(false) // true = video n-a putut porni: doar poster

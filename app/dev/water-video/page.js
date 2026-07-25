@@ -9,12 +9,13 @@ import { useState } from 'react'
 import WaterVideoLayer from '../../components/water/WaterVideoLayer'
 
 const PLATES = {
+  'ocean-base': { src: '/videos/ocean-base.mp4', poster: '/videos/ocean-base-poster.jpg' },
   atmosfera: { src: '/videos/atmosfera.mp4', poster: '/videos/atmosfera-poster.jpg' },
   picatura: { src: '/videos/picatura.mp4', poster: '/videos/atmosfera-poster.jpg' },
 }
 
 export default function DevWaterVideo() {
-  const [plate, setPlate] = useState('atmosfera')
+  const [plate, setPlate] = useState('ocean-base')
   const p = PLATES[plate]
 
   return (
