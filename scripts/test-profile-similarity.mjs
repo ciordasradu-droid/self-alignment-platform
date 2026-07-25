@@ -130,6 +130,21 @@ const STRUCTURAL_TEMPLATE_TELLS = [
   /kind of person who walks? into a room/i,
 ]
 
+// Gasit empiric 25.07 (runda 2): strengths de la 2 profiluri diferite se
+// inchideau pe acelasi sablon generic-evaluativ, doar cu substantivul
+// schimbat ("asta te face valoros in orice context care cere X") — Jaccard
+// l-a prins de data asta (64%), dar sablonul merita verificare directa, per
+// profil, la fel ca deschiderea de mai sus, in loc sa se bazeze doar pe
+// coincidenta a doi useri diferiti in acelasi test.
+// Generalizat dupa a 3-a rulare: modelul a refolosit acelasi SABLON de doua
+// ori in ACELASI profil, doar cu adjectivul schimbat ("valoros" -> "de
+// incredere") — regex-ul ancorat pe un singur cuvant a prins doar prima
+// aparitie. Verificarea trebuie sa prinda SABLONUL, nu un cuvant anume.
+const STRENGTHS_CLOSING_TEMPLATE_TELLS = [
+  /te face .{1,25} în orice (context|situa[tț]ie|mediu|rol)/i,
+  /makes you .{1,25} in any (context|situation|environment|role|setting) (that|which) (needs|requires)/i,
+]
+
 // sect. C: prag 0 pentru fiecare din urmatoarele. Verbe-comanda si stari
 // negative numite au acoperire buna doar in RO/EN (limitare cunoscuta,
 // aceeasi ca in lib/lexiconGate.js — variaza prea mult intre cele 11 limbi
@@ -200,6 +215,16 @@ async function main() {
   }
   if (templateHits === 0) console.log('  [OK] Niciun profil nu foloseste sablonul de deschidere interzis.')
 
+  console.log('\n--- Verificare 1c: sablon de inchidere generic-evaluativ la strengths (gasit empiric 25.07, runda 2) ---')
+  let closingTemplateHits = 0
+  for (const { person, sections } of results) {
+    const strengthsText = Array.isArray(sections.strengths) ? sections.strengths.join(' ') : ''
+    for (const re of STRENGTHS_CLOSING_TEMPLATE_TELLS) {
+      if (re.test(strengthsText)) { console.log(`  [FAIL] ${person.name}: strengths inchis pe sablonul interzis "valoros in orice context care cere X"`); closingTemplateHits++ }
+    }
+  }
+  if (closingTemplateHits === 0) console.log('  [OK] Niciun profil nu foloseste sablonul de inchidere interzis la strengths.')
+
   console.log('\n--- Verificare 1b: lexic interzis (prag 0 conform sect. C) ---')
   let lexiconHits = 0
   for (const { person, sections } of results) {
@@ -256,12 +281,12 @@ async function main() {
   console.log(`\n--- Timp mediu per profil: ${(avgMs/1000).toFixed(1)}s (vechi, 2 treceri complete intotdeauna: ~210s) ---`)
   console.log(`--- Profiluri curate (a 2-a trecere sarita): ${results.filter(r => r.wasClean).length}/${results.length} ---`)
 
-  const totalIssues = barnumHits + templateHits + lexiconHits + similarityHits
+  const totalIssues = barnumHits + templateHits + closingTemplateHits + lexiconHits + similarityHits
   console.log(`\n=== REZULTAT: ${totalIssues === 0 ? 'CURAT — promptul trece testul' : `${totalIssues} PROBLEME gasite (prag 0) — promptul NU trece inca`}${lengthMisses ? ` | ${lengthMisses} profil(uri) in afara marjei de lungime (avertisment, nu esec)` : ''} ===\n`)
 
   fs.writeFileSync(
     path.join(ROOT, 'scripts', '_similarity-report.json'),
-    JSON.stringify({ language, profiles: results.map(r => ({ person: r.person, sections: r.sections, genMs: r.genMs, proofMs: r.proofMs, wasClean: r.wasClean })), barnumHits, lexiconHits, similarityHits, lengthMisses }, null, 2)
+    JSON.stringify({ language, profiles: results.map(r => ({ person: r.person, sections: r.sections, genMs: r.genMs, proofMs: r.proofMs, wasClean: r.wasClean })), barnumHits, templateHits, closingTemplateHits, lexiconHits, similarityHits, lengthMisses }, null, 2)
   )
   console.log('Raport complet salvat in scripts/_similarity-report.json\n')
 

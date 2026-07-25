@@ -24,7 +24,7 @@ const ROADMAP = [
   { threshold: 0,  metric: 'days',    key: 'checkin',    en: 'Rituals + Daily Thought',         ro: 'Ritualurile + Gândul Zilei',          en_d: 'you fall into rhythm with yourself',                ro_d: 'intri în ritm cu tine' },
   { threshold: 3,  metric: 'days',    key: 'journal',    en: 'Free Journal',                     ro: 'Jurnal liber',                        en_d: 'a private space to write, any time — not only in the evening', ro_d: 'spațiu privat de scris, oricând, nu doar seara' },
   { threshold: 7,  metric: 'days',    key: 'plan',       en: 'Alignment Plan',                   ro: 'Plan de aliniere',                    en_d: 'your personalized roadmap, from your profile',       ro_d: 'foaia personalizată de parcurs, din profil' },
-  { threshold: 7,  metric: 'days',    key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
+  { threshold: 7,  metric: 'entries', key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
   { threshold: 30, metric: 'days',    key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Saturday\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de sâmbătă' },
   { threshold: 60, metric: 'days',    key: 'commitment', en: 'Commitment With Yourself',         ro: 'Angajamentul cu Tine',                en_d: 'a personal document — read again anytime',           ro_d: 'un document personal, recitit oricând' },
   // A8 (decizie închisă 23.07): Cercul iese din harta afișată până la masă
@@ -34,10 +34,27 @@ const ROADMAP = [
 ]
 
 const L = {
-  en: { title: 'Your Path', subtitle: 'Everything here opens with presence. You can see the full map.', opens_days: 'Opens after {n} active days', opens_entries: 'Opens after your {n}th written entry', unlocked: 'Open', access_line: 'Everything you write here stays yours. The subscription opens your Patterns mirror and your personalized daily thought.', access_link: 'See the plan →' },
-  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu prezența ta. Poți vedea harta completă.', opens_days: 'Se deschide după {n} zile active', opens_entries: 'Se deschide după a {n}-a consemnare scrisă', unlocked: 'Deschis', access_line: 'Tot ce scrii aici rămâne al tău. Abonamentul deschide oglinda Tiparelor și gândul zilei personalizat.', access_link: 'Vezi planul →' },
+  en: { title: 'Your Path', subtitle: 'Everything here opens with presence. You can see the full map.', opens_days: 'Opens after {n} active days', unlocked: 'Open', access_line: 'Everything you write here stays yours. The subscription opens your Patterns mirror and your personalized daily thought.', access_link: 'See the plan →' },
+  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu prezența ta. Poți vedea harta completă.', opens_days: 'Se deschide după {n} zile active', unlocked: 'Deschis', access_line: 'Tot ce scrii aici rămâne al tău. Abonamentul deschide oglinda Tiparelor și gândul zilei personalizat.', access_link: 'Vezi planul →' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
+
+// D6-fix (25.07): formulare naturala, nu ordinal clinic ("a 7-a") — trecuta
+// prin Regula de Voce. Legata de threshold=7 (singurul unlock pe 'entries').
+const OPENS_ENTRIES_TEXT = {
+  en: "Opens after you've written seven times",
+  ro: 'Se deschide după ce scrii de șapte ori',
+  es: 'Se abre después de escribir siete veces',
+  fr: "S'ouvre après avoir écrit sept fois",
+  de: 'Öffnet sich, nachdem du siebenmal geschrieben hast',
+  it: 'Si apre dopo che hai scritto sette volte',
+  pt: 'Abre depois de escreveres sete vezes',
+  nl: 'Gaat open nadat je zeven keer hebt geschreven',
+  pl: 'Otwiera się, gdy napiszesz siedem razy',
+  hu: 'Miután hétszer írtál, megnyílik',
+  ru: 'Открывается после того, как ты напишешь семь раз',
+}
+const opensEntriesText = (lang) => OPENS_ENTRIES_TEXT[lang] || OPENS_ENTRIES_TEXT.en
 
 // TODO(texte de lucru): rand de acces pentru neabonati (proba gratuita, nu
 // abonament real), sub harta. Simplu, pana vine formularea finala.
@@ -84,7 +101,7 @@ function Roadmap({ lang, presence }) {
           {ROADMAP.map((r, i) => {
             const unlocked = isUnlocked(r.threshold, r.metric, presence)
             const isLast = i === ROADMAP.length - 1
-            const opensText = (r.metric === 'entries' ? lx(lang, 'opens_entries') : lx(lang, 'opens_days')).replace('{n}', r.threshold)
+            const opensText = r.metric === 'entries' ? opensEntriesText(lang) : lx(lang, 'opens_days').replace('{n}', r.threshold)
             return (
               <div key={r.key} style={{ display: 'flex', gap: '14px', minHeight: '54px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px', flexShrink: 0 }}>
@@ -159,13 +176,7 @@ function DrumulContent() {
       <EchoMoment lang={lang} />
 
       {isUnlocked(3, 'days', presence) && <FreeJournal lang={lang} />}
-      {/* D6 (25.07): unificat pe "zile active" ca toate celelalte deblocari
-          de pe harta (era "a 7-a consemnare scrisa" — A2, 23.07). Nota:
-          /api/patterns isi pastreaza propriul prag de continut (10 intrari
-          scrise) inainte sa genereze — daca userul a fost activ dar n-a scris
-          mult, butonul "Reveal" ramane vizibil dar arata mesajul "ai nevoie
-          de mai multe check-in-uri" in loc sa genereze pe degeaba. */}
-      {isUnlocked(7, 'days', presence) && <PatternsInsight lang={lang} />}
+      {isUnlocked(7, 'entries', presence) && <PatternsInsight lang={lang} />}
       {isUnlocked(60, 'days', presence) && <CommitmentDocument lang={lang} />}
 
       <Presence streak={streak} lang={lang} />
