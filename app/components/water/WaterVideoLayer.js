@@ -87,12 +87,37 @@ export default function WaterVideoLayer({ src = '/videos/ocean-base.mp4', poster
     a && a.addEventListener('ended', aEnd)
     b && b.addEventListener('ended', bEnd)
     a && a.play().catch(() => {})
+
+    // Punctul 1 (audit 26.07, runda 5): slotB nu avea niciun cadru decodat
+    // cand era chemat la incrucisare (preload="metadata" cerea doar durata,
+    // nu si cadre) — opacitatea lui urca spre 1 inainte sa aiba ce arata, deci
+    // se vedea un gol. Amorsat aici: play() urmat de pause() la currentTime=0,
+    // ca sa aiba primul cadru decodat cu mult inainte de nevoie.
+    //
+    // Punctul 3 (audit 26.07, runda 5): amorsarea NU porneste la montare, ca
+    // sa nu ceara acelasi fisier de doua ori in paralel inainte ca slotA sa
+    // apuce sa-l puna in cache (masurat: doua cereri la +0/+1ms cu varianta
+    // initiala). Asteapta 'canplaythrough' pe slotA — semnal real ca
+    // incarcarea lui e suficient de avansata — inainte sa ceara slotB.
+    let primed = false
+    const primeB = () => {
+      if (primed || !b) return
+      primed = true
+      b.play().then(() => {
+        b.pause()
+        try { b.currentTime = 0 } catch (e) {}
+      }).catch(() => {})
+    }
+    if (a && a.readyState >= 4) primeB()
+    else a && a.addEventListener('canplaythrough', primeB, { once: true })
+
     rafRef.current = requestAnimationFrame(tick)
 
     return () => {
       cancelAnimationFrame(rafRef.current)
       a && a.removeEventListener('ended', aEnd)
       b && b.removeEventListener('ended', bEnd)
+      a && a.removeEventListener('canplaythrough', primeB)
     }
   }, [mounted, motion, src])
 
@@ -124,14 +149,17 @@ export default function WaterVideoLayer({ src = '/videos/ocean-base.mp4', poster
           <video ref={slotA} className="watervideo-el" style={{ opacity: 1 }}
                  src={src} poster={poster} muted playsInline autoPlay preload="auto"
                  onError={() => setBroken(true)} />
-          {/* D5 (25.07): doar placa CURENTA (slotA) preincarca integral —
-              sect. 4 din documentul-mama. slotB e "urmatoarea tura" a
-              aceleiasi placi, nu are nevoie sa fie descarcata din nou de doua
-              ori simultan; incepe sa se incarce complet abia cand slotA
-              porneste efectiv sa-i cedeze locul (vezi b.play() in bucla de
-              crossfade de mai jos), nu de la montare. */}
+          {/* Punctul 1+3 (audit 26.07, runda 5, corectie fata de D5): "metadata"
+              (decizia D5) era exact cauza golului vizibil la incrucisare — nu
+              cere niciun cadru, doar durata. Dar "auto" direct in JSX (prima
+              incercare din runda asta) cerea fisierul din nou chiar la montare,
+              in paralel cu slotA — masurat: doua cereri identice la +0/+1ms.
+              "none" aici + amorsarea programatica din efectul de mai sus
+              (asteapta 'canplaythrough' pe slotA, apoi play()+pause() pe
+              slotB) rezolva ambele: cadre gata inainte de nevoie, un singur
+              fisier cerut de la retea. */}
           <video ref={slotB} className="watervideo-el" style={{ opacity: 0 }}
-                 src={src} poster={poster} muted playsInline preload="metadata"
+                 src={src} poster={poster} muted playsInline preload="none"
                  onError={() => setBroken(true)} />
         </>
       )}

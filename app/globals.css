@@ -1380,6 +1380,13 @@ input:focus, textarea:focus, select:focus {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
+  /* Punctul 2 (audit 26.07, runda 5): opacitatea era condusa strict de
+     requestAnimationFrame — daca pagina sare cadre exact in fereastra de
+     1.1s a incrucisarii (ecranul de generare e cel mai ocupat din aplicatie),
+     valorile calculate de JS sar in loc sa curga. O tranzitie CSS scurta
+     trece animatia pe compozitor, deci netezeste orice cadru sarit de JS,
+     fara sa incetineasca vizibil o incrucisare care oricum tine cadenta. */
+  transition: opacity 0.15s linear;
 }
 .watervideo-gradient {
   position: absolute;
