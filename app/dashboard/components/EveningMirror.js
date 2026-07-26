@@ -8,23 +8,24 @@
 
 import { useState } from 'react'
 import { getEffectiveWeekday } from '../../../lib/simWeekday'
+import BreathingSphere from './BreathingSphere'
 
 const L = {
-  en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', intention: 'For tomorrow, I want to…', intentionWeek: 'For the coming week, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.' },
-  ro: { greet: 'Bună seara', journal: 'Lasă-ți gândurile aici', gratitude: 'Pentru ce ești recunoscător azi?', intention: 'Pentru mâine îmi doresc să…', intentionWeek: 'Pentru săptămâna care vine îmi doresc să…', save: 'Lasă în apă', saving: '…', saved: 'Ai fost prezent pentru tine azi.', goodnight: 'Somn lin.' },
-  es: { greet: 'Buenas noches', journal: 'Deja aquí tus pensamientos', gratitude: '¿Por qué estás agradecido hoy?', intention: 'Para mañana quiero…', intentionWeek: 'Para la semana que viene, quiero…', save: 'Déjalo en el agua', saving: '…', saved: 'Hoy estuviste presente para ti.', goodnight: 'Que duermas bien.' },
-  fr: { greet: 'Bonsoir', journal: 'Laisse tes pensées ici', gratitude: 'De quoi es-tu reconnaissant aujourd\'hui ?', intention: 'Pour demain, je veux…', intentionWeek: 'Pour la semaine qui vient, je veux…', save: 'Laisse-le dans l\'eau', saving: '…', saved: 'Tu as été présent pour toi aujourd\'hui.', goodnight: 'Dors bien.' },
-  de: { greet: 'Guten Abend', journal: 'Lass deine Gedanken hier', gratitude: 'Wofür bist du heute dankbar?', intention: 'Für morgen möchte ich…', intentionWeek: 'Für die kommende Woche möchte ich…', save: 'Lass es im Wasser', saving: '…', saved: 'Du warst heute für dich da.', goodnight: 'Schlaf gut.' },
-  it: { greet: 'Buonasera', journal: 'Lascia qui i tuoi pensieri', gratitude: 'Per cosa sei grato oggi?', intention: 'Per domani voglio…', intentionWeek: 'Per la settimana che viene, voglio…', save: 'Lascialo nell acqua', saving: '…', saved: 'Oggi sei stato presente per te.', goodnight: 'Dormi bene.' },
-  pt: { greet: 'Boa noite', journal: 'Deixa aqui os teus pensamentos', gratitude: 'Pelo que estás grato hoje?', intention: 'Para amanhã quero…', intentionWeek: 'Para a semana que vem, quero…', save: 'Deixa na água', saving: '…', saved: 'Hoje estiveste presente para ti.', goodnight: 'Dorme bem.' },
-  nl: { greet: 'Goedenavond', journal: 'Laat je gedachten hier', gratitude: 'Waar ben je vandaag dankbaar voor?', intention: 'Voor morgen wil ik…', intentionWeek: 'Voor de komende week wil ik…', save: 'Laat het in het water', saving: '…', saved: 'Je was er vandaag voor jezelf.', goodnight: 'Slaap zacht.' },
-  pl: { greet: 'Dobry wieczór', journal: 'Zostaw tu swoje myśli', gratitude: 'Za co jesteś dziś wdzięczny?', intention: 'Na jutro chcę…', intentionWeek: 'Na nadchodzący tydzień chcę…', save: 'Zostaw w wodzie', saving: '…', saved: 'Dziś byłeś obecny dla siebie.', goodnight: 'Śpij spokojnie.' },
-  hu: { greet: 'Jó estét', journal: 'Hagyd itt a gondolataidat', gratitude: 'Miért vagy hálás ma?', intention: 'Holnapra azt szeretném…', intentionWeek: 'A következő hétre azt szeretném…', save: 'Hagyd a vízben', saving: '…', saved: 'Ma jelen voltál önmagad számára.', goodnight: 'Aludj jól.' },
-  ru: { greet: 'Добрый вечер', journal: 'Оставь свои мысли здесь', gratitude: 'За что ты благодарен(на) сегодня?', intention: 'На завтра я хочу…', intentionWeek: 'На предстоящую неделю я хочу…', save: 'Оставить это в воде', saving: '…', saved: 'Сегодня ты был(а) рядом с собой.', goodnight: 'Спокойной ночи.' },
+  en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', intention: 'For tomorrow, I want to…', intentionWeek: 'For the coming week, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.', loopQuestion: 'For today, you wanted: "{intention}". What happened with that?' },
+  ro: { greet: 'Bună seara', journal: 'Lasă-ți gândurile aici', gratitude: 'Pentru ce ești recunoscător azi?', intention: 'Pentru mâine îmi doresc să…', intentionWeek: 'Pentru săptămâna care vine îmi doresc să…', save: 'Lasă în apă', saving: '…', saved: 'Ai fost prezent pentru tine azi.', goodnight: 'Somn lin.', loopQuestion: 'Ți-ai dorit pentru azi: "{intention}". Ce s-a întâmplat cu asta?' },
+  es: { greet: 'Buenas noches', journal: 'Deja aquí tus pensamientos', gratitude: '¿Por qué estás agradecido hoy?', intention: 'Para mañana quiero…', intentionWeek: 'Para la semana que viene, quiero…', save: 'Déjalo en el agua', saving: '…', saved: 'Hoy estuviste presente para ti.', goodnight: 'Que duermas bien.', loopQuestion: 'Para hoy, querías: "{intention}". ¿Qué pasó con eso?' },
+  fr: { greet: 'Bonsoir', journal: 'Laisse tes pensées ici', gratitude: 'De quoi es-tu reconnaissant aujourd\'hui ?', intention: 'Pour demain, je veux…', intentionWeek: 'Pour la semaine qui vient, je veux…', save: 'Laisse-le dans l\'eau', saving: '…', saved: 'Tu as été présent pour toi aujourd\'hui.', goodnight: 'Dors bien.', loopQuestion: 'Pour aujourd\'hui, tu voulais : « {intention} ». Qu\'est-ce qui s\'est passé avec ça ?' },
+  de: { greet: 'Guten Abend', journal: 'Lass deine Gedanken hier', gratitude: 'Wofür bist du heute dankbar?', intention: 'Für morgen möchte ich…', intentionWeek: 'Für die kommende Woche möchte ich…', save: 'Lass es im Wasser', saving: '…', saved: 'Du warst heute für dich da.', goodnight: 'Schlaf gut.', loopQuestion: 'Für heute wolltest du: „{intention}". Was ist daraus geworden?' },
+  it: { greet: 'Buonasera', journal: 'Lascia qui i tuoi pensieri', gratitude: 'Per cosa sei grato oggi?', intention: 'Per domani voglio…', intentionWeek: 'Per la settimana che viene, voglio…', save: 'Lascialo nell acqua', saving: '…', saved: 'Oggi sei stato presente per te.', goodnight: 'Dormi bene.', loopQuestion: 'Per oggi volevi: "{intention}". Cosa è successo con questo?' },
+  pt: { greet: 'Boa noite', journal: 'Deixa aqui os teus pensamentos', gratitude: 'Pelo que estás grato hoje?', intention: 'Para amanhã quero…', intentionWeek: 'Para a semana que vem, quero…', save: 'Deixa na água', saving: '…', saved: 'Hoje estiveste presente para ti.', goodnight: 'Dorme bem.', loopQuestion: 'Para hoje, querias: "{intention}". O que aconteceu com isso?' },
+  nl: { greet: 'Goedenavond', journal: 'Laat je gedachten hier', gratitude: 'Waar ben je vandaag dankbaar voor?', intention: 'Voor morgen wil ik…', intentionWeek: 'Voor de komende week wil ik…', save: 'Laat het in het water', saving: '…', saved: 'Je was er vandaag voor jezelf.', goodnight: 'Slaap zacht.', loopQuestion: 'Voor vandaag wilde je: "{intention}". Wat is daarmee gebeurd?' },
+  pl: { greet: 'Dobry wieczór', journal: 'Zostaw tu swoje myśli', gratitude: 'Za co jesteś dziś wdzięczny?', intention: 'Na jutro chcę…', intentionWeek: 'Na nadchodzący tydzień chcę…', save: 'Zostaw w wodzie', saving: '…', saved: 'Dziś byłeś obecny dla siebie.', goodnight: 'Śpij spokojnie.', loopQuestion: 'Na dzisiaj chciałeś: "{intention}". Co się z tym stało?' },
+  hu: { greet: 'Jó estét', journal: 'Hagyd itt a gondolataidat', gratitude: 'Miért vagy hálás ma?', intention: 'Holnapra azt szeretném…', intentionWeek: 'A következő hétre azt szeretném…', save: 'Hagyd a vízben', saving: '…', saved: 'Ma jelen voltál önmagad számára.', goodnight: 'Aludj jól.', loopQuestion: 'Mára azt szeretted volna: "{intention}". Mi történt ezzel?' },
+  ru: { greet: 'Добрый вечер', journal: 'Оставь свои мысли здесь', gratitude: 'За что ты благодарен(на) сегодня?', intention: 'На завтра я хочу…', intentionWeek: 'На предстоящую неделю я хочу…', save: 'Оставить это в воде', saving: '…', saved: 'Сегодня ты был(а) рядом с собой.', goodnight: 'Спокойной ночи.', loopQuestion: 'На сегодня ты хотел(а): "{intention}". Что произошло с этим?' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
-export default function EveningMirror({ lang = 'en', name = '', done = false, onComplete }) {
+export default function EveningMirror({ lang = 'en', name = '', done = false, todayIntention = '', onComplete }) {
   const [journal, setJournal] = useState('')
   const [gratitude, setGratitude] = useState('')
   const [intention, setIntention] = useState('')
@@ -34,6 +35,9 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
   const [sent, setSent] = useState(done)
   const [dimmed, setDimmed] = useState(false)
   const [rainStage, setRainStage] = useState('idle') // idle | falling | splash
+  // Respirația de închidere (secț. C, 25.07 noapte) — corpul primește și el
+  // închidere, după gestul de salvare, înainte de "Somn lin".
+  const [closingBreath, setClosingBreath] = useState(false)
 
   const who = name ? `, ${name}` : ''
   // Duminică seara, intenția devine pentru săptămâna care vine, nu pentru
@@ -67,11 +71,11 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
     // static de dinainte. Textul butonului rămâne interimar (TODO bloc 5,
     // lacrima vie 3D), doar gestul de aici e cel real acum.
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) { finish(); return }
+    if (reduced) { setClosingBreath(true); return }
     setRainStage('falling')
     setTimeout(() => {
       setRainStage('splash')
-      setTimeout(finish, 400)
+      setTimeout(() => setClosingBreath(true), 400)
     }, 380)
   }
 
@@ -81,6 +85,14 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
         <div style={s.mirror} aria-hidden="true"><span className="wd-ring" style={s.mirrorRing} /></div>
         <p style={s.saved}>{lx(lang, 'saved')}</p>
         <p style={s.goodnight}>{lx(lang, 'goodnight')}</p>
+      </div>
+    )
+  }
+
+  if (closingBreath) {
+    return (
+      <div className="glass ritual-night" style={s.card}>
+        <BreathingSphere lang={lang} mode="singleCycle" onComplete={finish} />
       </div>
     )
   }
@@ -100,6 +112,22 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, on
       )}
       <div style={rainStage !== 'idle' ? s.contentFading : null}>
         <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
+
+        {/* Bucla intenției (25.07 noapte, sect. A): intenția semănată aseară
+            se întoarce acum ca întrebare de OBSERVARE, nu de bilanț — fără
+            bifă, fără scor, fără culoare de succes/eșec. Dacă nu există
+            intenție pentru azi, blocul nu se randează deloc (principiul 4:
+            nicio mențiune a absenței). Răspunsul omului e pur și simplu ce
+            scrie mai jos, în jurnal — același flux, fără câmp separat. */}
+        {todayIntention && (
+          <p style={s.loopQuestion}>
+            {lx(lang, 'loopQuestion').split('{intention}').map((part, i, arr) => (
+              i < arr.length - 1
+                ? <span key={i}>{part}<em>{todayIntention}</em></span>
+                : <span key={i}>{part}</span>
+            ))}
+          </p>
+        )}
 
         {/* pas 1 — jurnalul apare singur */}
         <p style={s.label}>{lx(lang, 'journal')}</p>
@@ -160,6 +188,7 @@ const s = {
   rainDrop: { display: 'block', width: '10px', height: '14px', borderRadius: '50% 50% 50% 0', background: 'radial-gradient(circle at 35% 30%, #fff 0%, var(--pearl) 60%, var(--gold) 100%)', boxShadow: '0 0 10px var(--gold-soft)', animation: 'rain-fall 380ms var(--ease-out) forwards' },
   rainRing: { position: 'absolute', bottom: '18px', width: '90px', height: '30px', borderRadius: '50%', border: '1px solid var(--gold-soft)', boxShadow: '0 0 14px var(--gold-faint)', animation: 'rain-splash 380ms var(--ease-out) forwards' },
   greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', color: 'var(--text)', marginBottom: '18px' },
+  loopQuestion: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text-light)', lineHeight: 1.6, marginBottom: '20px', fontStyle: 'normal' },
   label: { fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', color: 'var(--text)', margin: '18px 0 10px' },
   textarea: { width: '100%', resize: 'none', fontFamily: 'Cormorant Garamond, serif', lineHeight: 1.7, boxSizing: 'border-box' },
   btn: { width: '100%', marginTop: '24px' },

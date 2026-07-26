@@ -5,6 +5,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import WaterVideoLayer from "./components/water/WaterVideoLayer";
+import WaterSoundLoop from "./components/water/WaterSoundLoop";
 import InteractionLayer from "./components/water/InteractionLayer";
 import ServiceWorker from "./components/ServiceWorker";
 
@@ -57,6 +58,9 @@ export default function RootLayout({ children }) {
         />
         {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
         <WaterVideoLayer />
+        {/* Sunetul apei (sect. E, 25.07 noapte) — oprit implicit, un singur
+            loop global, langa stratul video. */}
+        <WaterSoundLoop />
         {/* LEGEA 2 — orice atingere naste o unda, peste tot (pas 5, 2D). */}
         <InteractionLayer />
         <div id="app-surface">{children}</div>

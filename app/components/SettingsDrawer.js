@@ -11,7 +11,15 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Flag from './Flag'
 import { useLanguage, LANGUAGES } from '../../lib/language'
+import { useSoundPref } from '../../lib/soundPref'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
+
+// Eticheta comutatorului de sunet (sect. E, 25.07 noapte) — separată de
+// obiectul L de mai jos (care are doar en/ro, gol pre-existent) pentru că
+// aceasta trece prin poarta lexicală în toate cele 11 limbi.
+const SOUND_LABEL = {
+  en: 'Water sound', ro: 'Sunetul apei', es: 'Sonido del agua', fr: "Son de l'eau", de: 'Wassergeräusch', it: "Suono dell'acqua", pt: 'Som da água', nl: 'Watergeluid', pl: 'Dźwięk wody', hu: 'Vízhang', ru: 'Звук воды',
+}
 
 const L = {
   en: {
@@ -48,6 +56,7 @@ export function SettingsIcon({ onClick, lang = 'en' }) {
 export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
   const [lang, changeLanguage] = useLanguage()
   const shown = pageLang || lang
+  const [soundOn, setSoundOn] = useSoundPref()
   const [loggingOut, setLoggingOut] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [exporting, setExporting] = useState(false)
@@ -115,6 +124,19 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
 
           <div style={{ height: '1px', background: 'rgba(244,240,234,0.1)', margin: '20px 0' }} />
 
+          <button
+            onClick={() => setSoundOn(!soundOn)}
+            style={ov.soundRow}
+            aria-pressed={soundOn}
+          >
+            <span>{SOUND_LABEL[shown] || SOUND_LABEL.en}</span>
+            <span style={{ ...ov.soundSwitch, background: soundOn ? 'rgba(229,169,60,0.5)' : 'rgba(244,240,234,0.15)' }}>
+              <span style={{ ...ov.soundKnob, transform: soundOn ? 'translateX(16px)' : 'translateX(0)' }} />
+            </span>
+          </button>
+
+          <div style={{ height: '1px', background: 'rgba(244,240,234,0.1)', margin: '4px 0 20px' }} />
+
           <a href="/subscribe" style={ov.linkRow}>{lx(shown, 'subscription')}</a>
           <button onClick={handleLogout} disabled={loggingOut} style={{ ...ov.linkRow, opacity: loggingOut ? 0.6 : 1 }}>
             {lx(shown, 'logout')}
@@ -156,6 +178,9 @@ const ov = {
   label: { fontSize: '12px', color: 'rgba(244,240,234,0.5)', letterSpacing: '0.5px', marginBottom: '12px' },
   flagGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' },
   flagBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 12px', borderRadius: '20px', border: '1px solid', background: 'transparent', cursor: 'pointer', minHeight: '44px' },
+  soundRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '4px', background: 'none', border: 'none', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px' },
+  soundSwitch: { width: '36px', height: '20px', borderRadius: '10px', position: 'relative', transition: 'background-color 200ms ease', flexShrink: 0 },
+  soundKnob: { position: 'absolute', top: '2px', left: '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#f4f0ea', transition: 'transform 200ms ease' },
   linkRow: { display: 'block', width: '100%', textAlign: 'left', padding: '14px 4px', background: 'none', border: 'none', borderTop: '1px solid rgba(244,240,234,0.08)', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px', textDecoration: 'none' },
   cancelBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(244,240,234,0.18)', background: 'transparent', color: 'rgba(244,240,234,0.85)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
   dangerBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(224,138,138,0.4)', background: 'rgba(224,138,138,0.12)', color: 'rgba(244,240,234,0.95)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },

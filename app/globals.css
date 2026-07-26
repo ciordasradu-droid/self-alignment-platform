@@ -310,6 +310,21 @@ input:focus, textarea:focus, select:focus {
   100% { transform: scale(0.35); opacity: 0; }
 }
 
+/* Sfera care respiră (Ritmul zilei, 25.07 noapte) — 4s dilatare / 6s
+   strângere, ciclu de 10s. Expirația mai lungă (60% din ciclu) coboară
+   fiziologic pulsul. */
+@keyframes ritual-breath {
+  0%   { transform: scale(0.78); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(0.78); }
+}
+.breath-sphere {
+  animation: ritual-breath 10s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .breath-sphere { animation: none; }
+}
+
 /* ---------- Butoane-pastilă contur ---------- */
 .pill-btn {
   padding: 15px 24px;

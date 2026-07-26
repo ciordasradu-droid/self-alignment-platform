@@ -110,6 +110,7 @@ function DashboardContent() {
             lang={lang}
             name={firstName}
             done={today.evening}
+            todayIntention={today.continuedIntention}
             onComplete={refresh}
           />
         )}
