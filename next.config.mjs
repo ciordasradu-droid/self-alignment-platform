@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+  // sect. H2 (addendum 26.07): marcaj de build discret in Setari — hash
+  // scurt + data buildului, ca sa se stie mereu prin ce geam se uita
+  // cineva inainte de un verdict Poarta 1. VERCEL_GIT_COMMIT_SHA e oferit
+  // automat de Vercel la build, dar nu e NEXT_PUBLIC_ implicit — il
+  // expunem aici. Data e evaluata AICI (la build), deci e chiar data
+  // buildului, nu data la care ruleaza pagina.
+  env: {
+    NEXT_PUBLIC_BUILD_SHA: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7),
+    NEXT_PUBLIC_BUILD_DATE: new Date().toISOString(),
+  },
   async headers() {
     return [
       {

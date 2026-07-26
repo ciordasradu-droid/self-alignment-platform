@@ -164,6 +164,17 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
               </div>
             </div>
           )}
+
+          {/* sect. H2 (addendum 26.07): marcaj discret de build — ca sa se
+              stie mereu prin ce geam se uita cineva inainte de un verdict
+              Poarta 1. Nu apare nicaieri altundeva in UI. */}
+          {(process.env.NEXT_PUBLIC_BUILD_SHA || process.env.NEXT_PUBLIC_BUILD_DATE) && (
+            <p style={ov.buildMark}>
+              {process.env.NEXT_PUBLIC_BUILD_SHA || '—'}
+              {' · '}
+              {process.env.NEXT_PUBLIC_BUILD_DATE ? new Date(process.env.NEXT_PUBLIC_BUILD_DATE).toLocaleString(shown === 'ro' ? 'ro-RO' : 'en-GB', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
+            </p>
+          )}
         </div>
       </div>
     </div>,
@@ -181,6 +192,7 @@ const ov = {
   soundRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '4px', background: 'none', border: 'none', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px' },
   soundSwitch: { width: '36px', height: '20px', borderRadius: '10px', position: 'relative', transition: 'background-color 200ms ease', flexShrink: 0 },
   soundKnob: { position: 'absolute', top: '2px', left: '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#f4f0ea', transition: 'transform 200ms ease' },
+  buildMark: { textAlign: 'center', fontSize: '11px', color: 'rgba(244,240,234,0.3)', letterSpacing: '0.3px', marginTop: '18px', fontFamily: 'monospace' },
   linkRow: { display: 'block', width: '100%', textAlign: 'left', padding: '14px 4px', background: 'none', border: 'none', borderTop: '1px solid rgba(244,240,234,0.08)', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px', textDecoration: 'none' },
   cancelBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(244,240,234,0.18)', background: 'transparent', color: 'rgba(244,240,234,0.85)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
   dangerBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(224,138,138,0.4)', background: 'rgba(224,138,138,0.12)', color: 'rgba(244,240,234,0.95)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
