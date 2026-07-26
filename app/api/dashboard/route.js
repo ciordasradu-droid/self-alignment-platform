@@ -3,12 +3,21 @@ export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { getLogicalDay } from '../../../lib/logicalDay'
 
 export async function GET(request) {
   try {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     const userId = user.id
+
+    // Punctul 1 (audit 27.07, runda 6): ziua se termina la 04:00, nu la
+    // miezul noptii — serverul (Vercel) ruleaza in UTC, deci fusul omului
+    // trebuie trimis de client (vezi lib/logicalDay.js, clientTzOffset()).
+    // Fara parametru (client vechi/necache-uit) -> tratat ca UTC, mai bine
+    // decat sa pice cererea.
+    const { searchParams } = new URL(request.url)
+    const tz = Number(searchParams.get('tz')) || 0
 
     const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
@@ -29,7 +38,7 @@ export async function GET(request) {
 
     if (allCheckinsError) throw allCheckinsError
 
-    const activeDays = new Set((allCheckins || []).map(c => c.created_at.split('T')[0])).size
+    const activeDays = new Set((allCheckins || []).map(c => getLogicalDay(new Date(c.created_at).getTime(), tz))).size
 
     // Aceeași extragere ca în /api/patterns — DOAR text real scris de user.
     let writtenEntries = 0
@@ -53,17 +62,20 @@ export async function GET(request) {
 
     if (streakError) throw streakError
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = getLogicalDay(Date.now(), tz)
     const checkedInToday = checkins?.some(c =>
-      c.created_at.split('T')[0] === today
+      getLogicalDay(new Date(c.created_at).getTime(), tz) === today
     )
 
     // A4 — Momentul Revenirii: absență de 3+ zile de la ultima activitate.
     // Doar useri cu istoric real (nu cont proaspăt) pot fi "absenți".
     let returning = false
     if (!checkedInToday && (allCheckins || []).length > 0) {
-      const lastActiveMs = Math.max(...allCheckins.map(c => new Date(c.created_at.split('T')[0]).getTime()))
-      const daysSinceActive = Math.floor((new Date(today).getTime() - lastActiveMs) / 86400000)
+      const lastActiveDay = allCheckins.reduce((latest, c) => {
+        const d = getLogicalDay(new Date(c.created_at).getTime(), tz)
+        return d > latest ? d : latest
+      }, '0000-00-00')
+      const daysSinceActive = Math.floor((new Date(today).getTime() - new Date(lastActiveDay).getTime()) / 86400000)
       returning = daysSinceActive >= 3
     }
 
@@ -90,8 +102,9 @@ export async function GET(request) {
       ? Math.max(1, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000) + 1)
       : 1
 
-    // Ce s-a întâmplat azi — home-ul știe ce ritual să ofere.
-    const todays = (checkins || []).filter(c => c.created_at.split('T')[0] === today)
+    // Ce s-a întâmplat azi (ziua LOGICA, nu calendaristica bruta — punctul 1,
+    // runda 6) — home-ul știe ce ritual să ofere.
+    const todays = (checkins || []).filter(c => getLogicalDay(new Date(c.created_at).getTime(), tz) === today)
     const pick = (kind) => todays.find(c => c.answers?.kind === kind)
     const morning = pick('morning')
     // rândurile vechi n-au `kind` — cele fără erau check-in-ul de seară
@@ -99,9 +112,12 @@ export async function GET(request) {
 
     // Curgerea seară→dimineață (sect. 5): intenția se stabilește seara,
     // pentru ziua următoare — dimineața o continuă, n-o mai stabilește.
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    // (Scadere simpla de o zi calendaristica din ziua logica deja calculata
+    // — NU trece din nou prin getLogicalDay, altfel s-ar aplica a doua oara
+    // decalajul de 4 ore.)
+    const yesterday = new Date(new Date(today).getTime() - 86400000).toISOString().split('T')[0]
     const yesterdayEvening = (checkins || []).find(c =>
-      c.created_at.split('T')[0] === yesterday && c.answers?.kind === 'evening'
+      getLogicalDay(new Date(c.created_at).getTime(), tz) === yesterday && c.answers?.kind === 'evening'
     )
 
     return NextResponse.json({
@@ -134,10 +150,15 @@ export async function POST(request) {
     const user_id = user.id
 
     const body = await request.json()
-    const { score, answers } = body
+    const { score, answers, tz } = body
 
-    const today = new Date().toISOString().split('T')[0]
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    // Punctul 1 (audit 27.07, runda 6): neapelat de client azi (verificat —
+    // /api/ritual e ruta reala de check-in), dar aceeasi notiune de zi ca in
+    // GET-ul de mai sus, ca sa nu ramana o a doua implementare care nu se
+    // potriveste daca se apeleaza vreodata.
+    const tzOffset = Number(tz) || 0
+    const today = getLogicalDay(Date.now(), tzOffset)
+    const yesterday = new Date(new Date(today).getTime() - 86400000).toISOString().split('T')[0]
 
     const { error: checkinError } = await supabaseAdmin
       .from('checkins')

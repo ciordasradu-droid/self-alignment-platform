@@ -16,6 +16,7 @@ import RoomNav from '../components/RoomNav'
 import WaterLoader from '../components/water/WaterLoader'
 import { stageForDay, STAGES } from '../components/water/waterState'
 import { useLanguage } from '../../lib/language'
+import { clientTzOffset } from '../../lib/logicalDay'
 
 // A2 (decizie închisă 23.07): deblocările se leagă de PREZENȚĂ, nu de
 // calendar. metric: 'days' = zile active (cel puțin un ritual făcut),
@@ -154,7 +155,7 @@ function DrumulContent() {
         if (p.language) setProfileLang(p.language)
       }
     } catch (e) {}
-    fetch('/api/dashboard')
+    fetch(`/api/dashboard?tz=${clientTzOffset()}`)
       .then(r => r.json())
       .then(d => { if (d.success) setData(d); setLoading(false) })
       .catch(() => setLoading(false))

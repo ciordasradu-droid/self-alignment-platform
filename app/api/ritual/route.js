@@ -11,6 +11,7 @@ export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { getLogicalDay } from '../../../lib/logicalDay'
 
 const KINDS = ['morning', 'evening', 'one_breath']
 
@@ -20,13 +21,14 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { kind } = body
+    const { kind, tz } = body
     if (!KINDS.includes(kind)) {
       return NextResponse.json({ error: 'unknown kind' }, { status: 400 })
     }
 
     const answers = { ...body }
     delete answers.kind
+    delete answers.tz
     answers.kind = kind
 
     // score: 0 — coloana e NOT NULL, dar scorul nu există ca noțiune în produs.
@@ -38,7 +40,7 @@ export async function POST(request) {
     // Prezența: seara sau o respirație închid ziua. Dimineața nu o închide.
     let streak = null
     if (kind === 'evening' || kind === 'one_breath') {
-      streak = await touchPresence(user.id)
+      streak = await touchPresence(user.id, Number(tz) || 0)
     }
 
     return NextResponse.json({ success: true, streak })
@@ -51,8 +53,10 @@ export async function POST(request) {
 // DECIZIA 4 — consecvența ÎNGHEAȚĂ la absență: nu scade, nu se resetează.
 // Absența = prezență întreruptă care se reia blând. Deci numărăm zilele de
 // prezență; o pauză nu șterge nimic, doar nu adaugă.
-async function touchPresence(userId) {
-  const today = new Date().toISOString().split('T')[0]
+// Punctul 1 (audit 27.07, runda 6): ziua se termina la 04:00, nu la miezul
+// noptii — aceeasi functie ca in interfata si /api/dashboard (lib/logicalDay.js).
+async function touchPresence(userId, tzOffset = 0) {
+  const today = getLogicalDay(Date.now(), tzOffset)
 
   const { data: existing } = await supabaseAdmin
     .from('streaks')

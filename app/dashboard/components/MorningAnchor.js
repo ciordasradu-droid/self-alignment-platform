@@ -12,6 +12,7 @@ import DailyInsight from './DailyInsight'
 import BreathingSphere from './BreathingSphere'
 import { waterState } from '../../components/water/waterState'
 import { getEffectiveWeekday } from '../../../lib/simWeekday'
+import { clientTzOffset } from '../../../lib/logicalDay'
 
 const L = {
   en: { greet: 'Good morning', sleepQ: 'How did you sleep?', sleepPh: 'Write a word or two…', intentionQ: 'Yesterday you left this intention:', carry: 'Carry it forward', change: 'Change it', changePh: 'Write the new intention…', freshQ: 'What intention do you carry into today?', freshPh: 'Write it here…', start: 'Begin the day', wish: 'May your day be gentle', done: 'Your day has begun.', weekTag: 'The Week, Seen', weekQ1: 'What repeated this week, seen from the shore, not from the current?', weekQ2: 'A moment when you were close to yourself — what made it possible?', weekQ3: 'What you take with you into the coming week — one sentence.', weekPh1: 'What you noticed coming back…', weekPh2: 'The moment, and what supported it…', weekPh3: 'One sentence…' },
@@ -66,7 +67,7 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
       await fetch('/api/ritual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'morning', sleep: sleep.trim(), intention: finalIntention }),
+        body: JSON.stringify({ kind: 'morning', sleep: sleep.trim(), intention: finalIntention, tz: clientTzOffset() }),
       })
       if (weekReviewActive) {
         const now = new Date()

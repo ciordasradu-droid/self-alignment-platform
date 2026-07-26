@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { getEffectiveWeekday } from '../../../lib/simWeekday'
+import { clientTzOffset } from '../../../lib/logicalDay'
 import BreathingSphere from './BreathingSphere'
 
 const L = {
@@ -64,6 +65,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
         evening_journal: journal.trim(),
         gratitude: gratitude.trim(),
         intention: intention.trim(),
+        tz: clientTzOffset(),
       }),
     }).catch(() => {}) // prezența rămâne chiar și la o eroare de rețea
 

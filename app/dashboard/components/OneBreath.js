@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import { waterState } from '../../components/water/waterState'
+import { clientTzOffset } from '../../../lib/logicalDay'
 
 const L = {
   en: { btn:'One breath', during:'Breathe in… and out.', done:'Your presence is kept.' },
@@ -34,7 +35,7 @@ export default function OneBreath({ lang = 'en', onComplete }) {
     fetch('/api/ritual', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind: 'one_breath', one_breath: true }),
+      body: JSON.stringify({ kind: 'one_breath', one_breath: true, tz: clientTzOffset() }),
     }).catch(() => {})
     setTimeout(() => {
       waterState.setLight(null)
