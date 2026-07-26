@@ -8,6 +8,7 @@ import WaterVideoLayer from "./components/water/WaterVideoLayer";
 import WaterSoundLoop from "./components/water/WaterSoundLoop";
 import InteractionLayer from "./components/water/InteractionLayer";
 import ServiceWorker from "./components/ServiceWorker";
+import DocumentTitle from "./components/DocumentTitle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Profil de Aliniere",
+  // Punctul 2 (audit 26.07, runda 3): fara title static aici — se ciocnea cu
+  // <DocumentTitle/> (React 19 hoisting), care il gestioneaza reactiv, legat
+  // de app_language, mai jos.
   description: "Astrologie, Human Design și numerologie, sintetizate într-un profil personal și un plan de aliniere.",
   manifest: "/manifest.json",
   other: {
@@ -67,6 +70,7 @@ export default function RootLayout({ children }) {
               "try{var SUP=['en','ro','es','fr','de','it','pt','nl','pl','hu','ru'];var l=localStorage.getItem('app_language');if(!l){var n=(navigator.language||'en').slice(0,2).toLowerCase();if(SUP.indexOf(n)!==-1)l=n}if(l){document.documentElement.lang=l}}catch(e){}",
           }}
         />
+        <DocumentTitle />
         {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
         <WaterVideoLayer />
         {/* Sunetul apei (sect. E, 25.07 noapte) — oprit implicit, un singur

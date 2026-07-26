@@ -246,6 +246,17 @@ function GeneratingContent() {
       }
 
       localStorage.setItem('profile', JSON.stringify(profilePayload))
+
+      // Punctul 3 (audit 26.07, runda 3): sesiunea de onboarding (nume, data,
+      // ora, orasul nasterii) nu mai e necesara odata ce profilul e creat —
+      // stearsa explicit, nu lasata sa se acumuleze la nesfarsit.
+      const onboardingId = searchParams.get('id')
+      if (onboardingId) {
+        try {
+          await fetch(`/api/onboarding/session?id=${encodeURIComponent(onboardingId)}`, { method: 'DELETE' })
+        } catch (e) {}
+      }
+
       router.push('/profile')
 
     } catch (err) {

@@ -54,3 +54,29 @@ export async function GET(request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+
+// Punctul 3 (audit 26.07, runda 3): randul isi face treaba in cateva minute
+// (cat dureaza generarea) si dupa aceea nu mai foloseste nimanui — dar
+// ramanea la nesfarsit, cu numele/data/orasul nasterii inca in el. Stersa
+// explicit de generating/page.js imediat ce profilul a fost creat cu succes.
+export async function DELETE(request) {
+  try {
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+    await supabaseAdmin
+      .from('onboarding_sessions')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Onboarding session DELETE error:', err.message)
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
+}

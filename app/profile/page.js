@@ -18,6 +18,8 @@ import RoomNav from '../components/RoomNav'
 import { SettingsIcon } from '../components/SettingsDrawer'
 import SettingsDrawer from '../components/SettingsDrawer'
 import { useUser } from '../../lib/useUser'
+import { useLanguage } from '../../lib/language'
+import { languageNameIn } from '../../lib/languageNames'
 
 // Terminology imports for HDCard subtitles + translated values
 import { headerBoxExplanations as roExpl, hdTerms as roHd } from '../../lib/prompts/terminology/ro'
@@ -380,6 +382,11 @@ function ProfileContent() {
   const [planPending, setPlanPending] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { user } = useUser()
+  // Punctul 1 (audit 26.07, runda 3): carcasa (meniu, titlu, butoane, panoul
+  // de Setari) urmeaza intotdeauna limba aplicatiei — profile.language (mai
+  // jos, profileLang) ramane doar pentru continutul generat (capitolele,
+  // acordurile), care nu poate fi retradus fara regenerare.
+  const [appLang] = useLanguage()
 
   // Regenerează planul în fundal când lipsește (auto-vindecare).
   // POST-ul poate fi abandonat de browser (30s) — serverul continuă;
@@ -481,11 +488,15 @@ function ProfileContent() {
         <p style={{marginBottom:'20px'}}>No profile found.</p>
         <a href="/onboarding" style={{color:'var(--purple)', fontWeight:'600'}}>Generate your profile →</a>
       </div>
-      <RoomNav />
+      <RoomNav lang={appLang} />
     </>
   )
 
-  const lang = profile.language || 'en'
+  // profileLang = limba in care a fost SCRIS profilul (nu poate fi retradusa
+  // fara regenerare) — foloseste-o doar pentru continutul generat mai jos.
+  // Carcasa paginii (header, butoane, panoul Setari, RoomNav) foloseste appLang.
+  const profileLang = profile.language || 'en'
+  const lang = profileLang
 
   if (!committed) {
     const gateAgreements = Array.isArray(profile.alignment_plan?.behavioral_anchors?.non_negotiables)
@@ -542,17 +553,26 @@ function ProfileContent() {
 
         <div style={s.header}>
           <div>
-            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>{t(lang, 'profile_tag')}</span>
-            <h1 style={s.title}>{t(lang, 'profile_title')}</h1>
-            {full_name && <p style={s.subtitle}>{t(lang, 'profile_generated_for')} {full_name}</p>}
+            <span className="tag tag-purple" style={{marginBottom:'12px', display:'inline-block'}}>{t(appLang, 'profile_tag')}</span>
+            <h1 style={s.title}>{t(appLang, 'profile_title')}</h1>
+            {full_name && <p style={s.subtitle}>{t(appLang, 'profile_generated_for')} {full_name}</p>}
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0 }}>
             <button onClick={handleDownloadPDF} style={s.dlBtn}>
-              {t(lang, 'download_pdf')}
+              {t(appLang, 'download_pdf')}
             </button>
-            <SettingsIcon onClick={() => setSettingsOpen(true)} lang={lang} />
+            <SettingsIcon onClick={() => setSettingsOpen(true)} lang={appLang} />
           </div>
         </div>
+
+        {/* Punctul 1 (audit 26.07, runda 3): linia onesta — doar cand limba
+            aplicatiei difera de limba in care a fost scris profilul. Numele
+            limbii apare IN app_language (nu ca endonim), din languageNames.js. */}
+        {appLang !== profileLang && (
+          <p style={s.languageNotice}>
+            {t(appLang, 'profile_language_notice').replace('{lang}', languageNameIn(appLang, profileLang))}
+          </p>
+        )}
 
         {/* HUB DE IDENTITATE — lentile, compatibilitate, invitatii (sect. 6) */}
         <Lenses profile={profile} lang={lang} />
@@ -597,8 +617,8 @@ function ProfileContent() {
 
       </main>
 
-      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} lang={lang} />
-      <RoomNav lang={lang} />
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} lang={appLang} />
+      <RoomNav lang={appLang} />
     </>
   )
 }
@@ -607,6 +627,7 @@ const s = {
   wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px 24px', overflowX:'hidden' },
   center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px 24px', fontSize:'18px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
+  languageNotice: { fontSize:'13px', color:'var(--text-light)', fontStyle:'italic', marginTop:'-24px', marginBottom:'24px' },
   title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
   dlBtn: { padding:'10px 20px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', fontWeight:'500', cursor:'pointer', color:'var(--text)' },
