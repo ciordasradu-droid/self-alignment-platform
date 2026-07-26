@@ -14,17 +14,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const L = {
-  en: { azi: 'Today', drumul: 'The Path', tu: 'You' },
-  ro: { azi: 'Azi', drumul: 'Drumul', tu: 'Tu' },
-  es: { azi: 'Hoy', drumul: 'Camino', tu: 'Tú' },
-  fr: { azi: 'Aujourd\'hui', drumul: 'Chemin', tu: 'Toi' },
-  de: { azi: 'Heute', drumul: 'Weg', tu: 'Du' },
-  it: { azi: 'Oggi', drumul: 'Percorso', tu: 'Tu' },
-  pt: { azi: 'Hoje', drumul: 'Caminho', tu: 'Tu' },
-  nl: { azi: 'Vandaag', drumul: 'Pad', tu: 'Jij' },
-  pl: { azi: 'Dziś', drumul: 'Droga', tu: 'Ty' },
-  hu: { azi: 'Ma', drumul: 'Út', tu: 'Te' },
-  ru: { azi: 'Сегодня', drumul: 'Путь', tu: 'Ты' },
+  en: { azi: 'Today', drumul: 'The Path', tu: 'You', nav_label: 'Main navigation' },
+  ro: { azi: 'Azi', drumul: 'Drumul', tu: 'Tu', nav_label: 'Navigare principală' },
+  es: { azi: 'Hoy', drumul: 'Camino', tu: 'Tú', nav_label: 'Navegación principal' },
+  fr: { azi: 'Aujourd\'hui', drumul: 'Chemin', tu: 'Toi', nav_label: 'Navigation principale' },
+  de: { azi: 'Heute', drumul: 'Weg', tu: 'Du', nav_label: 'Hauptnavigation' },
+  it: { azi: 'Oggi', drumul: 'Percorso', tu: 'Tu', nav_label: 'Navigazione principale' },
+  pt: { azi: 'Hoje', drumul: 'Caminho', tu: 'Tu', nav_label: 'Navegação principal' },
+  nl: { azi: 'Vandaag', drumul: 'Pad', tu: 'Jij', nav_label: 'Hoofdnavigatie' },
+  pl: { azi: 'Dziś', drumul: 'Droga', tu: 'Ty', nav_label: 'Nawigacja główna' },
+  hu: { azi: 'Ma', drumul: 'Út', tu: 'Te', nav_label: 'Fő navigáció' },
+  ru: { azi: 'Сегодня', drumul: 'Путь', tu: 'Ты', nav_label: 'Основная навигация' },
 }
 
 const TABS = [
@@ -79,7 +79,7 @@ export default function RoomNav({ lang = 'en' }) {
   if (!mounted) return null
 
   return createPortal(
-    <nav className="room-nav" aria-label="Navigare principala">
+    <nav className="room-nav" aria-label={t.nav_label}>
       <div className="room-nav-bar">
         {TABS.map((tab) => {
           const active = pathname === tab.href || pathname?.startsWith(tab.href + '/')

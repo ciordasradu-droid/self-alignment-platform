@@ -7,17 +7,17 @@
 import { useState, useEffect } from 'react'
 
 const L = {
-  en: { label: 'Three weeks ago, you wrote this' },
-  ro: { label: 'Acum trei săptămâni, ai scris asta' },
-  es: { label: 'Hace tres semanas, escribiste esto' },
-  fr: { label: 'Il y a trois semaines, tu as écrit ceci' },
-  de: { label: 'Vor drei Wochen hast du das geschrieben' },
-  it: { label: 'Tre settimane fa, hai scritto questo' },
-  pt: { label: 'Há três semanas, escreveste isto' },
-  nl: { label: 'Drie weken geleden schreef je dit' },
-  pl: { label: 'Trzy tygodnie temu napisałeś to' },
-  hu: { label: 'Három hete ezt írtad' },
-  ru: { label: 'Три недели назад ты написал это' },
+  en: { label: 'Three weeks ago, you wrote this', dismiss: 'Dismiss' },
+  ro: { label: 'Acum trei săptămâni, ai scris asta', dismiss: 'Închide' },
+  es: { label: 'Hace tres semanas, escribiste esto', dismiss: 'Cerrar' },
+  fr: { label: 'Il y a trois semaines, tu as écrit ceci', dismiss: 'Fermer' },
+  de: { label: 'Vor drei Wochen hast du das geschrieben', dismiss: 'Schließen' },
+  it: { label: 'Tre settimane fa, hai scritto questo', dismiss: 'Chiudi' },
+  pt: { label: 'Há três semanas, escreveste isto', dismiss: 'Fechar' },
+  nl: { label: 'Drie weken geleden schreef je dit', dismiss: 'Sluiten' },
+  pl: { label: 'Trzy tygodnie temu napisałeś to', dismiss: 'Zamknij' },
+  hu: { label: 'Három hete ezt írtad', dismiss: 'Bezárás' },
+  ru: { label: 'Три недели назад ты написал это', dismiss: 'Закрыть' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -48,7 +48,7 @@ export default function EchoMoment({ lang = 'en' }) {
     <div style={s.card} className="anim-fade-in">
       <p style={s.label}>{lx(lang, 'label')}</p>
       <p style={s.phrase}>&ldquo;{phrase}&rdquo;</p>
-      <button onClick={() => setDismissed(true)} style={s.dismiss} aria-label="dismiss">×</button>
+      <button onClick={() => setDismissed(true)} style={s.dismiss} aria-label={lx(lang, 'dismiss')}>×</button>
     </div>
   )
 }

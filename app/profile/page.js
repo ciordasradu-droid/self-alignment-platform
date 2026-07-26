@@ -96,6 +96,25 @@ const HUB_L = {
 }
 const hx = (lang, k) => (HUB_L[lang] || HUB_L.en)[k]
 
+// Punctul 3 (audit 26.07, runda 4): "Copiaza"/"Copiat" e carcasa (ca
+// "Descarca PDF") — separat de HUB_L (care ramane pe profileLang pentru
+// restul cardului, neschimbat fata de runda 3) ca sa nu introduca chei
+// lipsa in blocurile HUB_L existente (doar en/ro).
+const COPY_L = {
+  en: { copy: 'Copy', copied: 'Copied' },
+  ro: { copy: 'Copiază', copied: 'Copiat' },
+  es: { copy: 'Copiar', copied: 'Copiado' },
+  fr: { copy: 'Copier', copied: 'Copié' },
+  de: { copy: 'Kopieren', copied: 'Kopiert' },
+  it: { copy: 'Copia', copied: 'Copiato' },
+  pt: { copy: 'Copiar', copied: 'Copiado' },
+  nl: { copy: 'Kopiëren', copied: 'Gekopieerd' },
+  pl: { copy: 'Kopiuj', copied: 'Skopiowano' },
+  hu: { copy: 'Másolás', copied: 'Másolva' },
+  ru: { copy: 'Копировать', copied: 'Скопировано' },
+}
+const cx = (lang, k) => (COPY_L[lang] || COPY_L.en)[k]
+
 function Lenses({ profile, lang }) {
   if (!profile) return null
   const hd = profile.hd_data || {}
@@ -139,7 +158,7 @@ function CompatCard({ lang }) {
   )
 }
 
-function InviteHub({ userId, lang }) {
+function InviteHub({ userId, lang, appLang }) {
   const [copied, setCopied] = useState(false)
   const [link, setLink] = useState('')
 
@@ -158,7 +177,7 @@ function InviteHub({ userId, lang }) {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <p style={{ flex: 1, fontSize: '12.5px', color: 'rgba(244,240,234,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'rgba(7,6,14,0.4)', borderRadius: '10px', padding: '9px 12px' }}>{hx(lang, 'invite_link_label')}</p>
         <button onClick={copy} style={{ padding: '9px 16px', minHeight: '40px', fontSize: '13px', flexShrink: 0, borderRadius: '20px', border: '1px solid rgba(229,169,60,0.3)', background: 'transparent', color: '#f0d9b0', cursor: 'pointer' }}>
-          {copied ? hx(lang, 'copied') : hx(lang, 'copy')}
+          {copied ? cx(appLang, 'copied') : cx(appLang, 'copy')}
         </button>
       </div>
     </div>
@@ -577,7 +596,7 @@ function ProfileContent() {
         {/* HUB DE IDENTITATE — lentile, compatibilitate, invitatii (sect. 6) */}
         <Lenses profile={profile} lang={lang} />
         <CompatCard lang={lang} />
-        {user?.id && <InviteHub userId={user.id} lang={lang} />}
+        {user?.id && <InviteHub userId={user.id} lang={lang} appLang={appLang} />}
 
         {toc.length > 0 && (
           <div className="chapter-toc">

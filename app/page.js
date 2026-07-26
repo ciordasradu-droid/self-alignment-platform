@@ -75,7 +75,7 @@ export default function Home() {
               value={lang}
               onChange={e => changeLanguage(e.target.value)}
               style={s.langSelect}
-              aria-label="Language"
+              aria-label={lt(lang, 'nav_language_label')}
             >
               {LANGUAGES.map(l => (
                 <option key={l.code} value={l.code}>{l.label}</option>

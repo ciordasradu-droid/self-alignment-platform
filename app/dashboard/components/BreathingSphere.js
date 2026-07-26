@@ -20,17 +20,17 @@ import { waterState } from '../../components/water/waterState'
 import { getBreathDurationOverrideMs } from '../../../lib/simBreath'
 
 const L = {
-  en: { invite: 'The sphere breathes — you can breathe with it. Leave whenever you want.' },
-  ro: { invite: 'Sfera respiră — poți respira cu ea. Ieși oricând.' },
-  es: { invite: 'La esfera respira — puedes respirar con ella. Sal cuando quieras.' },
-  fr: { invite: 'La sphère respire — tu peux respirer avec elle. Pars quand tu veux.' },
-  de: { invite: 'Die Kugel atmet — du kannst mit ihr atmen. Geh, wann du willst.' },
-  it: { invite: 'La sfera respira — puoi respirare con lei. Vai via quando vuoi.' },
-  pt: { invite: 'A esfera respira — podes respirar com ela. Sai quando quiseres.' },
-  nl: { invite: 'De bol ademt — je kunt met haar meeademen. Vertrek wanneer je wilt.' },
-  pl: { invite: 'Kula oddycha — możesz oddychać razem z nią. Odejdź, kiedy chcesz.' },
-  hu: { invite: 'A gömb lélegzik — vele lélegezhetsz. Menj el, amikor akarsz.' },
-  ru: { invite: 'Сфера дышит — ты можешь дышать вместе с ней. Уходи, когда захочешь.' },
+  en: { invite: 'The sphere breathes — you can breathe with it. Leave whenever you want.', aria_breathing: 'Breathing exercise' },
+  ro: { invite: 'Sfera respiră — poți respira cu ea. Ieși oricând.', aria_breathing: 'Exercițiu de respirație' },
+  es: { invite: 'La esfera respira — puedes respirar con ella. Sal cuando quieras.', aria_breathing: 'Ejercicio de respiración' },
+  fr: { invite: 'La sphère respire — tu peux respirer avec elle. Pars quand tu veux.', aria_breathing: 'Exercice de respiration' },
+  de: { invite: 'Die Kugel atmet — du kannst mit ihr atmen. Geh, wann du willst.', aria_breathing: 'Atemübung' },
+  it: { invite: 'La sfera respira — puoi respirare con lei. Vai via quando vuoi.', aria_breathing: 'Esercizio di respirazione' },
+  pt: { invite: 'A esfera respira — podes respirar com ela. Sai quando quiseres.', aria_breathing: 'Exercício de respiração' },
+  nl: { invite: 'De bol ademt — je kunt met haar meeademen. Vertrek wanneer je wilt.', aria_breathing: 'Ademhalingsoefening' },
+  pl: { invite: 'Kula oddycha — możesz oddychać razem z nią. Odejdź, kiedy chcesz.', aria_breathing: 'Ćwiczenie oddechowe' },
+  hu: { invite: 'A gömb lélegzik — vele lélegezhetsz. Menj el, amikor akarsz.', aria_breathing: 'Légzőgyakorlat' },
+  ru: { invite: 'Сфера дышит — ты можешь дышать вместе с ней. Уходи, когда захочешь.', aria_breathing: 'Дыхательное упражнение' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -141,7 +141,7 @@ export default function BreathingSphere({ lang = 'en', mode = 'session', continu
       onClick={handleTapExit}
       role="button"
       tabIndex={0}
-      aria-label="breathing"
+      aria-label={lx(lang, 'aria_breathing')}
     >
       <div style={{ ...s.ambientGlow, opacity: fading ? 0 : 1, transitionDuration: `${durationMs}ms` }} aria-hidden="true" />
 
