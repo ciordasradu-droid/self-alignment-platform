@@ -114,15 +114,27 @@ export default function CompatibilityPage() {
   const [personB, setPersonB] = useState({})
   const [loading, setLoading] = useState(false)
 
-  // precompletează A din profilul existent
+  // precompletează A din profilul existent — de pe server, nu din
+  // localStorage (punctul 1, audit 26.07: browserul e cache, serverul e
+  // adevărul). Fără asta, câmpurile veneau goale chiar dacă profilul exista.
   useEffect(() => {
-    const stored = localStorage.getItem('profile')
-    if (stored) {
-      try {
-        const p = JSON.parse(stored)
-        if (p.full_name) setPersonA(prev => ({ ...prev, full_name: p.full_name, prefilled: true }))
-      } catch (e) {}
-    }
+    fetch('/api/profile').then(r => r.ok ? r.json() : null).then(data => {
+      if (!data) return
+      const patch = { prefilled: true }
+      if (data.full_name) patch.full_name = data.full_name
+      if (data.birth_date) {
+        const [year, month, day] = data.birth_date.split('-')
+        patch.date_of_birth = data.birth_date
+        patch.year = year
+        patch.month = String(Number(month))
+        patch.day = String(Number(day))
+      }
+      if (data.birth_time) patch.time_of_birth = data.birth_time.slice(0, 5)
+      if (data.birth_city) patch.city = data.birth_city
+      if (data.birth_lat != null) patch.lat = data.birth_lat
+      if (data.birth_lng != null) patch.lng = data.birth_lng
+      setPersonA(prev => ({ ...prev, ...patch }))
+    }).catch(() => {})
   }, [])
 
   const chooseType = (k) => { setType(k); setStep('me') }
@@ -151,7 +163,6 @@ export default function CompatibilityPage() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
         <div style={s.header}>
           <a href="/dashboard" style={s.back}>{lx(lang,'back')}</a>

@@ -55,25 +55,21 @@ function Result() {
   }
 
   if (error) return (
-    <><div className="cosmic-bg" /><main style={s.center}><p>{lx(lang,'failed')}</p><a href="/compatibility" style={{color:'var(--purple)',fontWeight:600}}>↻</a></main></>
+    <main style={s.center}><p>{lx(lang,'failed')}</p><a href="/compatibility" style={{color:'var(--purple)',fontWeight:600}}>↻</a></main>
   )
 
   if (!profile) return (
-    <>
-      <div className="cosmic-bg" />
-      <main style={s.center}>
-        <div style={{ marginBottom:'18px' }}><WaterLoader /></div>
-        <h1 style={s.genTitle}>{lx(lang,'generating')}</h1>
-        <p style={s.genSub}>{lx(lang,'generating_sub')}</p>
-      </main>
-    </>
+    <main style={s.center}>
+      <div style={{ marginBottom:'18px' }}><WaterLoader /></div>
+      <h1 style={s.genTitle}>{lx(lang,'generating')}</h1>
+      <p style={s.genSub}>{lx(lang,'generating_sub')}</p>
+    </main>
   )
 
   const langUsed = profile.language || lang
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
         <div style={s.header}>
           <a href="/dashboard" style={s.back}>{lx(langUsed,'back')}</a>

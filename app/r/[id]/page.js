@@ -34,17 +34,16 @@ export default function SharedRelationPage() {
   }, [id])
 
   if (error) return (
-    <><div className="cosmic-bg" /><main style={s.center}><p>{lx(lang,'notfound')}</p></main></>
+    <main style={s.center}><p>{lx(lang,'notfound')}</p></main>
   )
   if (!profile) return (
-    <><div className="cosmic-bg" /><main style={s.center}><div style={{fontSize:'40px'}} aria-hidden="true">✦</div><p style={{marginTop:'16px',color:'var(--text-muted)'}}>{lx(lang,'loading')}</p></main></>
+    <main style={s.center}><div style={{fontSize:'40px'}} aria-hidden="true">✦</div><p style={{marginTop:'16px',color:'var(--text-muted)'}}>{lx(lang,'loading')}</p></main>
   )
 
   const langUsed = profile.language || lang
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
         <div style={s.banner}>
           <span style={s.bannerText}>{lx(langUsed,'shared')}</span>

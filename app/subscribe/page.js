@@ -90,7 +90,6 @@ export default function SubscribePage() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
 
         <div style={s.header}>

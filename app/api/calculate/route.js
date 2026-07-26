@@ -11,7 +11,7 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { full_name, date_of_birth, time_of_birth, lat, lng, language, time_unknown } = body
+    const { full_name, date_of_birth, time_of_birth, city, lat, lng, language, time_unknown } = body
 
     const calculatedData = calculateFullProfile(
       full_name,
@@ -23,13 +23,26 @@ export async function POST(request) {
       !!time_unknown
     )
 
+    // Punctul 1 (audit 26.07): pana acum se scriau DOAR rezultatele calculate
+    // (astro_data/numerology_data/hd_data) — datele brute de nastere si
+    // full_name nu se salvau nicaieri, iar `calculated_data` (blob unificat,
+    // pe care /api/profile si /api/patterns il asteptau deja) nu exista.
+    // Ireversibil: profilurile create INAINTE de aceasta reparatie raman
+    // fara aceste campuri — nu exista recuperare retroactiva.
     const { data, error } = await supabaseAdmin
       .from('calculated_profiles')
       .insert([{
         user_id: user.id,
+        full_name: full_name || null,
+        birth_date: date_of_birth || null,
+        birth_time: time_unknown ? null : (time_of_birth || null),
+        birth_city: city || null,
+        birth_lat: (lat !== undefined && lat !== null && lat !== '') ? Number(lat) : null,
+        birth_lng: (lng !== undefined && lng !== null && lng !== '') ? Number(lng) : null,
         astro_data: calculatedData.astrology,
         numerology_data: calculatedData.numerology,
-        hd_data: calculatedData.human_design
+        hd_data: calculatedData.human_design,
+        calculated_data: calculatedData,
       }])
       .select()
 

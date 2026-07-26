@@ -27,25 +27,55 @@ export async function GET(request) {
       return NextResponse.json({ success: false }, { status: 404 })
     }
 
-    // Get calculated profile for hd_data, personal_year, full_name
+    // Get calculated profile for hd_data, personal_year, full_name, birth data
     let hdData = null
     let personalYear = null
     let fullName = ''
     let calculatedData = null
+    let birthDate = null
+    let birthTime = null
+    let birthCity = null
+    let birthLat = null
+    let birthLng = null
 
     if (data.calculated_profile_id) {
-      const { data: calcData } = await supabaseAdmin
+      // Punctul 1 (audit 26.07): coloanele astea existau si inainte de
+      // reparatie sub alte nume (full_name/calculated_data nu existau deloc
+      // pe tabela) — de-aia veneau mereu goale, tacut, fara nicio eroare
+      // vizibila. Acum logam eroarea explicit daca mai apare vreodata.
+      const { data: calcData, error: calcError } = await supabaseAdmin
         .from('calculated_profiles')
-        .select('full_name, calculated_data')
+        .select('full_name, calculated_data, birth_date, birth_time, birth_city, birth_lat, birth_lng')
         .eq('id', data.calculated_profile_id)
         .single()
 
-      if (calcData) {
+      if (calcError) {
+        console.error('calculated_profiles select error:', calcError.message)
+      } else if (calcData) {
         fullName = calcData.full_name || ''
         hdData = calcData.calculated_data?.human_design || null
         personalYear = calcData.calculated_data?.numerology?.personal_year || null
         calculatedData = calcData.calculated_data || null
+        birthDate = calcData.birth_date || null
+        birthTime = calcData.birth_time || null
+        birthCity = calcData.birth_city || null
+        birthLat = calcData.birth_lat ?? null
+        birthLng = calcData.birth_lng ?? null
       }
+    }
+
+    // Punctul 2 (audit 26.07): poarta de acorduri verifica SERVERUL, nu
+    // localStorage. Valabila DOAR daca randul din user_agreements se leaga
+    // de profilul CURENT (interpreted_profile_id) — asa se invalideaza
+    // singura la un profil nou, fara nicio stergere manuala.
+    let agreementsCommitted = false
+    const { data: agreementRow } = await supabaseAdmin
+      .from('user_agreements')
+      .select('interpreted_profile_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (agreementRow && agreementRow.interpreted_profile_id === data.id) {
+      agreementsCommitted = true
     }
 
     return NextResponse.json({
@@ -58,7 +88,13 @@ export async function GET(request) {
       language: data.language || 'en',
       full_name: fullName,
       hd_data: hdData,
-      personal_year: personalYear
+      personal_year: personalYear,
+      birth_date: birthDate,
+      birth_time: birthTime,
+      birth_city: birthCity,
+      birth_lat: birthLat,
+      birth_lng: birthLng,
+      agreements_committed: agreementsCommitted
     })
 
   } catch (err) {

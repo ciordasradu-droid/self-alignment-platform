@@ -451,10 +451,11 @@ function ProfileContent() {
           }
           localStorage.setItem('profile', JSON.stringify(profilePayload))
           setProfile(profilePayload)
-          try {
-            const gateKey = `gate_committed:${profilePayload.full_name || 'anon'}`
-            if (localStorage.getItem(gateKey) === 'true') setCommitted(true)
-          } catch (e) {}
+          // Punctul 2 (audit 26.07): poarta verifica acum SERVERUL
+          // (agreements_committed, legat de interpreted_profile_id CURENT)
+          // — nu mai exista sursa locala de adevar, se invalideaza singura
+          // la un profil nou.
+          if (data.agreements_committed) setCommitted(true)
 
           // Plan lipsă -> regenerare automată în fundal
           if (!data.alignment_plan) {
@@ -468,10 +469,6 @@ function ProfileContent() {
         if (stored) {
           const parsed = JSON.parse(stored)
           setProfile(parsed)
-          try {
-            const gateKey = `gate_committed:${parsed.full_name || 'anon'}`
-            if (localStorage.getItem(gateKey) === 'true') setCommitted(true)
-          } catch (e) {}
         }
         setLoading(false)
       })
@@ -501,16 +498,20 @@ function ProfileContent() {
         lang={lang}
         agreements={gateAgreements}
         onAccept={() => {
-          try {
-            const gateKey = `gate_committed:${profile.full_name || 'anon'}`
-            localStorage.setItem(gateKey, 'true')
-            if (gateAgreements.length > 0) {
-              localStorage.setItem('my_agreements', JSON.stringify({
-                items: gateAgreements,
-                accepted_at: new Date().toISOString()
-              }))
-            }
-          } catch (e) {}
+          // Punctul 2 (audit 26.07): acordul se scrie pe server, legat de
+          // profilul curent — nu mai e sursa de adevar in localStorage.
+          // Fire-and-forget: nu blocam UI-ul pe raspunsul retelei; daca
+          // esueaza, /api/profile va re-cere acordul la urmatoarea vizita
+          // (fail-safe: mai bine cere din nou decat sa presupuna acceptat).
+          fetch('/api/agreements', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: gateAgreements,
+              interpreted_profile_id: profile.interpreted_profile_id,
+              language: lang,
+            }),
+          }).catch(() => {})
           setCommitted(true)
         }}
       />

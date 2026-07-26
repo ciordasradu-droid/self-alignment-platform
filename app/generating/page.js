@@ -115,6 +115,7 @@ function GeneratingContent() {
           date_of_birth: formData.date_of_birth,
           time_of_birth: formData.time_of_birth,
           time_unknown: !!formData.time_unknown,
+          city: formData.city,
           lat: formData.lat,
           lng: formData.lng,
           language
@@ -215,7 +216,6 @@ function GeneratingContent() {
 
   if (error) return (
     <>
-      <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
         <div style={{
           background: 'var(--surface)',
@@ -247,7 +247,6 @@ function GeneratingContent() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
         <div style={{ marginBottom:'24px' }}><WaterLoader /></div>
         <h1 style={{

@@ -82,7 +82,6 @@ function LoginInner() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={s.wrap}>
         <div style={s.card} className="glass anim-fade-in">
           {status === 'sent' ? (

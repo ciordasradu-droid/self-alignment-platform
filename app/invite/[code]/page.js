@@ -17,7 +17,6 @@ export default function InvitePage() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
         <div style={{ fontSize:'48px', marginBottom:'24px' }}>✦</div>
         <h1 style={{ fontSize:'24px', fontWeight:'600', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif' }}>

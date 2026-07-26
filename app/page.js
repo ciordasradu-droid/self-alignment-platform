@@ -64,7 +64,6 @@ export default function Home() {
 
   return (
     <>
-      <div className="cosmic-bg" />
       <CosmicStars />
 
       {/* ── NAV ── */}

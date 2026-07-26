@@ -71,6 +71,12 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
     try {
       await createSupabaseBrowser().auth.signOut()
     } catch (e) {}
+    // Punctul 3 (audit 26.07): delogarea lasa profilul, acordurile si alte
+    // chei intime in localStorage — pe un calculator imprumutat, urmatorul
+    // om le citea direct din browser. TOT, nu selectiv (o lista de chei
+    // enumerate ar rata mereu ceva, exact ca inainte).
+    try { localStorage.clear() } catch (e) {}
+    try { sessionStorage.clear() } catch (e) {}
     window.location.href = '/'
   }
 
@@ -97,6 +103,10 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
       await fetch('/api/account/delete', { method: 'POST' })
       await createSupabaseBrowser().auth.signOut()
     } catch (e) {}
+    // Aceeasi reparatie ca la logout (punctul 3) — contul nu mai exista,
+    // dar profilul ar ramane in browser fara asta.
+    try { localStorage.clear() } catch (e) {}
+    try { sessionStorage.clear() } catch (e) {}
     window.location.href = '/'
   }
 

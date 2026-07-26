@@ -172,35 +172,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* ---------- LEGEA 1 — lumina difuză + caustice subtile pe apă ----------
-   .cosmic-bg e deja prezent pe fiecare pagină, deci devine stratul de lumină. */
-.cosmic-bg {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse 90% 55% at 50% 100%, var(--gold-faint) 0%, transparent 60%),
-    radial-gradient(ellipse at 18% 22%, rgba(212, 165, 116, 0.08) 0%, transparent 52%),
-    radial-gradient(ellipse at 84% 74%, rgba(224, 179, 106, 0.06) 0%, transparent 50%);
-  animation: cosmic-breathing 18s var(--ease-soft) infinite;
-}
-/* caustice — rețea de lumină refractată, foarte discretă */
-.cosmic-bg::after {
-  content: '';
-  position: absolute;
-  inset: -20%;
-  opacity: 0.5;
-  background-image:
-    repeating-radial-gradient(circle at 30% 40%, transparent 0 38px, rgba(255,255,255,0.018) 38px 40px, transparent 40px 78px),
-    repeating-radial-gradient(circle at 72% 66%, transparent 0 52px, rgba(255,255,255,0.014) 52px 55px, transparent 55px 104px);
-  animation: caustics-drift 34s linear infinite alternate;
-}
-@keyframes caustics-drift {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  100% { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
-}
-
 /* ---------- LEGEA 2 — RIPPLE: feedback tactil universal (pas 5, interaction
    layer 2D). Inel ELIPTIC (scaleY < scaleX) — evocă suprafața apei, nu un
    cerc plat. Durată 300-450ms, ca orice tranziție din aplicație. ---------- */
@@ -438,11 +409,6 @@ input:focus, textarea:focus, select:focus {
 @keyframes shimmer {
   0% { background-position: -150% 0; }
   100% { background-position: 250% 0; }
-}
-
-@keyframes cosmic-breathing {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.78; }
 }
 
 @keyframes ring-pulse {
@@ -1386,7 +1352,6 @@ input:focus, textarea:focus, select:focus {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .cosmic-bg { animation: none; }
 }
 
 /* ============================================================
