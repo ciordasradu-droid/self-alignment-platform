@@ -50,6 +50,17 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Punctul 5 (audit 26.07, runda 2): curatare o singura data, la incarcarea
+            aplicatiei, pentru conturile ramase logate dinainte de migrarea la
+            server (runda 1) — cheile astea nu mai sunt sursa de adevar (serverul
+            e), dar raman in browserele deschise de atunci. Marcaj de versiune ca
+            sa nu ruleze niciodata a doua oara. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!localStorage.getItem('ls_cleanup_v1')){var rm=['profile','my_agreements','account_start_date','seen_morning_sphere'];for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&(k.indexOf(':anon:')!==-1||k.indexOf('gate_committed')===0))rm.push(k)}rm.forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});localStorage.setItem('ls_cleanup_v1','1')}}catch(e){}",
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html:

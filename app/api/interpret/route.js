@@ -161,6 +161,7 @@ export async function POST(request) {
     const interpretedProfileId = row.id
 
     after(async () => {
+      const __t0 = Date.now()
       try {
         const profilePrompt = buildProfilePrompt(calculated_data, full_name, language)
 
@@ -176,6 +177,7 @@ export async function POST(request) {
             .then(() => {}, () => {})
         }
         let sections = await callClaude(profilePrompt, language, 10000, onPartial)
+        console.log(`[TIMING] interpret first pass done at +${Date.now() - __t0}ms`)
 
         // B1 (25.07): la ce foloseste odata prima trecere sa fie curata (cazul
         // frecvent), a doua trecere completa dubla ~105s de asteptare degeaba.
@@ -184,15 +186,18 @@ export async function POST(request) {
         // DOAR ele se trimit la Claude (nu tot documentul). Pe un profil curat,
         // costul devine aproape zero.
         const { failing, clean } = findFailingSections(sections, language)
+        console.log(`[TIMING] lexicon gate at +${Date.now() - __t0}ms — clean: ${clean}${clean ? '' : ', failing: ' + Object.keys(failing).join(',')}`)
         if (!clean) {
           try {
             const proofreadPrompt = buildProofreadPrompt(JSON.stringify(failing), language)
             const corrected = await callClaude(proofreadPrompt, language, 4000)
             sections = { ...sections, ...corrected }
+            console.log(`[TIMING] proofread pass done at +${Date.now() - __t0}ms`)
           } catch (proofErr) {
             console.error('[interpret] proofread pass failed on sections', Object.keys(failing), '- keeping originals:', proofErr.message)
           }
         }
+        console.log(`[TIMING] interpret background total at +${Date.now() - __t0}ms`)
 
         const swot = {
           strengths: sections.strengths?.slice(0, 4) || [],

@@ -7,7 +7,7 @@
 // termina. Acum POST-ul are voie să fie abandonat, iar polling-ul rulează
 // oricum și prinde planul când e gata. Restul rămâne identic.
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import WaterLoader from '../components/water/WaterLoader'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { t } from '../../lib/translations'
@@ -78,29 +78,67 @@ function GeneratingContent() {
   const [lang, setLang] = useState('en')
   const [error, setError] = useState(null)
   const [revealedChapters, setRevealedChapters] = useState([])
+  const startedRef = useRef(false)
 
   useEffect(() => {
-    const data = searchParams.get('data')
-    if (!data) { router.push('/onboarding'); return }
+    // Punctul 3 (audit 26.07, runda 2, gasit in timpul testarii): React
+    // Strict Mode (dev) invoca efectul de doua ori — fara guard, generarea ar
+    // porni de doua ori (cost dublu, doua randuri in DB). Guard-ul de mai jos
+    // face efectul idempotent, indiferent de cate ori il invoca React.
+    if (startedRef.current) return
+    startedRef.current = true
 
-    let formData
-    try {
-      formData = JSON.parse(decodeURIComponent(data))
+    // Punctul 1 (audit 26.07, runda 2 — corectie dupa testul explicit al lui
+    // Alex): niciodata date personale in query string — doar id-uri opace.
+    // `id` = sesiunea de onboarding proprie (server-side, vezi
+    // /api/onboarding/session); `session_id` = intoarcerea din Stripe
+    // ({CHECKOUT_SESSION_ID}, vezi /api/checkout/session). Ambele sunt
+    // re-citibile oricand — un refresh nu mai pierde formularul, fiindca nu
+    // mai exista un pas "citește o singura data si sterge" pe client.
+    const onboardingId = searchParams.get('id')
+    const sessionId = searchParams.get('session_id')
+
+    const start = async () => {
+      let formData = null
+
+      if (sessionId) {
+        try {
+          const res = await fetch(`/api/checkout/session?session_id=${encodeURIComponent(sessionId)}`)
+          const json = await res.json()
+          if (json.success) formData = json.formData
+        } catch (e) {}
+        if (!formData) {
+          setError('Error reading your payment. Please go back and try again.')
+          return
+        }
+      } else if (onboardingId) {
+        try {
+          const res = await fetch(`/api/onboarding/session?id=${encodeURIComponent(onboardingId)}`)
+          const json = await res.json()
+          if (json.success) formData = json.formData
+        } catch (e) {}
+        if (!formData) {
+          setError('Error reading your data. Please go back and try again.')
+          return
+        }
+      } else {
+        router.push('/onboarding')
+        return
+      }
+
       setLang(formData.language || 'en')
-    } catch (e) {
-      setError('Error reading your data. Please go back and try again.')
-      return
+
+      generateProfile(formData)
     }
 
-    let stepIndex = 0
-    const steps = t(formData.language || 'en', 'generating_steps')
-    const interval = setInterval(() => {
-      stepIndex = (stepIndex + 1) % steps.length
-      setStep(stepIndex)
-    }, 8000)
-
-    generateProfile(formData).finally(() => clearInterval(interval))
+    start()
   }, [])
+
+  // Punctul 3 (audit 26.07, runda 2): mesajele de progres urmau un carusel pe
+  // cronometru (un pas la 8s, cu % steps.length) — la peste 56s se relua de
+  // la primul mesaj, dand impresia ca generarea a luat-o inapoi. Acum step-ul
+  // avanseaza DOAR odata cu evenimente reale din pipeline si nu scade niciodata.
+  const advanceStep = (min) => setStep(current => Math.max(current, min))
 
   const generateProfile = async (formData) => {
     try {
@@ -125,6 +163,7 @@ function GeneratingContent() {
         setError('Calculation failed: ' + (calcData.error || 'unknown error'))
         return
       }
+      advanceStep(1)
 
       // Step 2 — start interpret (returns id immediately), then poll until complete
       const startInterpret = await safeFetch('/api/interpret', {
@@ -142,6 +181,7 @@ function GeneratingContent() {
         return
       }
       const interpretedProfileId = startInterpret.interpreted_profile_id
+      advanceStep(2)
 
       const interpretData = await pollUntilComplete(
         `/api/interpret?id=${interpretedProfileId}`,
@@ -149,16 +189,21 @@ function GeneratingContent() {
           intervalMs: 1500, maxMs: 240000,
           onTick: (data) => {
             const keys = data.partial_sections ? Object.keys(data.partial_sections) : []
-            if (keys.length) setRevealedChapters(keys)
+            if (keys.length) {
+              setRevealedChapters(keys)
+              advanceStep(keys.length >= 4 ? 4 : 3)
+            }
           }
         }
       )
+      advanceStep(4)
 
       // Step 3 — start plan, then poll. Plan is non-fatal.
       // The POST runs the full generation on the server (60-120s). Our client
       // timeout may abort the request, but the server keeps working — so we
       // IGNORE any POST error here and rely on polling to pick up the result.
       let planData = {}
+      advanceStep(5)
       try {
         try {
           await safeFetch('/api/interpret-plan', {
@@ -183,6 +228,7 @@ function GeneratingContent() {
       } catch (planErr) {
         console.warn('interpret-plan failed (non-fatal):', planErr.message)
       }
+      advanceStep(6)
 
       const profilePayload = {
         full_name: formData.full_name,
@@ -213,6 +259,7 @@ function GeneratingContent() {
   }
 
   const steps = t(lang, 'generating_steps')
+  const stepIndex = Math.min(step, steps.length - 1)
 
   if (error) return (
     <>
@@ -266,7 +313,7 @@ function GeneratingContent() {
           marginBottom:'8px',
           fontWeight:500
         }}>
-          {steps[step]}
+          {steps[stepIndex]}
         </p>
         <p style={{
           color:'var(--text-muted)',
@@ -279,10 +326,10 @@ function GeneratingContent() {
         <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'8px' }} aria-hidden="true">
           {steps.map((_, i) => (
             <div key={i} style={{
-              width: i === step ? '24px' : '8px',
+              width: i === stepIndex ? '24px' : '8px',
               height:'8px',
               borderRadius:'4px',
-              background: i === step ? 'var(--purple)' : 'var(--border)',
+              background: i === stepIndex ? 'var(--purple)' : 'var(--border)',
               transition:'background 0.3s ease, width 0.3s ease'
             }} />
           ))}

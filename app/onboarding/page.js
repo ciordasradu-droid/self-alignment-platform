@@ -321,8 +321,25 @@ export default function Onboarding() {
     } catch (e) {
       console.warn('starting_point metadata save failed (non-fatal):', e?.message)
     }
-    const encoded = encodeURIComponent(JSON.stringify({ ...formData, language: lang }))
-    router.push(`/generating?data=${encoded}`)
+    // Punctul 1 (audit 26.07, runda 2 — corectie dupa testul explicit al lui
+    // Alex): sessionStorage supravietuia doar Strict-Mode-ului din dev — un
+    // refresh real pe /generating il gasea deja gol (citit o singura data la
+    // montare) si trimitea inapoi la /onboarding, pierzand formularul.
+    // Datele stau acum server-side, sub un id opac — niciodata in adresa, iar
+    // un refresh doar recitește dupa id, oricand in flux (nu-l consuma).
+    try {
+      const res = await fetch('/api/onboarding/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formData: { ...formData, language: lang } })
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || 'unknown error')
+      router.push(`/generating?id=${json.id}`)
+    } catch (e) {
+      setLoading(false)
+      console.error('Failed to save onboarding session:', e.message)
+    }
   }
 
   const months = t(lang, 'months')

@@ -95,17 +95,23 @@ export async function POST(request) {
     const body = await request.json()
     const { interpreted_profile_id, calculated_data, sections, swot, language = 'en' } = body
 
+    // Runda 2, punctul 2: alignment plan si action plan nu depind unul de
+    // celalalt (ambele pornesc doar din sections+calculated_data) — rulate
+    // secvential adaugau ~25-40s degeaba la timpul total de asteptare.
     const planPrompt = buildAlignmentPlanPrompt(calculated_data, sections, swot, language)
-    const alignmentPlan = await callClaude(planPrompt, language, 4000)
+    const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections, language)
 
-    let actionPlan = []
-    try {
-      const actionPlanPrompt = buildActionPlanPrompt(calculated_data, sections, language)
-      const actionPlanRaw = await callClaude(actionPlanPrompt, language, 3000)
-      actionPlan = actionPlanRaw.practices || []
-    } catch (e) {
-      console.error('Action plan failed (non-fatal):', e.message)
-    }
+    const __t0 = Date.now()
+    const [alignmentPlan, actionPlan] = await Promise.all([
+      callClaude(planPrompt, language, 4000),
+      callClaude(actionPlanPrompt, language, 3000)
+        .then(raw => raw.practices || [])
+        .catch(e => {
+          console.error('Action plan failed (non-fatal):', e.message)
+          return []
+        })
+    ])
+    console.log(`[TIMING] interpret-plan (parallel) done at +${Date.now() - __t0}ms`)
 
     await supabaseAdmin
       .from('interpreted_profiles')
