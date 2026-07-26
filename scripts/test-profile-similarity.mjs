@@ -156,7 +156,13 @@ const LEXICON_TELLS = [
   [/tensiune (in|în) piept|nod (in|în) g[aâ]t|str[aâ]ngere de stomac|gol (in|în) stomac|tightness in (your|my) chest|knot in (your|my) stomach/i, 'disconfort anatomic numit'],
   [/a intrat (in|în) panic[aă]|a preluat controlul|a t[aă]cut(?!\w)|took over|went quiet(?!\w)/i, 'personificare a sistemului'],
   [/\bresentiment\w*|\bfrustrare\w*|\bam[aă]r[aă]ciune\w*|\bresentment\b|\bfrustration\b|\bbitterness\b/i, 'stare negativa numita (RO/EN)'],
-  [/\bshould\b|\bneed to\b|\bhave to\b|\bought to\b/i, 'verb-comanda (EN, doar cand testul ruleaza pe en)'],
+  // 25.07 seara: trecut pe CONSTRUCTII, nu pe siruri simple — "a need to
+  // know why" / "the need to finish things" sunt descrieri legitime ale
+  // unei nevoi interioare (substantiv), nu comenzi. Doar "you + modal" e o
+  // comanda reala catre cititor. Gasit empiric: varianta veche (cuvant
+  // simplu) prindea 20 de "incalcari" pe 5 profiluri, aproape toate fiind
+  // de fapt folosiri corecte, descriptive.
+  [/\byou\s+(need to|have to|should|ought to)\b/i, 'verb-comanda (EN, constructie "you + modal", doar cand testul ruleaza pe en)'],
 ]
 
 async function generateOne(person) {

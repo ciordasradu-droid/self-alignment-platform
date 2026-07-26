@@ -88,11 +88,21 @@ export async function proxy(request) {
 
   // 4. Subscription gate — Azi si Drumul (accountability) cer abonament sau
   // proba gratuita. Tu (profilul, platit separat cu 4€) ramane accesibil.
+  // 25.07: gate-ul verifica acum starea REALA din DB (la fel ca gardianul de
+  // profil de mai sus) — cookie-ul 'subscribed' nu era setat NICAIERI in
+  // aplicatie (doar ca query param pe redirectul de succes Stripe), deci
+  // orice abonat activ fara try_free era trimis inapoi la /subscribe la
+  // fiecare vizita. Bug real, gasit prin investigarea unei alte probleme.
   const needsSubscription = ['/dashboard', '/drumul'].some((p) => path === p || path.startsWith(p + '/'))
   if (needsSubscription) {
-    const subscribed = request.cookies.get('subscribed')
     const tryFree = request.cookies.get('try_free')
-    if (!subscribed && !tryFree) {
+    const { data: subRow } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
+    if (!subRow && !tryFree) {
       return NextResponse.redirect(new URL('/subscribe', request.url))
     }
   }

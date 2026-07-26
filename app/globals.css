@@ -113,9 +113,15 @@ body {
    nu duplicată pe fiecare pagină (room-shell, profil etc.). RoomNav.js
    adaugă/scoate clasa la montare; padding-ul e pe body, deci acoperă
    orice conținut, indiferent de structura paginii. Marjă generoasă
-   (nu doar înălțimea barei) — telefonul real are chrome dinamic. */
+   (nu doar înălțimea barei) — telefonul real are chrome dinamic.
+   25.07: crescut de la 200px la 280px — suprapunerea raportată de Alex pe
+   /drumul (Prezența ta, 390x844, derulat până jos) nu a fost reproductibilă
+   într-un Chromium headless (0px overlap, 153px marjă, cu date reale de
+   test), ceea ce sugerează un artefact specific barei de adrese dinamice
+   din Safari mobil, nu un calcul greșit — marjă mai mare e reparația
+   sigură fără reproducere exactă. Necesită re-verificare de Alex pe telefon. */
 body.has-room-nav {
-  padding-bottom: calc(200px + env(safe-area-inset-bottom));
+  padding-bottom: calc(280px + env(safe-area-inset-bottom));
 }
 
 h1, h2, h3, h4 {

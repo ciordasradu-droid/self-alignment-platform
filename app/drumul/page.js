@@ -61,12 +61,17 @@ const opensEntriesText = (lang) => OPENS_ENTRIES_TEXT[lang] || OPENS_ENTRIES_TEX
 function AccessLine({ lang }) {
   const [show, setShow] = useState(false)
   useEffect(() => {
-    try {
-      const cookies = document.cookie
-      const hasSub = /(?:^|;\s*)subscribed=/.test(cookies)
-      const hasTrial = /(?:^|;\s*)try_free=/.test(cookies)
-      setShow(hasTrial && !hasSub)
-    } catch (e) {}
+    // 25.07: 'subscribed=' nu era niciodata setat ca si cookie real (vezi
+    // proxy.js) — orice abonat cu un try_free vechi vedea gresit acest rand.
+    // Sursa reala acum: /api/subscription (acelasi endpoint pe care se
+    // bazeaza si gate-ul de mai jos).
+    let hasTrial = false
+    try { hasTrial = /(?:^|;\s*)try_free=/.test(document.cookie) } catch (e) {}
+    if (!hasTrial) return
+    fetch('/api/subscription')
+      .then(r => r.json())
+      .then(d => setShow(hasTrial && !d.subscribed))
+      .catch(() => {})
   }, [])
   if (!show) return null
   return (

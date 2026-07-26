@@ -2,97 +2,53 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { t as tr } from '../../lib/translations'
+import { useLanguage } from '../../lib/language'
+import { SUBSCRIBE_LABELS } from '../../lib/subscribeLabels'
 
-const SUBSCRIBE_LABELS = {
-  en: {
-    back: '← Back',
-    tag: 'Accountability System',
-    title_line1: 'We are accountable to everyone.',
-    title_line2: 'Except ourselves.',
-    subtitle: 'The Accountability System keeps you aligned every day — with check-ins, pattern detection, and a structure built around who you actually are.',
-    offer_text: 'The first 1,000 people get their full personal profile free.',
-    monthly: 'Monthly',
-    annual: 'Annual',
-    save_badge: 'Save 2 months',
-    per_month: '/month',
-    per_year: '/year',
-    two_months_free: '2 months free',
-    features: [
-      { text: 'Daily alignment check-in — 30 seconds' },
-      { text: 'Daily personalized insight — generated from your profile' },
-      { text: 'Presence held gently, without scores' },
-      { text: 'Weekly review — reflect and reset' },
-      { text: 'Patterns — what is emerging in your journey' },
-      { text: 'Personal year phase — always in context' },
-      { text: 'Available in 11 languages' },
-    ],
-    subscribe_btn: 'Start for',
-    redirecting: 'Redirecting...',
-    try_free: 'Try for free first →',
-    guarantee_badge: '30-day money-back guarantee. No questions asked.',
-    no_profile_text: "Don't have your free profile yet?",
-    no_profile_link: 'Generate your free profile first →',
-    promise_title: 'Our promise to you',
-    promise_1_title: '30-Day Money Back',
-    promise_1_text: "If you're not satisfied in the first 30 days, we refund you fully. No questions, no hassle.",
-    promise_2_title: 'Cancel Anytime',
-    promise_2_text: 'No lock-in. Cancel your subscription at any time with one click. No penalties.',
-    promise_3_title: 'Built Around You',
-    promise_3_text: 'Every feature is generated from your unique profile. This is not a generic app.',
-  },
-  ro: {
-    back: '← Înapoi',
-    tag: 'Sistem de Responsabilitate',
-    title_line1: 'Suntem responsabili față de toți.',
-    title_line2: 'Mai puțin față de noi. Hai să schimbăm asta!',
-    subtitle: 'Sistemul de Responsabilitate te menține aliniat în fiecare zi — cu check-in-uri, detectarea tiparelor și o structură construită în jurul a cine ești cu adevărat.',
-    offer_text: 'Primii 1.000 de oameni primesc profilul personal complet, gratuit.',
-    monthly: 'Lunar',
-    annual: 'Anual',
-    save_badge: 'Economisești 2 luni',
-    per_month: '/lună',
-    per_year: '/an',
-    two_months_free: '2 luni gratuite',
-    features: [
-      { text: 'Check-in zilnic de aliniere — 30 de secunde' },
-      { text: 'Gândul zilnic personalizat — generat din profilul tău' },
-      { text: 'Prezență ținută blând, fără scoruri' },
-      { text: 'Revizuire săptămânală — reflectează și resetează' },
-      { text: 'Tipare — ce se conturează în drumul tău' },
-      { text: 'Faza anului personal — mereu în context' },
-      { text: 'Disponibil în 11 limbi' },
-    ],
-    subscribe_btn: 'Începe pentru',
-    redirecting: 'Redirecționare...',
-    try_free: 'Încearcă gratuit mai întâi →',
-    guarantee_badge: 'Garanție de returnare 30 de zile. Fără întrebări.',
-    no_profile_text: 'Nu ai încă profilul gratuit?',
-    no_profile_link: 'Generează-ți profilul gratuit mai întâi →',
-    promise_title: 'Promisiunea noastră pentru tine',
-    promise_1_title: 'Banii Înapoi în 30 de Zile',
-    promise_1_text: 'Dacă nu ești satisfăcut în primele 30 de zile, îți returnăm banii integral. Fără întrebări.',
-    promise_2_title: 'Anulează Oricând',
-    promise_2_text: 'Fără angajament. Anulează abonamentul oricând cu un singur click. Fără penalități.',
-    promise_3_title: 'Construit În Jurul Tău',
-    promise_3_text: 'Fiecare funcționalitate e generată din profilul tău unic. Nu e o aplicație generică.',
-  }
-}
-
+// 25.07 seara: rescriere completa dupa Vocea Pragului (vezi master doc,
+// sect. 3). Copy RO/EN validat verbatim de Alex; celelalte 9 limbi traduse
+// ca intentie de implementator. Limba paginii vine acum din useLanguage()
+// (aceeasi sursa ca /drumul, /dashboard, /onboarding), nu mai e re-derivata
+// din profile.language — asta era sursa amestecului de limbi raportat.
+// Continutul complet e in lib/subscribeLabels.js (extras acolo ca sa poata
+// fi verificat direct de scripts/test-subscribe-copy.mjs, fara JSX).
 export default function SubscribePage() {
   const [plan, setPlan] = useState('monthly')
   const [loading, setLoading] = useState(false)
-  const [lang, setLang] = useState('en')
+  const [lang] = useLanguage()
+
+  // A3: contor viu, nu decorativ — daca /api/spots nu raspunde cu o cifra
+  // reala, caseta ofertei nu se livreaza deloc (regula dura, Vocea Pragului 5).
+  const [spotsLeft, setSpotsLeft] = useState(null)
+
+  // A4: sursa reala de adevar (aceleasi endpoint-uri pe care se bazeaza si
+  // restul aplicatiei — /api/subscription, /api/profile), NU localStorage.
+  // Cat timp raspunsul nu a sosit, ambele blocuri conditionate stau ascunse
+  // (altfel repetam clasa de bug de la salutul fara nume — D3, sesiunea
+  // anterioara).
+  const [authLoading, setAuthLoading] = useState(true)
+  const [subscribed, setSubscribed] = useState(false)
+  const [hasProfile, setHasProfile] = useState(false)
+  const [tryStarted, setTryStarted] = useState(false)
 
   useEffect(() => {
-    // Detect user language from profile
+    fetch('/api/spots')
+      .then(r => r.json())
+      .then(d => { if (typeof d.spots_left === 'number') setSpotsLeft(d.spots_left) })
+      .catch(() => {})
+
     try {
-      const stored = localStorage.getItem('profile')
-      if (stored) {
-        const profile = JSON.parse(stored)
-        if (profile.language) setLang(profile.language)
-      }
+      setTryStarted(/(?:^|;\s*)try_free=/.test(document.cookie))
     } catch (e) {}
+
+    Promise.all([
+      fetch('/api/subscription').then(r => r.json()).catch(() => ({ subscribed: false })),
+      fetch('/api/profile').then(r => ({ ok: r.ok })).catch(() => ({ ok: false })),
+    ]).then(([sub, prof]) => {
+      setSubscribed(!!sub.subscribed)
+      setHasProfile(!!prof.ok)
+      setAuthLoading(false)
+    })
 
     // A7 — oferta planului anual la momentul Angajamentului (z60) trimite
     // aici cu anualul deja selectat, fara query param (fara Suspense nou).
@@ -127,7 +83,10 @@ export default function SubscribePage() {
   }
 
   const priceLabel = plan === 'monthly' ? '€8' : '€80'
-  const periodLabel = plan === 'monthly' ? labels.per_month : labels.per_year
+  const periodLabel = plan === 'monthly' ? labels.period_month : labels.period_year
+
+  const showTryFree = !authLoading && !subscribed && !tryStarted
+  const showNoProfile = !authLoading && !hasProfile
 
   return (
     <>
@@ -139,81 +98,92 @@ export default function SubscribePage() {
         </div>
 
         <div style={s.hero}>
-          <span className="tag tag-orange" style={{marginBottom:'16px', display:'inline-block'}}>
-            {labels.tag}
-          </span>
           <h1 style={s.title}>
             {labels.title_line1}<br />
             <span style={s.accent}>{labels.title_line2}</span>
           </h1>
+          <p style={s.bridge}>{labels.bridge}</p>
           <p style={s.subtitle}>{labels.subtitle}</p>
         </div>
 
-        <div style={s.offerBanner}>
-          <p style={s.offerText}>{labels.offer_text}</p>
-        </div>
-
-        <div style={s.toggle}>
-          <button
-            onClick={() => setPlan('monthly')}
-            style={{
-              ...s.toggleBtn,
-              background: plan === 'monthly' ? 'var(--purple)' : 'transparent',
-              color: plan === 'monthly' ? '#fff' : 'var(--text-muted)'
-            }}
-          >
-            {labels.monthly}
-          </button>
-          <button
-            onClick={() => setPlan('annual')}
-            style={{
-              ...s.toggleBtn,
-              background: plan === 'annual' ? 'var(--purple)' : 'transparent',
-              color: plan === 'annual' ? '#fff' : 'var(--text-muted)'
-            }}
-          >
-            {labels.annual} <span style={s.saveBadge}>{labels.save_badge}</span>
-          </button>
-        </div>
-
-        <div style={s.pricingCard}>
-          <div style={s.priceRow}>
-            <span style={s.price}>{priceLabel}</span>
-            <span style={s.period}>{periodLabel}</span>
-            {plan === 'annual' && (
-              <span style={s.annualNote}>{labels.two_months_free}</span>
-            )}
+        {!authLoading && subscribed ? (
+          <div style={s.alreadyCard}>
+            <p style={s.alreadyTitle}>{labels.already_title}</p>
+            <p style={s.alreadyText}>{labels.already_text}</p>
+            <Link href="/dashboard" style={s.alreadyLink}>{labels.already_link}</Link>
           </div>
-
-          <div style={s.features}>
-            {labels.features.map((f, i) => (
-              <div key={i} style={s.feature}>
-                <span style={s.featureText}>{f.text}</span>
+        ) : (
+          <>
+            {typeof spotsLeft === 'number' && (
+              <div style={s.offerBanner}>
+                <p style={s.offerText}>{labels.offer_text.replace('{n}', spotsLeft)}</p>
               </div>
-            ))}
-          </div>
+            )}
 
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            style={s.subscribeBtn}
-          >
-            {loading ? labels.redirecting : `${labels.subscribe_btn} ${priceLabel}${periodLabel} →`}
-          </button>
+            <div style={s.toggle}>
+              <button
+                onClick={() => setPlan('monthly')}
+                style={{
+                  ...s.toggleBtn,
+                  background: plan === 'monthly' ? 'var(--purple)' : 'transparent',
+                  color: plan === 'monthly' ? '#fff' : 'var(--text-muted)'
+                }}
+              >
+                {labels.monthly}
+              </button>
+              <button
+                onClick={() => setPlan('annual')}
+                style={{
+                  ...s.toggleBtn,
+                  background: plan === 'annual' ? 'var(--purple)' : 'transparent',
+                  color: plan === 'annual' ? '#fff' : 'var(--text-muted)'
+                }}
+              >
+                {labels.annual}
+              </button>
+            </div>
 
-          <button onClick={handleTryFree} style={s.tryFreeBtn}>
-            {labels.try_free}
-          </button>
+            <div style={s.pricingCard}>
+              <div style={s.priceRow}>
+                <span style={s.price}>{priceLabel}</span>
+                <span style={s.period}>{periodLabel}</span>
+              </div>
 
-          <p style={s.guarantee}>{labels.guarantee_badge}</p>
-        </div>
+              <div style={s.features}>
+                {labels.features.map((text, i) => (
+                  <div key={i} style={s.feature}>
+                    <span style={s.featureText}>{text}</span>
+                  </div>
+                ))}
+              </div>
 
-        <div style={s.profileNote}>
-          <p style={s.profileNoteText}>{labels.no_profile_text}</p>
-          <Link href="/onboarding" style={s.profileNoteLink}>
-            {labels.no_profile_link}
-          </Link>
-        </div>
+              <button
+                onClick={handleSubscribe}
+                disabled={loading}
+                style={s.subscribeBtn}
+              >
+                {loading ? labels.redirecting : `${labels.subscribe_prefix} — ${priceLabel}${periodLabel} →`}
+              </button>
+
+              {showTryFree && (
+                <button onClick={handleTryFree} style={s.tryFreeBtn}>
+                  {labels.try_free}
+                </button>
+              )}
+
+              <p style={s.guarantee}>{labels.guarantee_line}</p>
+            </div>
+
+            {showNoProfile && (
+              <div style={s.profileNote}>
+                <p style={s.profileNoteText}>{labels.no_profile_text}</p>
+                <Link href="/onboarding" style={s.profileNoteLink}>
+                  {labels.no_profile_link}
+                </Link>
+              </div>
+            )}
+          </>
+        )}
 
         <div style={s.guaranteeSection}>
           <h2 style={s.guaranteeTitle}>{labels.promise_title}</h2>
@@ -245,17 +215,16 @@ const s = {
   hero: { textAlign:'center', marginBottom:'40px' },
   title: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', marginBottom:'16px' },
   accent: { color:'var(--orange)' },
+  bridge: { fontSize:'16px', color:'var(--text)', lineHeight:'1.6', maxWidth:'480px', margin:'0 auto 12px', fontWeight:'500' },
   subtitle: { fontSize:'16px', color:'var(--text-muted)', lineHeight:'1.75', maxWidth:'480px', margin:'0 auto' },
   offerBanner: { background:'var(--surface)', border:'1px solid var(--border)', backdropFilter:'blur(16px) saturate(120%)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:'32px', textAlign:'center' },
   offerText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6' },
   toggle: { display:'flex', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'10px', padding:'4px', marginBottom:'24px' },
   toggleBtn: { flex:1, padding:'10px', borderRadius:'8px', border:'none', fontSize:'14px', fontWeight:'500', cursor:'pointer', transition:'all 0.2s', minHeight:'44px' },
-  saveBadge: { fontSize:'11px', background:'var(--green-light)', color:'var(--green)', padding:'2px 6px', borderRadius:'4px', marginLeft:'6px' },
   pricingCard: { background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', padding:'clamp(16px, 4vw, 32px)', marginBottom:'24px', boxShadow:'var(--shadow)' },
   priceRow: { display:'flex', alignItems:'baseline', gap:'6px', marginBottom:'28px', flexWrap:'wrap' },
   price: { fontSize:'56px', fontWeight:'700', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', lineHeight:1 },
   period: { fontSize:'18px', color:'var(--text-muted)' },
-  annualNote: { fontSize:'13px', background:'var(--green-light)', color:'var(--green)', padding:'4px 10px', borderRadius:'20px', fontWeight:'600', marginLeft:'8px' },
   features: { marginBottom:'28px' },
   feature: { display:'flex', alignItems:'center', padding:'10px 0', borderBottom:'1px solid var(--border)' },
   featureText: { fontSize:'14px', color:'var(--text)', lineHeight:'1.5' },
@@ -265,6 +234,10 @@ const s = {
   profileNote: { textAlign:'center', padding:'24px', background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', marginBottom:'32px' },
   profileNoteText: { fontSize:'14px', color:'var(--text-muted)', marginBottom:'8px' },
   profileNoteLink: { fontSize:'15px', color:'var(--purple)', fontWeight:'600' },
+  alreadyCard: { textAlign:'center', padding:'32px 24px', background:'var(--surface)', borderRadius:'var(--radius)', border:'1px solid var(--border)', marginBottom:'32px', boxShadow:'var(--shadow)' },
+  alreadyTitle: { fontSize:'22px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px' },
+  alreadyText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.6', marginBottom:'16px' },
+  alreadyLink: { fontSize:'15px', color:'var(--purple)', fontWeight:'600' },
   guaranteeSection: { marginTop:'48px' },
   guaranteeTitle: { fontSize:'28px', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', textAlign:'center', marginBottom:'24px' },
   guaranteeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap:'16px' },

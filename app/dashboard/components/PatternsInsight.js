@@ -15,7 +15,7 @@ export default function PatternsInsight({ lang = "en" }) {
     en: {
       tag: "Patterns",
       title: "What is emerging in your journey",
-      subtitle: "AI synthesis of your check-ins. Patterns you might not see yourself.",
+      subtitle: "The mirror of what you've written. What keeps returning, and you might not have seen yet.",
       generate: "Reveal my patterns",
       regenerate: "Refresh patterns",
       loading: "Analyzing your check-ins...",
@@ -32,7 +32,7 @@ export default function PatternsInsight({ lang = "en" }) {
     ro: {
       tag: "Tipare",
       title: "Ce apare in calatoria ta",
-      subtitle: "Sinteza AI a check-in-urilor tale. Tipare pe care s-ar putea sa nu le vezi singur.",
+      subtitle: "Oglinda a ce ai scris. Ce se repeta, si poate n-ai vazut inca.",
       generate: "Dezvaluie tiparele mele",
       regenerate: "Actualizeaza tiparele",
       loading: "Analizez check-in-urile tale...",
@@ -49,7 +49,7 @@ export default function PatternsInsight({ lang = "en" }) {
     es: {
       tag: "Patrones",
       title: "Lo que esta emergiendo en tu camino",
-      subtitle: "Sintesis AI de tus check-ins. Patrones que quizas no ves tu mismo.",
+      subtitle: "El espejo de lo que has escrito. Lo que se repite, y que quizas aun no has visto.",
       generate: "Revelar mis patrones",
       regenerate: "Actualizar patrones",
       loading: "Analizando tus check-ins...",
@@ -66,7 +66,7 @@ export default function PatternsInsight({ lang = "en" }) {
     fr: {
       tag: "Tendances",
       title: "Ce qui emerge dans ton parcours",
-      subtitle: "Synthese IA de tes check-ins. Des tendances que tu ne vois peut-etre pas.",
+      subtitle: "Le miroir de ce que tu as ecrit. Ce qui revient, et que tu n'as peut-etre pas encore vu.",
       generate: "Reveler mes tendances",
       regenerate: "Actualiser",
       loading: "Analyse de tes check-ins...",
@@ -83,7 +83,7 @@ export default function PatternsInsight({ lang = "en" }) {
     de: {
       tag: "Muster",
       title: "Was sich auf deinem Weg zeigt",
-      subtitle: "KI-Synthese deiner Check-ins. Muster, die du vielleicht selbst nicht siehst.",
+      subtitle: "Der Spiegel dessen, was du geschrieben hast. Was sich wiederholt, und das du vielleicht noch nicht gesehen hast.",
       generate: "Meine Muster enthuellen",
       regenerate: "Aktualisieren",
       loading: "Analysiere deine Check-ins...",
@@ -100,7 +100,7 @@ export default function PatternsInsight({ lang = "en" }) {
     it: {
       tag: "Modelli",
       title: "Cosa sta emergendo nel tuo percorso",
-      subtitle: "Sintesi AI dei tuoi check-in. Modelli che potresti non vedere da solo.",
+      subtitle: "Lo specchio di cio che hai scritto. Cio che si ripete, e che forse non hai ancora visto.",
       generate: "Rivela i miei modelli",
       regenerate: "Aggiorna",
       loading: "Analizzo i tuoi check-in...",
@@ -117,7 +117,7 @@ export default function PatternsInsight({ lang = "en" }) {
     pt: {
       tag: "Padroes",
       title: "O que esta a emergir na sua jornada",
-      subtitle: "Sintese IA dos seus check-ins. Padroes que talvez nao veja sozinho.",
+      subtitle: "O espelho do que escreveu. O que se repete, e que talvez ainda nao tenha visto.",
       generate: "Revelar os meus padroes",
       regenerate: "Atualizar",
       loading: "A analisar os seus check-ins...",
@@ -134,7 +134,7 @@ export default function PatternsInsight({ lang = "en" }) {
     nl: {
       tag: "Patronen",
       title: "Wat er opkomt in jouw reis",
-      subtitle: "AI-synthese van je check-ins. Patronen die je misschien zelf niet ziet.",
+      subtitle: "De spiegel van wat je hebt geschreven. Wat terugkeert, en wat je misschien nog niet hebt gezien.",
       generate: "Onthul mijn patronen",
       regenerate: "Vernieuwen",
       loading: "Je check-ins analyseren...",
@@ -151,7 +151,7 @@ export default function PatternsInsight({ lang = "en" }) {
     pl: {
       tag: "Wzorce",
       title: "Co wylania sie w twojej podrozy",
-      subtitle: "Synteza AI twoich check-inow. Wzorce, ktorych sam mozesz nie widziec.",
+      subtitle: "Lustro tego, co napisales. To, co sie powtarza, a czego moze jeszcze nie zauwazyles.",
       generate: "Odkryj moje wzorce",
       regenerate: "Odswiez",
       loading: "Analizuje twoje check-iny...",
@@ -168,7 +168,7 @@ export default function PatternsInsight({ lang = "en" }) {
     hu: {
       tag: "Mintak",
       title: "Mi rajzolodik ki az utadon",
-      subtitle: "AI szintezis a check-injeidbol. Mintak, amiket talan magadtol nem latnal.",
+      subtitle: "Annak tukre, amit irtal. Ami visszater, es amit talan meg nem vettel eszre.",
       generate: "Fedezd fel a mintaimat",
       regenerate: "Frissites",
       loading: "Check-injeid elemzese...",
@@ -185,7 +185,7 @@ export default function PatternsInsight({ lang = "en" }) {
     ru: {
       tag: "Закономерности",
       title: "Что проявляется на твоём пути",
-      subtitle: "AI-синтез твоих чек-инов. Закономерности, которые ты сам можешь не замечать.",
+      subtitle: "Зеркало того, что ты написал. Что повторяется, и чего ты, возможно, ещё не заметил.",
       generate: "Раскрыть мои закономерности",
       regenerate: "Обновить",
       loading: "Анализирую твои чек-ины...",
