@@ -11,6 +11,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import WaterLoader from '../components/water/WaterLoader'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { t } from '../../lib/translations'
+import { clientTzOffset } from '../../lib/logicalDay'
 
 // Localized "still working" messages shown when a request hits the timeout
 const TIMEOUT_MESSAGES = {
@@ -156,7 +157,8 @@ function GeneratingContent() {
           city: formData.city,
           lat: formData.lat,
           lng: formData.lng,
-          language
+          language,
+          tz: clientTzOffset()
         })
       })
       if (!calcData.success) {

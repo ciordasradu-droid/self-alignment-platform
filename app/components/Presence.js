@@ -5,6 +5,8 @@
 // de lumina pe apa. Absenta ingheata, nu scade — vizual, o zi neatinsa e doar
 // stinsa, nu goala/rosie.
 
+import { clientTzOffset, getLogicalDay } from '../../lib/logicalDay'
+
 const L = {
   en: { title: 'Your Presence', days: ['M','T','W','T','F','S','S'] },
   ro: { title: 'Prezența ta', days: ['L','M','M','J','V','S','D'] },
@@ -21,8 +23,12 @@ const L = {
 
 export default function Presence({ streak = 0, lang = 'en' }) {
   const t = L[lang] || L.en
-  const today = new Date().getDay()
-  const adjustedToday = today === 0 ? 6 : today - 1
+  // Audit getLogicalDay (29.07): "azi" trebuie sa fie ziua LOGICA (cutoff
+  // 04:00), la fel ca streak-ul primit prin props — altfel punctul evidentiat
+  // ca "azi" nu se potrivea cu ziua pe care check-in-ul chiar o aprindea.
+  const todayLogical = getLogicalDay(Date.now(), clientTzOffset())
+  const dow = new Date(`${todayLogical}T12:00:00Z`).getUTCDay()
+  const adjustedToday = dow === 0 ? 6 : dow - 1
 
   return (
     <div className="chapter" style={{ marginTop: '8px' }}>

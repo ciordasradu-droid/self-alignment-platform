@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react"
 import { getDailyThought } from "../../../lib/dailyThoughts"
+import { clientTzOffset } from "../../../lib/logicalDay"
 
 const LABELS = {
   en: { tag: "Daily Thought" },
@@ -51,6 +52,7 @@ export default function DailyInsight({ embedded = false }) {
             profile,
             personal_year: profile.personal_year,
             language: userLang,
+            tz: clientTzOffset(),
           }),
         })
           .then((r) => r.json())

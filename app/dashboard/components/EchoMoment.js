@@ -5,6 +5,7 @@
 // data fazei deja vazute). Discret, sub harta, nu un ecran separat.
 
 import { useState, useEffect } from 'react'
+import { clientTzOffset } from '../../../lib/logicalDay'
 
 const L = {
   en: { label: 'Three weeks ago, you wrote this', dismiss: 'Dismiss' },
@@ -26,7 +27,7 @@ export default function EchoMoment({ lang = 'en' }) {
   const [dismissed, setDismissed] = useState(true)
 
   useEffect(() => {
-    fetch('/api/echo-moment')
+    fetch(`/api/echo-moment?tz=${clientTzOffset()}`)
       .then(r => r.json())
       .then(d => {
         if (!d.success || !d.phrase || !d.date) return

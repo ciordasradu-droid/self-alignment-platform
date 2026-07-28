@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
+import { getLogicalDay } from '../../../lib/logicalDay'
 
 // A3 — micro-moment suplimentar in jurul zilei ~21 (prezenta): aplicatia
 // arata userului o fraza scrisa de el cu ~3 saptamani in urma. Fereastra
 // larga (18-24 zile) ca sa prinda userul indiferent de ritmul lui exact.
-export async function GET() {
+export async function GET(request) {
   try {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+    const { searchParams } = new URL(request.url)
+    const tz = Number(searchParams.get('tz')) || 0
 
     const { data: checkins, error } = await supabaseAdmin
       .from('checkins')
@@ -32,7 +36,7 @@ export async function GET() {
       const text = a.evening_journal || a.gratitude || a.intention || a.sleep
       if (text && text.trim().length > 8) {
         phrase = text.trim()
-        date = c.created_at.split('T')[0]
+        date = getLogicalDay(new Date(c.created_at).getTime(), tz)
         break
       }
     }

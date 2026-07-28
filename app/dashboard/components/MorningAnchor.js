@@ -12,7 +12,7 @@ import DailyInsight from './DailyInsight'
 import BreathingSphere from './BreathingSphere'
 import { waterState } from '../../components/water/waterState'
 import { getEffectiveWeekday } from '../../../lib/simWeekday'
-import { clientTzOffset } from '../../../lib/logicalDay'
+import { clientTzOffset, getLogicalDay } from '../../../lib/logicalDay'
 
 const L = {
   en: { greet: 'Good morning', sleepQ: 'How did you sleep?', sleepPh: 'Write a word or two…', intentionQ: 'Yesterday you left this intention:', carry: 'Carry it forward', change: 'Change it', changePh: 'Write the new intention…', freshQ: 'What intention do you carry into today?', freshPh: 'Write it here…', start: 'Begin the day', wish: 'May your day be gentle', done: 'Your day has begun.', weekTag: 'The Week, Seen', weekQ1: 'What repeated this week, seen from the shore, not from the current?', weekQ2: 'A moment when you were close to yourself — what made it possible?', weekQ3: 'What you take with you into the coming week — one sentence.', weekPh1: 'What you noticed coming back…', weekPh2: 'The moment, and what supported it…', weekPh3: 'One sentence…' },
@@ -70,9 +70,14 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
         body: JSON.stringify({ kind: 'morning', sleep: sleep.trim(), intention: finalIntention, tz: clientTzOffset() }),
       })
       if (weekReviewActive) {
-        const now = new Date()
-        const weekStart = new Date(now)
-        weekStart.setDate(now.getDate() - now.getDay())
+        // Audit getLogicalDay (29.07): ancorat pe ziua LOGICA a userului
+        // (cutoff 04:00), nu pe ceasul brut al dispozitivului — altfel o
+        // revizuire facuta intre miezul noptii si 04:00 duminica se prindea
+        // gresit in saptamana noua, in loc sa incheie saptamana veche.
+        const todayLogical = getLogicalDay(Date.now(), clientTzOffset())
+        const anchor = new Date(`${todayLogical}T12:00:00Z`)
+        const weekStart = new Date(anchor)
+        weekStart.setUTCDate(anchor.getUTCDate() - anchor.getUTCDay())
         await fetch('/api/weekly-review', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

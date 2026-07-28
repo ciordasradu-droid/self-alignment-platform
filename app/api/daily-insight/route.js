@@ -7,6 +7,7 @@ import { calculatePersonalDayMonth } from '../../../lib/calculations/numerology'
 import { VOICE_RULES } from '../../../lib/prompts/profile'
 import { getDailyThoughtAngle } from '../../../lib/dailyThoughts'
 import { getTrialStatus } from '../../../lib/trial'
+import { getLogicalDay } from '../../../lib/logicalDay'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -31,10 +32,14 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { profile, personal_year, language = 'en' } = body
+    const { profile, personal_year, language = 'en', tz } = body
     if (!profile?.date_of_birth) return NextResponse.json({ error: 'missing profile' }, { status: 400 })
 
-    const today = new Date().toISOString().split('T')[0]
+    // Audit getLogicalDay (29.07): "azi" pentru gandul zilei trebuie sa fie
+    // ziua logica a userului (cutoff 04:00 local) — altfel gandul se
+    // reinnoia la miezul noptii UTC, inaintea propriului cutoff al userului.
+    const tzOffset = Number(tz) || 0
+    const today = getLogicalDay(Date.now(), tzOffset)
 
     const { data: existing } = await supabaseAdmin
       .from('daily_insights')
@@ -54,8 +59,8 @@ export async function POST(request) {
       return NextResponse.json({ success: true, insight: null, subscribe_required: true })
     }
 
-    const { personal_day, personal_month } = calculatePersonalDayMonth(profile.date_of_birth, language)
-    const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+    const { personal_day, personal_month } = calculatePersonalDayMonth(profile.date_of_birth, language, today)
+    const dayOfWeek = new Date(`${today}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long' })
     const languageName = LANGUAGE_NAMES[language] || 'English'
     const angle = getDailyThoughtAngle()
     const ANGLE_BRIEF = {

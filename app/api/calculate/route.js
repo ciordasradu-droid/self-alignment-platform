@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { calculateFullProfile } from '../../../lib/calculations/index'
+import { getLogicalDay } from '../../../lib/logicalDay'
 
 export const maxDuration = 60
 
@@ -11,7 +12,8 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { full_name, date_of_birth, time_of_birth, city, lat, lng, language, time_unknown } = body
+    const { full_name, date_of_birth, time_of_birth, city, lat, lng, language, time_unknown, tz } = body
+    const tzOffset = Number(tz) || 0
 
     const calculatedData = calculateFullProfile(
       full_name,
@@ -55,13 +57,21 @@ export async function POST(request) {
     // făcut mai devreme azi (cu profilul vechi) rămâne agățat de user_id și
     // ritualul de seară apare "deja făcut" pe profilul proaspăt. Ștergem
     // DOAR check-in-urile de azi, nu tot istoricul (streak-ul/Prezența rămân).
-    const todayStr = new Date().toISOString().split('T')[0]
-    await supabaseAdmin
+    // Audit getLogicalDay (29.07): "azi" trebuie sa fie ZIUA LOGICA a userului
+    // (cutoff 04:00 local), nu data calendaristica UTC a serverului — altfel
+    // un check-in facut aproape de cutoff putea sa nu fie sters (sau sa fie
+    // sters gresit), reintroducand exact bug-ul rezolvat la Runda 6.
+    const todayLogical = getLogicalDay(Date.now(), tzOffset)
+    const { data: todaysCheckins } = await supabaseAdmin
       .from('checkins')
-      .delete()
+      .select('id, created_at')
       .eq('user_id', user.id)
-      .gte('created_at', `${todayStr}T00:00:00.000Z`)
-      .lt('created_at', `${todayStr}T23:59:59.999Z`)
+    const idsToDelete = (todaysCheckins || [])
+      .filter(c => getLogicalDay(new Date(c.created_at).getTime(), tzOffset) === todayLogical)
+      .map(c => c.id)
+    if (idsToDelete.length > 0) {
+      await supabaseAdmin.from('checkins').delete().in('id', idsToDelete)
+    }
 
     return NextResponse.json({
       success: true,
