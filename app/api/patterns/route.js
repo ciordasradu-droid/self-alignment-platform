@@ -2,9 +2,9 @@ export const maxDuration = 60
 
 // TIPARE — sinteza reala din texte (secț. 5/7, z14). Fara scor, fara profil
 // de "umbra": doar jurnal/recunostinta/intentii/somn, citite din checkins
-// (rituale), sintetizate printr-un prompt liber cu Regula de Voce. Arata
-// si ce merge (nu doar ce revine) — trei categorii, dar niciuna nu e
-// diagnostic clinic.
+// (rituale), sintetizate printr-un prompt liber cu Regula de Voce.
+// Calup arhitectura 30.07 (D4): trei categorii — Ce revine / Ce iti da
+// energie / Ce se schimba — niciuna diagnostic clinic.
 
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
@@ -133,10 +133,10 @@ PERSON'S HUMAN DESIGN TYPE (context only, don't lecture about it): ${hdType}
 THEIR WRITTEN ENTRIES (chronological, most recent first):
 ${textCorpus}
 
-WHAT TO LOOK FOR:
-- "strength" — something that is genuinely working, visible across multiple entries (not flattery — a real, specific pattern of what's going well)
-- "watch" — something that keeps recurring and might be worth their attention (a gentle observation, never framed as a flaw or diagnosis)
-- "invitation" — one reflective question or gentle nudge that follows naturally from what they've written
+WHAT TO LOOK FOR (calup arhitectura 30.07, D4 — trei categorii, nu diagnostic):
+- "recurring" — what keeps coming back across multiple entries (not necessarily a problem — just what actually repeats, named plainly)
+- "energizing" — what genuinely gives them energy, visible in how they write about it (not flattery — a real, specific pattern)
+- "changing" — something that's visibly shifting or moving, comparing earlier entries to more recent ones
 
 RULES:
 - Quote or closely paraphrase their own words when it strengthens the observation — this must feel like THEY wrote it, reflected back, not like a report about them.
@@ -146,9 +146,9 @@ RULES:
 
 Return ONLY a JSON object, no markdown, no code fences:
 {
-  "strength": { "title": "short title (5 words max)", "body": "2-3 sentences" },
-  "watch": { "title": "short title (5 words max)", "body": "2-3 sentences" },
-  "invitation": { "title": "short title (5 words max)", "body": "2-3 sentences" }
+  "recurring": { "title": "short title (5 words max)", "body": "2-3 sentences" },
+  "energizing": { "title": "short title (5 words max)", "body": "2-3 sentences" },
+  "changing": { "title": "short title (5 words max)", "body": "2-3 sentences" }
 }`
 
     const message = await anthropic.messages.create({

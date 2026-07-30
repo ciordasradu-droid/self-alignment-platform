@@ -304,6 +304,16 @@ input:focus, textarea:focus, select:focus {
   .one-breath-inhale1, .one-breath-inhale2, .one-breath-exhale, .one-breath-ring { animation: none; }
 }
 
+/* D1 (calup arhitectura 30.07) — bula organică din capul Drumului, respiră
+   discret; se oprește la Cristalul (stage.js decide, nu CSS-ul). */
+@keyframes stage-bubble-breathe {
+  0%, 100% { transform: scale(1); border-radius: 48% 52% 45% 55% / 55% 45% 55% 45%; }
+  50% { transform: scale(1.05); border-radius: 52% 48% 55% 45% / 45% 55% 45% 55%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [style*="stage-bubble-breathe"] { animation: none !important; }
+}
+
 /* Sfera care respiră (Ritmul zilei, 25.07 noapte) — 4s dilatare / 6s
    strângere, ciclu de 10s. Expirația mai lungă (60% din ciclu) coboară
    fiziologic pulsul. */

@@ -15,7 +15,7 @@ import EchoMoment from '../dashboard/components/EchoMoment'
 import Presence from '../components/Presence'
 import RoomNav from '../components/RoomNav'
 import WaterLoader from '../components/water/WaterLoader'
-import { stageForDay, STAGES } from '../components/water/waterState'
+import { stageForDay, stageIndexForDay, STAGES } from '../components/water/waterState'
 import { useLanguage } from '../../lib/language'
 import { clientTzOffset } from '../../lib/logicalDay'
 
@@ -57,6 +57,99 @@ const JOURNAL_LINK_L = {
 }
 const jx = (lang, k) => (JOURNAL_LINK_L[lang] || JOURNAL_LINK_L.en)[k]
 const lx = (lang, k) => (L[lang] || L.en)[k]
+
+// D1/D2 (calup arhitectura 30.07): harta celor 7 stadii — trecute stinse,
+// curent viu, viitoare abia ghicite + orizont ("se deschide in jurul zilei
+// {n}"). Celebrare o singura data la trecerea intr-un stadiu nou.
+const STAGE_MAP_L = {
+  en: { horizon: 'Opens around day {n}', celebrate_title: 'You\'ve reached a new stage.', celebrate_cta: 'Continue' },
+  ro: { horizon: 'Se deschide în jurul zilei {n}', celebrate_title: 'Ai ajuns la un stadiu nou.', celebrate_cta: 'Continuă' },
+  es: { horizon: 'Se abre alrededor del día {n}', celebrate_title: 'Has llegado a una nueva etapa.', celebrate_cta: 'Continuar' },
+  fr: { horizon: "S'ouvre autour du jour {n}", celebrate_title: 'Tu as atteint une nouvelle étape.', celebrate_cta: 'Continuer' },
+  de: { horizon: 'Öffnet sich um Tag {n}', celebrate_title: 'Du hast eine neue Stufe erreicht.', celebrate_cta: 'Weiter' },
+  it: { horizon: 'Si apre intorno al giorno {n}', celebrate_title: 'Hai raggiunto una nuova fase.', celebrate_cta: 'Continua' },
+  pt: { horizon: 'Abre por volta do dia {n}', celebrate_title: 'Chegaste a uma nova fase.', celebrate_cta: 'Continuar' },
+  nl: { horizon: 'Gaat open rond dag {n}', celebrate_title: 'Je hebt een nieuwe fase bereikt.', celebrate_cta: 'Verder' },
+  pl: { horizon: 'Otwiera się około dnia {n}', celebrate_title: 'Dotarłeś do nowego etapu.', celebrate_cta: 'Dalej' },
+  hu: { horizon: 'A(z) {n}. nap körül nyílik meg', celebrate_title: 'Elértél egy új szakaszt.', celebrate_cta: 'Tovább' },
+  ru: { horizon: 'Открывается около дня {n}', celebrate_title: 'Ты достиг нового этапа.', celebrate_cta: 'Далее' },
+}
+const sx = (lang, k) => (STAGE_MAP_L[lang] || STAGE_MAP_L.en)[k]
+const STAGE_SEEN_KEY = 'stage_map_last_seen'
+
+function StageBubble({ stage }) {
+  const glow = 0.25 + (stage.light || 0) * 0.6
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: '56px', height: '56px', margin: '0 auto 14px',
+        borderRadius: '48% 52% 45% 55% / 55% 45% 55% 45%',
+        background: 'radial-gradient(circle at 38% 32%, #fff 0%, var(--pearl) 45%, var(--gold) 100%)',
+        boxShadow: `0 0 ${18 + glow * 20}px rgba(229,169,60,${glow})`,
+        animation: 'stage-bubble-breathe 6s ease-in-out infinite',
+      }}
+    />
+  )
+}
+
+function StageMap({ lang, day }) {
+  const currentIdx = stageIndexForDay(day)
+  return (
+    <div className="chapter" style={{ marginBottom: '18px' }}>
+      <div style={{ padding: '22px' }}>
+        <StageBubble stage={STAGES[currentIdx]} />
+        {STAGES.map((st, i) => {
+          const isPast = i < currentIdx
+          const isCurrent = i === currentIdx
+          const isFuture = i > currentIdx
+          const isLast = i === STAGES.length - 1
+          return (
+            <div key={st.key} style={{ display: 'flex', gap: '14px', minHeight: '44px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px', flexShrink: 0 }}>
+                <span style={{
+                  width: isCurrent ? '12px' : '9px', height: isCurrent ? '12px' : '9px', borderRadius: '50%', flexShrink: 0,
+                  background: isCurrent ? '#e5a93c' : isPast ? 'rgba(229,169,60,0.4)' : 'rgba(244,240,234,0.15)',
+                  boxShadow: isCurrent ? '0 0 10px rgba(229,169,60,0.6)' : 'none',
+                }} />
+                {!isLast && <span style={{ width: '2px', flex: 1, marginTop: '4px', marginBottom: '4px', background: isPast || isCurrent ? 'rgba(229,169,60,0.3)' : 'rgba(244,240,234,0.08)' }} />}
+              </div>
+              <div style={{ paddingBottom: '14px', opacity: isFuture ? 0.4 : isPast ? 0.6 : 1 }}>
+                <p style={{ fontSize: isCurrent ? '15px' : '13.5px', fontWeight: isCurrent ? 600 : 400, color: '#f4f0ea', fontFamily: 'Cormorant Garamond, serif' }}>
+                  {st[lang] || st.en}
+                </p>
+                {isFuture && (
+                  <p style={{ fontSize: '11px', color: 'rgba(244,240,234,0.4)', fontStyle: 'italic', marginTop: '2px' }}>
+                    {sx(lang, 'horizon').replace('{n}', st.day)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function StageCelebration({ lang, stage, onDismiss }) {
+  return (
+    <div
+      onClick={onDismiss}
+      className="anim-fade-in"
+      style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(6,6,16,0.88)', backdropFilter: 'blur(8px)', cursor: 'pointer', padding: '24px', textAlign: 'center' }}
+    >
+      <StageBubble stage={stage} />
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'rgba(244,240,234,0.7)', marginBottom: '8px' }}>
+        {sx(lang, 'celebrate_title')}
+      </p>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: '#f4f0ea', marginBottom: '28px' }}>
+        {stage[lang] || stage.en}
+      </p>
+      <button onClick={onDismiss} className="pill-btn">{sx(lang, 'celebrate_cta')}</button>
+    </div>
+  )
+}
 
 // D6-fix (25.07): formulare naturala, nu ordinal clinic ("a 7-a") — trecuta
 // prin Regula de Voce. Legata de threshold=7 (singurul unlock pe 'entries').
@@ -164,6 +257,7 @@ function DrumulContent() {
   const [globalLang] = useLanguage()
   const [profileLang, setProfileLang] = useState('en')
   const lang = globalLang || profileLang || 'en'
+  const [celebrating, setCelebrating] = useState(null) // stage object, sau null
 
   useEffect(() => {
     try {
@@ -179,20 +273,37 @@ function DrumulContent() {
       .catch(() => setLoading(false))
   }, [])
 
+  // D2 — celebrare o singura data, la trecerea intr-un stadiu nou (nu la
+  // fiecare vizita si nu la primul stadiu, care nu e o "trecere").
+  useEffect(() => {
+    if (!data) return
+    const idx = stageIndexForDay(data.day || 1)
+    let lastSeen = null
+    try { lastSeen = localStorage.getItem(STAGE_SEEN_KEY) } catch (e) {}
+    if (lastSeen === null) {
+      // prima vizita vreodata — doar inregistram, fara sarbatoare
+      try { localStorage.setItem(STAGE_SEEN_KEY, String(idx)) } catch (e) {}
+      return
+    }
+    if (parseInt(lastSeen, 10) !== idx) {
+      setCelebrating(STAGES[idx])
+      try { localStorage.setItem(STAGE_SEEN_KEY, String(idx)) } catch (e) {}
+    }
+  }, [data])
+
   if (loading) return <main style={{ padding: '120px 24px' }}><WaterLoader /></main>
 
   const day = data?.day || 1
-  const stage = stageForDay(day)
   const streak = data?.streak?.current_streak || 0
   const presence = { activeDays: data?.activeDays || 0, writtenEntries: data?.writtenEntries || 0 }
 
   return (
     <main className="room-shell">
-      <header style={{ textAlign: 'center', marginBottom: '18px' }}>
-        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'rgba(244,240,234,0.6)', letterSpacing: '1px' }}>
-          {stage[lang] || stage.en}
-        </p>
-      </header>
+      {celebrating && (
+        <StageCelebration lang={lang} stage={celebrating} onDismiss={() => setCelebrating(null)} />
+      )}
+
+      <StageMap lang={lang} day={day} />
 
       <Roadmap lang={lang} presence={presence} />
       <AccessLine lang={lang} />

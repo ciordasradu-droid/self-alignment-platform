@@ -21,9 +21,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analyzing your check-ins...",
       no_data: "You need at least 7 check-ins before patterns can emerge. Keep showing up.",
       last_updated: "Last updated",
-      strength: "Strength",
-      watch: "Watch",
-      invitation: "Invitation",
+      recurring: "Recurring",
+      energizing: "Energizing",
+      changing: "Changing",
       first_mirror: "Your first mirror is ready. This is what the subscription does: it shows you what you can't see on your own.",
       too_soon: "Your next mirror arrives in {n} days — it needs new material to reflect.",
       next_mirror: "The next mirror is part of the subscription.",
@@ -38,9 +38,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analizez check-in-urile tale...",
       no_data: "Ai nevoie de cel putin 7 check-in-uri inainte ca tiparele sa apara. Continua sa vii.",
       last_updated: "Ultima actualizare",
-      strength: "Punct forte",
-      watch: "De urmarit",
-      invitation: "Invitatie",
+      recurring: "Ce revine",
+      energizing: "Ce dă energie",
+      changing: "Ce se schimbă",
       first_mirror: "Prima ta oglinda e gata. Asta face abonamentul: iti arata ce nu vezi singur.",
       too_soon: "Urmatoarea ta oglinda vine in {n} zile — are nevoie de material nou de reflectat.",
       next_mirror: "Urmatoarea oglinda e parte din abonament.",
@@ -55,9 +55,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analizando tus check-ins...",
       no_data: "Necesitas al menos 7 check-ins antes de que los patrones emerjan.",
       last_updated: "Ultima actualizacion",
-      strength: "Fortaleza",
-      watch: "Observar",
-      invitation: "Invitacion",
+      recurring: "Lo que se repite",
+      energizing: "Lo que da energía",
+      changing: "Lo que cambia",
       too_soon: "Tu proximo espejo llega en {n} dias — necesita material nuevo para reflejar.",
       first_mirror: "Tu primer espejo esta listo. Esto hace el plan: te muestra lo que no ves solo.",
       next_mirror: "El proximo espejo es parte del plan.",
@@ -72,9 +72,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analyse de tes check-ins...",
       no_data: "Il te faut au moins 7 check-ins avant que les tendances apparaissent.",
       last_updated: "Derniere mise a jour",
-      strength: "Force",
-      watch: "A surveiller",
-      invitation: "Invitation",
+      recurring: "Ce qui revient",
+      energizing: "Ce qui donne de l'énergie",
+      changing: "Ce qui change",
       too_soon: "Ton prochain miroir arrive dans {n} jours — il lui faut du nouveau materiel a refleter.",
       first_mirror: "Ton premier miroir est pret. Voila ce que fait l'abonnement : il te montre ce que tu ne vois pas seul.",
       next_mirror: "Le prochain miroir fait partie de l'abonnement.",
@@ -89,9 +89,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analysiere deine Check-ins...",
       no_data: "Du brauchst mindestens 7 Check-ins, bevor Muster erscheinen koennen.",
       last_updated: "Zuletzt aktualisiert",
-      strength: "Staerke",
-      watch: "Beobachten",
-      invitation: "Einladung",
+      recurring: "Was wiederkehrt",
+      energizing: "Was Energie gibt",
+      changing: "Was sich verändert",
       too_soon: "Dein naechster Spiegel kommt in {n} Tagen — er braucht neues Material zum Spiegeln.",
       first_mirror: "Dein erster Spiegel ist fertig. Das macht das Abo: es zeigt dir, was du selbst nicht siehst.",
       next_mirror: "Der naechste Spiegel ist Teil des Abos.",
@@ -106,9 +106,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analizzo i tuoi check-in...",
       no_data: "Servono almeno 7 check-in prima che i modelli emergano.",
       last_updated: "Ultimo aggiornamento",
-      strength: "Punto di forza",
-      watch: "Da osservare",
-      invitation: "Invito",
+      recurring: "Ciò che ritorna",
+      energizing: "Ciò che dà energia",
+      changing: "Ciò che cambia",
       too_soon: "Il tuo prossimo specchio arriva tra {n} giorni — ha bisogno di nuovo materiale da riflettere.",
       first_mirror: "Il tuo primo specchio e pronto. Ecco cosa fa l'abbonamento: ti mostra cio che non vedi da solo.",
       next_mirror: "Il prossimo specchio fa parte dell'abbonamento.",
@@ -123,9 +123,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "A analisar os seus check-ins...",
       no_data: "Precisa de pelo menos 7 check-ins antes que os padroes emerjam.",
       last_updated: "Ultima atualizacao",
-      strength: "Forca",
-      watch: "Observar",
-      invitation: "Convite",
+      recurring: "O que regressa",
+      energizing: "O que dá energia",
+      changing: "O que muda",
       too_soon: "O teu proximo espelho chega em {n} dias — precisa de material novo para refletir.",
       first_mirror: "O teu primeiro espelho esta pronto. E isso que a assinatura faz: mostra-te o que nao ves sozinho.",
       next_mirror: "O proximo espelho faz parte da assinatura.",
@@ -140,9 +140,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Je check-ins analyseren...",
       no_data: "Je hebt minstens 7 check-ins nodig voordat patronen kunnen verschijnen.",
       last_updated: "Laatst bijgewerkt",
-      strength: "Kracht",
-      watch: "Aandachtspunt",
-      invitation: "Uitnodiging",
+      recurring: "Wat terugkeert",
+      energizing: "Wat energie geeft",
+      changing: "Wat verandert",
       too_soon: "Je volgende spiegel komt over {n} dagen — hij heeft nieuw materiaal nodig om te weerspiegelen.",
       first_mirror: "Je eerste spiegel is klaar. Dit doet het abonnement: het toont je wat je zelf niet ziet.",
       next_mirror: "De volgende spiegel is onderdeel van het abonnement.",
@@ -157,9 +157,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Analizuje twoje check-iny...",
       no_data: "Potrzebujesz co najmniej 7 check-inow, zanim wzorce sie pojawia.",
       last_updated: "Ostatnia aktualizacja",
-      strength: "Sila",
-      watch: "Do obserwacji",
-      invitation: "Zaproszenie",
+      recurring: "Co powraca",
+      energizing: "Co daje energię",
+      changing: "Co się zmienia",
       too_soon: "Twoje kolejne lustro pojawi sie za {n} dni — potrzebuje nowego materialu do odbicia.",
       first_mirror: "Twoje pierwsze lustro jest gotowe. To robi subskrypcja: pokazuje ci to, czego sam nie widzisz.",
       next_mirror: "Kolejne lustro jest czescia subskrypcji.",
@@ -174,9 +174,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Check-injeid elemzese...",
       no_data: "Legalabb 7 check-in kell, mielott a mintak megjelenhetnek.",
       last_updated: "Utoljara frissitve",
-      strength: "Erosseg",
-      watch: "Figyelendo",
-      invitation: "Meghivas",
+      recurring: "Ami visszatér",
+      energizing: "Ami energiát ad",
+      changing: "Ami változik",
       too_soon: "A kovetkezo tukrod {n} nap mulva erkezik — uj anyagra van szuksege a tukrozeshez.",
       first_mirror: "Az elso tukrod elkeszult. Ezt csinalja az elofizetes: megmutatja, amit magadtol nem latsz.",
       next_mirror: "A kovetkezo tukor az elofizetes resze.",
@@ -191,9 +191,9 @@ export default function PatternsInsight({ lang = "en" }) {
       loading: "Анализирую твои чек-ины...",
       no_data: "Нужно как минимум 7 чек-инов, прежде чем закономерности смогут проявиться.",
       last_updated: "Последнее обновление",
-      strength: "Сильная сторона",
-      watch: "Присмотреться",
-      invitation: "Приглашение",
+      recurring: "Что повторяется",
+      energizing: "Что даёт энергию",
+      changing: "Что меняется",
       too_soon: "Твоё следующее зеркало появится через {n} дней — ему нужен новый материал для отражения.",
       first_mirror: "Твоё первое зеркало готово. Вот что делает подписка: показывает то, что ты сам не видишь.",
       next_mirror: "Следующее зеркало — часть подписки.",
@@ -310,27 +310,27 @@ export default function PatternsInsight({ lang = "en" }) {
           {patterns && !loading && (
             <div style={s.patternsWrap}>
 
-              {patterns.strength && (
-                <div style={{ ...s.patternCard, borderLeft: "3px solid var(--green)" }}>
-                  <p style={{ ...s.patternLabel, color: "var(--green)" }}>{t.strength}</p>
-                  <p style={s.patternTitle}>{patterns.strength.title}</p>
-                  <p style={s.patternBody}>{patterns.strength.body}</p>
-                </div>
-              )}
-
-              {patterns.watch && (
+              {patterns.recurring && (
                 <div style={{ ...s.patternCard, borderLeft: "3px solid var(--orange)" }}>
-                  <p style={{ ...s.patternLabel, color: "var(--orange)" }}>{t.watch}</p>
-                  <p style={s.patternTitle}>{patterns.watch.title}</p>
-                  <p style={s.patternBody}>{patterns.watch.body}</p>
+                  <p style={{ ...s.patternLabel, color: "var(--orange)" }}>{t.recurring}</p>
+                  <p style={s.patternTitle}>{patterns.recurring.title}</p>
+                  <p style={s.patternBody}>{patterns.recurring.body}</p>
                 </div>
               )}
 
-              {patterns.invitation && (
+              {patterns.energizing && (
+                <div style={{ ...s.patternCard, borderLeft: "3px solid var(--green)" }}>
+                  <p style={{ ...s.patternLabel, color: "var(--green)" }}>{t.energizing}</p>
+                  <p style={s.patternTitle}>{patterns.energizing.title}</p>
+                  <p style={s.patternBody}>{patterns.energizing.body}</p>
+                </div>
+              )}
+
+              {patterns.changing && (
                 <div style={{ ...s.patternCard, borderLeft: "3px solid var(--purple)" }}>
-                  <p style={{ ...s.patternLabel, color: "var(--purple)" }}>{t.invitation}</p>
-                  <p style={s.patternTitle}>{patterns.invitation.title}</p>
-                  <p style={s.patternBody}>{patterns.invitation.body}</p>
+                  <p style={{ ...s.patternLabel, color: "var(--purple)" }}>{t.changing}</p>
+                  <p style={s.patternTitle}>{patterns.changing.title}</p>
+                  <p style={s.patternBody}>{patterns.changing.body}</p>
                 </div>
               )}
 
