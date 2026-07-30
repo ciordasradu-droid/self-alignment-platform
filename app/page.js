@@ -1,15 +1,16 @@
 'use client'
 
-// Destinație: app/page.js  (ÎNLOCUIEȘTE COMPLET)
-// Schimbări față de versiunea anterioară:
-// - selector de limbă în nav (global, salvat în localStorage prin lib/language.js)
-// - toate textele landing-ului vin din lib/landing.js (11 limbi)
-// - structura, stilurile și animațiile rămân identice
+// LANDING — rescris integral (calup arhitectura 30.07, L1-L6). Doar pentru
+// necunoscuți: userul logat e trimis direct în Azi de proxy.js, înainte să
+// ajungă aici. Apa ambientală vine din WaterVideoLayer (montată global în
+// layout.js) — pagina asta nu are propriul fundal, textul plutește direct
+// pe apă, fără casete opace.
 
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage, LANGUAGES } from '../lib/language'
 import { lt } from '../lib/landing'
+import { APP_NAME } from '../lib/appConfig'
 
 // ── Reveal: fades + slides up its children when scrolled into view ──
 function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' }) {
@@ -47,318 +48,186 @@ function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' })
   )
 }
 
-// ── 25 drifting decorative dots ──
-function CosmicStars() {
-  return (
-    <div className="cosmic-stars" aria-hidden="true">
-      {Array.from({ length: 25 }).map((_, i) => <span key={i} />)}
-    </div>
-  )
-}
-
-// Bannerul "Bine ai revenit" a fost eliminat (decizie v5, sect. 6):
-// userul logat nu mai vede landing-ul deloc — middleware-ul il duce direct in Azi.
-
 export default function Home() {
   const [lang, changeLanguage] = useLanguage()
 
-  return (
-    <>
-      <CosmicStars />
+  // L1 — contor viu, nu decorativ: daca /api/spots nu raspunde cu o cifra
+  // reala, randul intreg nu se afiseaza (aceeasi regula ca pe /subscribe).
+  const [spotsLeft, setSpotsLeft] = useState(null)
+  useEffect(() => {
+    fetch('/api/spots')
+      .then(r => r.json())
+      .then(d => { if (typeof d.spots_left === 'number') setSpotsLeft(d.spots_left) })
+      .catch(() => {})
+  }, [])
 
-      {/* ── NAV ── */}
+  return (
+    <main style={s.wrap}>
+
+      {/* ── NAV — doar numele, fara CTA propriu (un singur CTA auriu per ecran) ── */}
       <nav style={s.nav}>
         <div style={s.navInner}>
-          <p style={s.logo}>Alignment</p>
-          <div style={s.navRight}>
-            <select
-              value={lang}
-              onChange={e => changeLanguage(e.target.value)}
-              style={s.langSelect}
-              aria-label={lt(lang, 'nav_language_label')}
-            >
-              {LANGUAGES.map(l => (
-                <option key={l.code} value={l.code}>{l.label}</option>
-              ))}
-            </select>
-            <Link href="/onboarding" style={s.navCta} className="btn-lift">{lt(lang, 'nav_start')}</Link>
-          </div>
+          <p style={s.logo}>{APP_NAME}</p>
         </div>
       </nav>
 
-      <main style={s.wrap}>
+      {/* ── L1 — HERO, plutind pe apă ── */}
+      <section style={s.hero}>
+        <h1 style={s.heroTitle} className="anim-fade-in">
+          {lt(lang, 'hero_title')}
+        </h1>
+        <p style={s.heroSub} className="anim-fade-in stagger-3">
+          {lt(lang, 'hero_sub')}
+        </p>
+        <div className="anim-fade-in stagger-5" style={{ display: 'inline-block' }}>
+          <Link href="/onboarding" className="cta-premium cta-premium-large">
+            {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
+          </Link>
+        </div>
+        {typeof spotsLeft === 'number' && (
+          <p style={s.heroSpots} className="anim-fade-in stagger-5">
+            {lt(lang, 'hero_spots_template').replace('{n}', spotsLeft)}
+          </p>
+        )}
+        <Link href="/login" style={s.heroLogin}>{lt(lang, 'hero_login')}</Link>
+      </section>
 
-        {/* ── HERO ── */}
-        <section style={s.hero}>
-          <div style={s.heroInner}>
-            <h1 style={s.heroTitle} className="anim-fade-in">
-              {lt(lang, 'hero_title_1')}
-              <br />
-              <span className="gradient-text-fast">{lt(lang, 'hero_title_2')}</span>
-            </h1>
-            <p style={s.heroSub} className="anim-fade-in stagger-3">
-              {lt(lang, 'hero_sub')}
-            </p>
-            <div className="anim-fade-in stagger-5" style={{ display:'inline-block' }}>
-              <Link href="/onboarding" className="cta-premium cta-premium-large">
-                {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
-              </Link>
-              <span className="cta-subtext">{lt(lang, 'hero_cta_note')}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ── VISUAL STORYTELLING ── */}
-        <section style={s.section}>
-          <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'get_title')}</Reveal>
-          <Reveal as="p" style={s.sectionSub} delay={80}>
-            {lt(lang, 'get_sub')}
-          </Reveal>
-
-          <div className="story-grid" style={{ marginTop: '36px' }}>
-
-            <Reveal delay={0}>
-              <div className="story-card story-card-purple">
-                <span className="story-tag">{lt(lang, 'card_profile_tag')}</span>
-                <h3 className="story-title">{lt(lang, 'card_profile_title')}</h3>
-                <p className="story-text">
-                  {lt(lang, 'card_profile_text')}
-                </p>
-                <div className="story-preview">
-                  <div className="mock-profile">
-                    <span className="mock-profile-tag">Generator · 2/4</span>
-                    <div className="mock-line mock-line-1" />
-                    <div className="mock-line mock-line-2" />
-                    <div className="mock-line mock-line-3" />
-                    <div className="mock-line mock-line-4" />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={120}>
-              <div className="story-card story-card-green">
-                <span className="story-tag" style={{ color:'var(--green)' }}>{lt(lang, 'card_ritual_tag')}</span>
-                <h3 className="story-title">{lt(lang, 'card_ritual_title')}</h3>
-                <p className="story-text">
-                  {lt(lang, 'card_ritual_text')}
-                </p>
-                <div className="story-preview">
-                  {/* reprezentarea check-in-ului = apa, nu fete (principiul 13) */}
-                  <div className="mock-water" aria-hidden="true">
-                    <span className="mock-water-drop" />
-                    <span className="mock-water-ring" />
-                    <span className="mock-water-ring" />
-                    <span className="mock-water-ring" />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={240}>
-              <div className="story-card story-card-amber">
-                <span className="story-tag" style={{ color:'var(--orange)' }}>{lt(lang, 'card_patterns_tag')}</span>
-                <h3 className="story-title">{lt(lang, 'card_patterns_title')}</h3>
-                <p className="story-text">
-                  {lt(lang, 'card_patterns_text')}
-                </p>
-                <div className="story-preview">
-                  {/* prezenta se aduna, nu se pierde (decizia 4) */}
-                  <div className="mock-water" aria-hidden="true">
-                    <span className="mock-water-drop mock-water-drop-lit" />
-                    <span className="mock-water-ring" />
-                    <span className="mock-water-ring" />
-                    <span className="mock-water-ring" />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={360}>
-              <div className="story-card story-card-mixed">
-                <span className="story-tag" style={{ color:'var(--purple)' }}>{lt(lang, 'card_foundation_tag')}</span>
-                <h3 className="story-title">{lt(lang, 'card_foundation_title')}</h3>
-                <p className="story-text">
-                  {lt(lang, 'card_foundation_text')}
-                </p>
-                <div className="story-preview">
-                  <div className="mock-pillars">
-                    <span className="mock-pillar">Human Design</span>
-                    <span className="mock-pillar">{lt(lang, 'pillar_astro')}</span>
-                    <span className="mock-pillar">{lt(lang, 'pillar_num')}</span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-          </div>
-        </section>
-
-        {/* ── TRUST SECTION ── */}
-        <section style={s.trust} className="trust-section">
-          <Reveal>
-            <div className="trust-banner">
-              <p className="trust-banner-title">
-                {lt(lang, 'trust_banner')}
-              </p>
+      {/* ── L2 — CE PRIMEȘTI: 3 carduri ── */}
+      <section style={s.section}>
+        <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'get_title')}</Reveal>
+        <div className="story-grid" style={{ marginTop: '36px' }}>
+          <Reveal delay={0}>
+            <div className="story-card story-card-purple">
+              <span className="story-tag">{lt(lang, 'card_profile_tag')}</span>
+              <p className="story-text">{lt(lang, 'card_profile_text')}</p>
             </div>
           </Reveal>
           <Reveal delay={120}>
-            <div className="trust-indicators">
-              <div className="trust-indicator">{lt(lang, 'trust_private')}</div>
-              <div className="trust-indicator">{lt(lang, 'trust_fast')}</div>
-              <div className="trust-indicator">{lt(lang, 'trust_langs')}</div>
+            <div className="story-card story-card-green">
+              <span className="story-tag" style={{ color: 'var(--green)' }}>{lt(lang, 'card_ritual_tag')}</span>
+              <p className="story-text">{lt(lang, 'card_ritual_text')}</p>
             </div>
           </Reveal>
-        </section>
-
-        {/* ── HOW IT WORKS ── */}
-        <section style={s.section}>
-          <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'how_title')}</Reveal>
-          <div style={s.threeGrid}>
-            {[
-              { n:'1', color:'var(--purple)', title:lt(lang, 'step1_title'), text:lt(lang, 'step1_text') },
-              { n:'2', color:'var(--green)', title:lt(lang, 'step2_title'), text:lt(lang, 'step2_text') },
-              { n:'3', color:'var(--orange)', title:lt(lang, 'step3_title'), text:lt(lang, 'step3_text') },
-            ].map((step, i) => (
-              <Reveal key={i} delay={i * 120}>
-                <div style={{...s.stepCard, borderLeft:`4px solid ${step.color}`}} className="landing-card">
-                  <p style={{...s.stepNum, color: step.color}}>{step.n}</p>
-                  <h3 style={s.stepTitle}>{step.title}</h3>
-                  <p style={s.stepText}>{step.text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        {/* ── PRICING (premium dark card + free card) ── */}
-        <section style={s.pricingSection}>
-          <Reveal as="h2" style={s.pricingTitle}>{lt(lang, 'pricing_title')}</Reveal>
-          <Reveal as="p" style={s.sectionSub} delay={80}>
-            {lt(lang, 'pricing_sub')}
+          <Reveal delay={240}>
+            <div className="story-card story-card-amber">
+              <span className="story-tag" style={{ color: 'var(--orange)' }}>{lt(lang, 'card_path_tag')}</span>
+              <p className="story-text">{lt(lang, 'card_path_text')}</p>
+            </div>
           </Reveal>
+        </div>
+      </section>
 
-          <div style={s.pricingGrid}>
-            <Reveal delay={0}>
-              <div className="price-card-free landing-card">
-                <span className="tag tag-purple" style={{marginBottom:'18px', display:'inline-block'}}>{lt(lang, 'price_free_tag')}</span>
-                <p className="price-amount-free">{lt(lang, 'price_free')}</p>
-                <p style={{ fontSize:'13px', color:'var(--text-light)', marginTop:'4px' }}>{lt(lang, 'price_free_note')}</p>
-                <p style={s.priceDesc}>
-                  {lt(lang, 'price_free_desc')}
-                </p>
-                <Link href="/onboarding" style={s.priceBtnGhost} className="btn-lift">
-                  {lt(lang, 'price_free_btn')}
-                </Link>
+      {/* ── L3 — CUM FUNCȚIONEAZĂ: 3 pași pe un rând ── */}
+      <section style={s.section}>
+        <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'how_title')}</Reveal>
+        <div style={s.threeGrid}>
+          {[lt(lang, 'step1'), lt(lang, 'step2'), lt(lang, 'step3')].map((text, i) => (
+            <Reveal key={i} delay={i * 120}>
+              <div style={s.stepCard} className="landing-card">
+                <p style={s.stepNum}>{i + 1}</p>
+                <p style={s.stepText}>{text}</p>
               </div>
             </Reveal>
+          ))}
+        </div>
+      </section>
 
-            <Reveal delay={140}>
-              <div className="price-premium">
-                <span className="price-premium-tag">{lt(lang, 'price_premium_tag')}</span>
-                <div>
-                  <span className="price-premium-amount">€8</span>
-                  <span className="price-premium-period">{lt(lang, 'price_month')}</span>
-                </div>
-                <p className="price-premium-annual">{lt(lang, 'price_annual')}</p>
+      {/* ── L4 — PREȚURILE, PE FAȚĂ: un singur bloc, fara asteriscuri ── */}
+      <section style={s.pricingSection}>
+        <Reveal as="h2" style={s.sectionTitle}>{lt(lang, 'pricing_title')}</Reveal>
+        <Reveal as="p" style={s.pricingBody} delay={80}>
+          {lt(lang, 'pricing_body')}
+        </Reveal>
+      </section>
 
-                <div className="price-premium-features">
-                  {lt(lang, 'features').map((feat, i) => (
-                    <div key={i} className="price-feature">
-                      <span className="price-check" aria-hidden="true" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
-                </div>
+      {/* ── L5 — LIMBILE: steaguri ca butoane, nu <select> ── */}
+      <section style={s.langsSection}>
+        <Reveal as="p" style={s.langsTitle}>{lt(lang, 'langs_title')}</Reveal>
+        <div style={s.flagRow} role="group" aria-label={lt(lang, 'nav_language_label')}>
+          {LANGUAGES.map(l => (
+            <button
+              key={l.code}
+              onClick={() => changeLanguage(l.code)}
+              aria-label={l.label}
+              aria-pressed={lang === l.code}
+              style={{ ...s.flagBtn, ...(lang === l.code ? s.flagBtnActive : null) }}
+              className="btn-lift"
+            >
+              {l.flag}
+            </button>
+          ))}
+        </div>
+      </section>
 
-                <Link href="/subscribe" className="cta-premium" style={{ background:'linear-gradient(135deg, #d4a574 0%, #f5d976 50%, #d4a574 100%)' }}>
-                  {lt(lang, 'price_premium_btn')} <span className="arrow" aria-hidden="true">→</span>
-                </Link>
+      {/* ── L6 — ÎNCHIDERE ── */}
+      <section style={s.ctaSection}>
+        <Reveal as="h2" style={s.ctaTitle}>
+          {lt(lang, 'final_1')}
+          <br />
+          <span className="gradient-text-fast">{lt(lang, 'final_2')}</span>
+        </Reveal>
+        <Reveal delay={150} style={{ display: 'inline-block' }}>
+          <Link href="/onboarding" className="cta-premium cta-premium-large">
+            {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
+          </Link>
+        </Reveal>
+      </section>
 
-                <p style={{ marginTop:'18px', fontSize:'12px', color:'rgba(255,255,255,0.55)' }}>
-                  {lt(lang, 'guarantee')}
-                </p>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ── FINAL CTA ── */}
-        <section style={s.ctaSection}>
-          <Reveal as="h2" style={s.ctaTitle}>
-            {lt(lang, 'final_1')}
-            <br />
-            <span className="gradient-text-fast">{lt(lang, 'final_2')}</span>
-          </Reveal>
-          <Reveal delay={150} style={{display:'inline-block'}}>
-            <Link href="/onboarding" className="cta-premium cta-premium-large">
-              {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
-            </Link>
-            <span className="cta-subtext">{lt(lang, 'hero_cta_note')}</span>
-          </Reveal>
-        </section>
-
-        {/* ── FOOTER ── */}
-        <footer style={s.footer}>
-          <p style={s.footerLogo}>Alignment</p>
-          <p style={s.footerText}>{lt(lang, 'footer_text')}</p>
-        </footer>
-
-      </main>
-    </>
+    </main>
   )
 }
 
 const s = {
-  // Layout
-  wrap: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px' },
+  wrap: { maxWidth: '1040px', margin: '0 auto', padding: '0 24px' },
 
-  // Nav
-  nav: { position:'sticky', top:0, zIndex:100, background:'rgba(11,14,42,0.72)', backdropFilter:'blur(16px)', borderBottom:'1px solid var(--border)' },
-  navInner: { maxWidth:'1040px', margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', alignItems:'center', height:'64px' },
-  logo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', letterSpacing:'0.5px' },
-  navRight: { display:'flex', alignItems:'center', gap:'10px' },
-  langSelect: { padding:'8px 10px', borderRadius:'10px', border:'1px solid var(--border)', background:'var(--surface)', fontSize:'13px', color:'var(--text)', cursor:'pointer', maxWidth:'130px' },
-  // un singur CTA auriu plin per ecran (brief): cel din hero. Nav-ul e contur.
-  navCta: { display:'inline-block', padding:'9px 22px', background:'transparent', color:'var(--text)', border:'1px solid var(--gold-soft)', borderRadius:'999px', fontSize:'14px', fontWeight:'500' },
+  nav: { position: 'sticky', top: 0, zIndex: 100 },
+  navInner: { maxWidth: '1040px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', height: '64px' },
+  logo: { fontSize: '19px', fontWeight: '600', fontFamily: 'Cormorant Garamond, serif', letterSpacing: '0.5px', color: 'var(--text)', textShadow: '0 1px 12px rgba(0,0,0,0.4)' },
 
-  // Hero — large, generous
-  hero: { position:'relative', textAlign:'center', padding:'clamp(80px, 14vw, 140px) 0 clamp(70px, 12vw, 110px)', overflow:'hidden' },
-  heroInner: { position:'relative', zIndex:1 },
-  heroTitle: { fontSize:'clamp(44px, 8vw, 76px)', fontWeight:'600', color:'var(--text)', lineHeight:'1.05', marginBottom:'28px', letterSpacing:'-1px', fontFamily:'Cormorant Garamond, serif' },
-  heroSub: { fontSize:'clamp(16px, 2vw, 19px)', color:'var(--text-muted)', lineHeight:'1.7', maxWidth:'560px', margin:'0 auto 40px', fontWeight:'300' },
+  // Hero — text plutind pe apă, fără casetă opacă. text-shadow ține citirea
+  // lizibilă peste apa în mișcare (regula tipografiei: contrast, nu decor).
+  hero: { position: 'relative', textAlign: 'center', padding: 'clamp(70px, 13vw, 130px) 0 clamp(50px, 9vw, 90px)' },
+  heroTitle: {
+    fontSize: 'clamp(38px, 7.5vw, 68px)', fontWeight: '600', color: '#fff', lineHeight: '1.1',
+    marginBottom: '20px', letterSpacing: '-1px', fontFamily: 'Cormorant Garamond, serif',
+    textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+  },
+  heroSub: {
+    fontSize: 'clamp(16px, 2vw, 19px)', color: 'rgba(255,255,255,0.88)', lineHeight: '1.7',
+    maxWidth: '520px', margin: '0 auto 36px', fontWeight: '300', textShadow: '0 1px 12px rgba(0,0,0,0.45)',
+  },
+  heroSpots: { marginTop: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.75)', textShadow: '0 1px 8px rgba(0,0,0,0.4)' },
+  heroLogin: { display: 'block', marginTop: '22px', fontSize: '13px', color: 'rgba(255,255,255,0.6)', textShadow: '0 1px 8px rgba(0,0,0,0.4)' },
 
-  // Sections — generous vertical padding
-  section: { padding:'clamp(50px, 8vw, 90px) 0' },
-  sectionTitle: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', marginBottom:'16px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', letterSpacing:'-0.4px', textAlign:'center' },
-  sectionSub: { fontSize:'17px', color:'var(--text-muted)', lineHeight:'1.65', maxWidth:'520px', margin:'0 auto', textAlign:'center', fontWeight:'300' },
+  section: { padding: 'clamp(40px, 7vw, 80px) 0' },
+  sectionTitle: {
+    fontSize: 'clamp(30px, 4.6vw, 44px)', fontWeight: '600', color: 'var(--text)', marginBottom: '16px',
+    fontFamily: 'Cormorant Garamond, serif', lineHeight: '1.15', letterSpacing: '-0.4px', textAlign: 'center',
+  },
 
-  // Trust
-  trust: { padding:'clamp(20px, 3vw, 40px) 0 clamp(40px, 6vw, 80px)' },
+  threeGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(260px, 100%), 1fr))', gap: '22px', marginTop: '36px' },
+  stepCard: { background: 'var(--surface)', borderRadius: '20px', padding: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' },
+  stepNum: { fontSize: '38px', fontWeight: '700', fontFamily: 'Cormorant Garamond, serif', marginBottom: '10px', color: 'var(--gold)', lineHeight: 1 },
+  stepText: { fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.7' },
 
-  // 3-column grid
-  threeGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(260px, 100%), 1fr))', gap:'22px', marginTop:'40px' },
+  pricingSection: { padding: 'clamp(40px, 7vw, 80px) 0' },
+  pricingBody: {
+    fontSize: '16px', color: 'var(--text-muted)', lineHeight: '1.8', maxWidth: '620px',
+    margin: '0 auto', textAlign: 'center', fontWeight: '300',
+  },
 
-  // Steps
-  stepCard: { background:'var(--surface)', borderRadius:'20px', padding:'32px', border:'1px solid var(--border)', boxShadow:'var(--shadow)' },
-  stepNum: { fontSize:'42px', fontWeight:'700', fontFamily:'Cormorant Garamond, serif', marginBottom:'12px', display:'block', lineHeight:1 },
-  stepTitle: { fontSize:'18px', fontWeight:'600', color:'var(--text)', marginBottom:'8px', fontFamily:'Cormorant Garamond, serif' },
-  stepText: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7' },
+  langsSection: { padding: 'clamp(30px, 5vw, 60px) 0', textAlign: 'center' },
+  langsTitle: { fontSize: '14px', color: 'var(--text-muted)', marginBottom: '18px', letterSpacing: '0.3px' },
+  flagRow: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' },
+  flagBtn: {
+    fontSize: '26px', lineHeight: 1, padding: '10px', borderRadius: '12px', background: 'var(--surface)',
+    border: '1px solid var(--border)', cursor: 'pointer', minWidth: '44px', minHeight: '44px',
+  },
+  flagBtnActive: { border: '1.5px solid var(--gold-soft)', boxShadow: '0 0 0 3px var(--gold-faint)' },
 
-  // Pricing
-  pricingSection: { padding:'clamp(60px, 10vw, 100px) 0', position:'relative' },
-  pricingTitle: { fontSize:'clamp(32px, 5vw, 48px)', fontWeight:'600', color:'var(--text)', marginBottom:'14px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.15', letterSpacing:'-0.4px', textAlign:'center' },
-  pricingGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap:'24px', maxWidth:'780px', margin:'40px auto 0', alignItems:'stretch' },
-  priceDesc: { fontSize:'14px', color:'var(--text-muted)', lineHeight:'1.7', margin:'18px 0 26px' },
-  priceBtnGhost: { display:'inline-block', padding:'14px 30px', background:'var(--text)', color:'#fff', borderRadius:'12px', fontSize:'15px', fontWeight:'500', alignSelf:'center', marginTop:'auto' },
-
-  // Final CTA — generous
-  ctaSection: { textAlign:'center', padding:'clamp(60px, 10vw, 110px) 0 clamp(40px, 6vw, 70px)' },
-  ctaTitle: { fontSize:'clamp(28px, 4vw, 42px)', fontWeight:'600', color:'var(--text)', marginBottom:'40px', fontFamily:'Cormorant Garamond, serif', lineHeight:'1.2', letterSpacing:'-0.3px' },
-
-  // Footer
-  footer: { borderTop:'1px solid var(--border)', padding:'48px 0', textAlign:'center', background:'linear-gradient(180deg, transparent 0%, var(--gold-faint) 100%)', marginTop:'40px' },
-  footerLogo: { fontSize:'19px', fontWeight:'600', fontFamily:'Cormorant Garamond, serif', marginBottom:'8px', color:'var(--text)' },
-  footerText: { fontSize:'13px', color:'var(--text-muted)' },
+  ctaSection: { textAlign: 'center', padding: 'clamp(50px, 9vw, 100px) 0 clamp(60px, 8vw, 90px)' },
+  ctaTitle: {
+    fontSize: 'clamp(26px, 3.8vw, 40px)', fontWeight: '600', color: 'var(--text)', marginBottom: '36px',
+    fontFamily: 'Cormorant Garamond, serif', lineHeight: '1.25', letterSpacing: '-0.3px',
+  },
 }
