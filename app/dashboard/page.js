@@ -12,6 +12,7 @@ import MorningAnchor from './components/MorningAnchor'
 import EveningMirror from './components/EveningMirror'
 import OneBreath from './components/OneBreath'
 import DailyInsight from './components/DailyInsight'
+import AziAccessCard from './components/AziAccessCard'
 import WaterLoader from '../components/water/WaterLoader'
 import RoomNav from '../components/RoomNav'
 import { useUser } from '../../lib/useUser'
@@ -104,36 +105,47 @@ function DashboardContent() {
         <p style={s.returning} className="anim-fade-in">{lx(lang, 'returning')}</p>
       )}
 
-      {/* ── RITUALUL — atinge apa de deasupra ── */}
-      <div>
-        {showing === 'morning' ? (
-          <MorningAnchor
-            lang={lang}
-            name={firstName}
-            done={today.morning}
-            continuedIntention={today.continuedIntention}
-            accountDay={data?.day || 1}
-            onComplete={refresh}
-          />
-        ) : showing === 'midday' ? (
-          // 0.3 — fereastra de mijloc (15:33-ora serii): doar Gandul Zilei
-          // recitibil, fara ritual de scris. Ritualul de dimineata s-a
-          // inchis ferm la 15:33; cel de seara inca n-a inceput.
-          <DailyInsight />
-        ) : (
-          <EveningMirror
-            lang={lang}
-            name={firstName}
-            done={today.evening}
-            todayIntention={today.continuedIntention}
-            accountDay={data?.day || 1}
-            onComplete={refresh}
-          />
-        )}
-      </div>
+      {/* A7 (calup arhitectura 30.07): un cont doar-cu-profil, fara abonament
+          sau proba, nu vede niciun ritual — un singur card calm, fara
+          vitrina de upsell. hasFullAccess vine din /api/dashboard (aceeasi
+          regula ca poarta din proxy.js: abonament activ SAU cookie
+          try_free SAU FULL_ACCESS_MODE). */}
+      {data?.hasFullAccess === false ? (
+        <AziAccessCard lang={lang} />
+      ) : (
+        <>
+          {/* ── RITUALUL — atinge apa de deasupra ── */}
+          <div>
+            {showing === 'morning' ? (
+              <MorningAnchor
+                lang={lang}
+                name={firstName}
+                done={today.morning}
+                continuedIntention={today.continuedIntention}
+                accountDay={data?.day || 1}
+                onComplete={refresh}
+              />
+            ) : showing === 'midday' ? (
+              // 0.3 — fereastra de mijloc (15:33-ora serii): doar Gandul Zilei
+              // recitibil, fara ritual de scris. Ritualul de dimineata s-a
+              // inchis ferm la 15:33; cel de seara inca n-a inceput.
+              <DailyInsight />
+            ) : (
+              <EveningMirror
+                lang={lang}
+                name={firstName}
+                done={today.evening}
+                todayIntention={today.continuedIntention}
+                accountDay={data?.day || 1}
+                onComplete={refresh}
+              />
+            )}
+          </div>
 
-      {/* zilele grele — fără vinovăție */}
-      {!today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
+          {/* zilele grele — fără vinovăție */}
+          {!today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
+        </>
+      )}
 
       <RoomNav lang={lang} />
     </main>

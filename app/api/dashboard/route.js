@@ -19,6 +19,23 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const tz = Number(searchParams.get('tz')) || 0
 
+    // A7 (calup arhitectura 30.07): Azi ramane accesibil pentru un cont doar
+    // cu profil (fara abonament, fara proba), doar ca arata o stare
+    // degradata (card calm, fara ritual) — vezi dashboard/page.js. Aceeasi
+    // regula ca poarta din proxy.js (subscriptions activ SAU cookie
+    // try_free), plus FULL_ACCESS_MODE (0.4).
+    let hasFullAccess = process.env.FULL_ACCESS_MODE === 'true'
+    if (!hasFullAccess) {
+      const tryFree = request.cookies.get('try_free')
+      const { data: subRow } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .maybeSingle()
+      hasFullAccess = !!subRow || !!tryFree
+    }
+
     const { data: checkins, error: checkinError } = await supabaseAdmin
       .from('checkins')
       .select('*')
@@ -129,6 +146,7 @@ export async function GET(request) {
       activeDays,
       writtenEntries,
       returning,
+      hasFullAccess,
       today: {
         morning: !!morning,
         evening: !!evening,
