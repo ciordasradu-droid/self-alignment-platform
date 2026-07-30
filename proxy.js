@@ -3,7 +3,12 @@ import { createServerClient } from '@supabase/ssr'
 
 // Pages that require a logged-in user. Everything else (landing, /login,
 // public share /r/[id], /subscribe, /api/*) stays open.
-const PROTECTED = ['/dashboard', '/drumul', '/onboarding', '/generating', '/profile', '/compatibility']
+// 'onboarding' (calup arhitectura 30.07, L1/O1) NU mai e in lista — intrarea
+// e anonima, directa de pe landing ("Incepe"). Sesiunea anonima Supabase se
+// stabileste in onboarding/page.js insusi, la montare; daca ramanea protejat
+// aici, primul om necunoscut era redirectionat la /login inainte sa apuce sa
+// primeasca acea sesiune.
+const PROTECTED = ['/dashboard', '/drumul', '/generating', '/profile', '/compatibility']
 
 export async function proxy(request) {
   // Playground-ul de apă e unealtă de lucru, nu produs. Nu exista in productie.

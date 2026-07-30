@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { t } from '../../lib/translations'
 import { useLanguage, LANGUAGES } from '../../lib/language'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
+import { APP_NAME } from '../../lib/appConfig'
 
 // Steaguri SVG inline — emoji-urile de steag nu se randeaza pe Windows
 // (cad pe coduri de litere), iar spec-ul cere steaguri, nu coduri.
@@ -60,11 +61,6 @@ function Flag({ code }) {
 
 // Textele noi ale onboarding-ului, in toate limbile (Regula de Voce).
 const TX = {
-  your_language: {
-    en: 'Your language', ro: 'Limba ta', es: 'Tu idioma', fr: 'Ta langue',
-    de: 'Deine Sprache', it: 'La tua lingua', pt: 'A tua língua',
-    nl: 'Jouw taal', pl: 'Twój język', hu: 'A nyelved', ru: 'Твой язык',
-  },
   // Fraza de viziune — propozitia-mama a produsului (sect. 2, locked).
   vision: {
     en: "Life isn't about manifesting. It's about aligning with yourself.",
@@ -82,6 +78,114 @@ const TX = {
   continue: {
     en: 'Continue', ro: 'Continuă', es: 'Continuar', fr: 'Continuer', de: 'Weiter',
     it: 'Continua', pt: 'Continuar', nl: 'Verder', pl: 'Dalej', hu: 'Tovább', ru: 'Далее',
+  },
+  // O2 — Despre: 3 carduri scurte + pretul cinstit (calup arhitectura 30.07).
+  about_card1: {
+    en: 'A mirror on three lenses of how you are built.',
+    ro: 'O oglindă pe trei lentile a felului în care ești construit.',
+    es: 'Un espejo en tres lentes de cómo estás construido.',
+    fr: 'Un miroir à trois facettes de qui tu es.',
+    de: 'Ein Spiegel aus drei Blickwinkeln darauf, wie du gebaut bist.',
+    it: 'Uno specchio su tre lenti di come sei fatto.',
+    pt: 'Um espelho em três lentes de como és construído.',
+    nl: 'Een spiegel door drie lenzen van hoe je in elkaar zit.',
+    pl: 'Lustro przez trzy soczewki tego, jak jesteś zbudowany.',
+    hu: 'Egy tükör három lencsén át arról, hogyan épülsz fel.',
+    ru: 'Зеркало через три линзы того, как ты устроен.',
+  },
+  about_card2: {
+    en: 'Two short rituals a day, carried by water.',
+    ro: 'Două ritualuri scurte pe zi, purtate de apă.',
+    es: 'Dos rituales breves al día, llevados por el agua.',
+    fr: 'Deux rituels courts par jour, portés par l\'eau.',
+    de: 'Zwei kurze Rituale am Tag, getragen vom Wasser.',
+    it: 'Due brevi rituali al giorno, portati dall\'acqua.',
+    pt: 'Dois rituais breves por dia, levados pela água.',
+    nl: 'Twee korte rituelen per dag, gedragen door water.',
+    pl: 'Dwa krótkie rytuały dziennie, niesione przez wodę.',
+    hu: 'Napi két rövid rituálé, a víz hordozásában.',
+    ru: 'Два коротких ритуала в день, несомые водой.',
+  },
+  about_card3: {
+    en: 'A 90-day path, at your own pace.',
+    ro: 'Un drum de 90 de zile, în ritmul tău.',
+    es: 'Un camino de 90 días, a tu propio ritmo.',
+    fr: 'Un chemin de 90 jours, à ton propre rythme.',
+    de: 'Ein 90-Tage-Weg, in deinem eigenen Tempo.',
+    it: 'Un cammino di 90 giorni, al tuo ritmo.',
+    pt: 'Um caminho de 90 dias, ao teu ritmo.',
+    nl: 'Een weg van 90 dagen, in jouw eigen tempo.',
+    pl: 'Droga na 90 dni, w twoim własnym tempie.',
+    hu: 'Egy 90 napos út, a saját tempódban.',
+    ru: 'Путь длиной 90 дней, в твоём собственном ритме.',
+  },
+  about_price: {
+    en: '€4 once for the profile · free for the first 1,000',
+    ro: '€4 o dată pentru profil · gratuit pentru primii 1.000',
+    es: '€4 una vez por el perfil · gratis para los primeros 1.000',
+    fr: '4 € une fois pour le profil · gratuit pour les 1 000 premiers',
+    de: '4 € einmalig für das Profil · kostenlos für die ersten 1.000',
+    it: '4 € una volta per il profilo · gratis per i primi 1.000',
+    pt: '€4 uma vez pelo perfil · grátis para os primeiros 1.000',
+    nl: '€4 eenmalig voor het profiel · gratis voor de eerste 1.000',
+    pl: '4 € jednorazowo za profil · darmowy dla pierwszego 1000',
+    hu: '4 € egyszeri díj a profilért · ingyenes az első 1000 számára',
+    ru: '4 € единоразово за профиль · бесплатно для первой 1000',
+  },
+  // O3 — incredere fata de datele nasterii.
+  data_privacy_note: {
+    en: 'Your data doesn\'t go anywhere. Your profile is written from it, and that\'s all.',
+    ro: 'Datele tale nu pleacă nicăieri. Din ele se scrie profilul tău, atât.',
+    es: 'Tus datos no van a ninguna parte. De ellos se escribe tu perfil, nada más.',
+    fr: 'Tes données ne partent nulle part. Ton profil est écrit à partir d\'elles, c\'est tout.',
+    de: 'Deine Daten gehen nirgendwohin. Aus ihnen wird dein Profil geschrieben, das ist alles.',
+    it: 'I tuoi dati non vanno da nessuna parte. Da essi si scrive il tuo profilo, tutto qui.',
+    pt: 'Os teus dados não vão para lado nenhum. É a partir deles que se escreve o teu perfil, mais nada.',
+    nl: 'Je gegevens gaan nergens heen. Ze worden alleen gebruikt om je profiel te schrijven.',
+    pl: 'Twoje dane nigdzie nie idą. Piszemy z nich twój profil, tylko tyle.',
+    hu: 'Az adataid nem mennek sehová. Ezekből íródik a profilod, csak ennyi.',
+    ru: 'Твои данные никуда не уходят. Из них пишется только твой профиль, и ничего больше.',
+  },
+  // O5 — Momentul apei (o singura data in toata aplicatia).
+  water_phrase: {
+    en: 'In this app, the water is you — in all its states.',
+    ro: 'În aplicația asta, apa ești tu — în toate stările ei.',
+    es: 'En esta app, el agua eres tú — en todos sus estados.',
+    fr: 'Dans cette appli, l\'eau, c\'est toi — dans tous ses états.',
+    de: 'In dieser App bist du das Wasser — in all seinen Zuständen.',
+    it: 'In questa app, l\'acqua sei tu — in tutti i suoi stati.',
+    pt: 'Nesta app, a água és tu — em todos os seus estados.',
+    nl: 'In deze app ben jij het water — in al zijn staten.',
+    pl: 'W tej aplikacji woda to ty — we wszystkich swoich stanach.',
+    hu: 'Ebben az appban a víz te vagy — minden állapotában.',
+    ru: 'В этом приложении вода — это ты, во всех её состояниях.',
+  },
+  email_label: {
+    en: 'Your email', ro: 'Emailul tău', es: 'Tu email', fr: 'Ton email', de: 'Deine E-Mail',
+    it: 'La tua email', pt: 'O teu email', nl: 'Jouw e-mail', pl: 'Twój email', hu: 'Az emailed', ru: 'Твой email',
+  },
+  email_ph: {
+    en: 'your@email.com', ro: 'email@exemplu.com', es: 'tu@email.com', fr: 'ton@email.com', de: 'deine@email.com',
+    it: 'tua@email.com', pt: 'teu@email.com', nl: 'jouw@email.com', pl: 'twoj@email.com', hu: 'te@email.com', ru: 'ты@email.com',
+  },
+  email_hint: {
+    en: 'So you don\'t lose your profile if you change phones.',
+    ro: 'Ca să nu-ți pierzi profilul, dacă schimbi telefonul.',
+    es: 'Para que no pierdas tu perfil si cambias de teléfono.',
+    fr: 'Pour ne pas perdre ton profil si tu changes de téléphone.',
+    de: 'Damit dein Profil nicht verloren geht, falls du das Handy wechselst.',
+    it: 'Per non perdere il tuo profilo se cambi telefono.',
+    pt: 'Para não perderes o teu perfil se mudares de telemóvel.',
+    nl: 'Zodat je je profiel niet kwijtraakt als je van telefoon wisselt.',
+    pl: 'Żebyś nie stracił profilu, jeśli zmienisz telefon.',
+    hu: 'Hogy ne veszítsd el a profilod, ha telefont váltasz.',
+    ru: 'Чтобы не потерять профиль при смене телефона.',
+  },
+  email_invalid: {
+    en: 'Please enter a valid email.', ro: 'Scrie un email valid.', es: 'Escribe un email válido.',
+    fr: 'Entre un email valide.', de: 'Bitte gib eine gültige E-Mail ein.', it: 'Inserisci un\'email valida.',
+    pt: 'Escreve um email válido.', nl: 'Voer een geldig e-mailadres in.', pl: 'Wpisz poprawny email.',
+    hu: 'Adj meg egy érvényes emailt.', ru: 'Введи корректный email.',
   },
   back: {
     en: 'back', ro: 'înapoi', es: 'atrás', fr: 'retour', de: 'zurück',
@@ -188,7 +292,7 @@ const tx = (lang, key) => TX[key][lang] || TX[key].en
 export default function Onboarding() {
   const router = useRouter()
   const [lang, changeLanguage] = useLanguage()
-  const [step, setStep] = useState(0)      // 0 limba · 1 viziunea · 2 nasterea · 3 punctul de plecare
+  const [step, setStep] = useState(0)      // 0 limba+viziune · 1 despre · 2 nasterea · 3 punctul de plecare · 4 momentul apei
   const [loading, setLoading] = useState(false)
   const [touched, setTouched] = useState(false) // validarea vorbeste doar dupa prima incercare
 
@@ -207,6 +311,10 @@ export default function Onboarding() {
   const [startingPoint, setStartingPoint] = useState('')
   const [consentChecked, setConsentChecked] = useState(false)
   const [noProfileYet, setNoProfileYet] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState(false)
+  const [isAnonymous, setIsAnonymous] = useState(false)
+  const [waterTouched, setWaterTouched] = useState(false)
 
   useEffect(() => {
     try {
@@ -214,6 +322,25 @@ export default function Onboarding() {
         setNoProfileYet(true)
       }
     } catch (e) {}
+  }, [])
+
+  // 0.1 (calup arhitectura 30.07, L1/O1): intrare anonima directa de pe
+  // landing — "Incepe" duce aici fara sa treaca prin /login. Daca nu exista
+  // deja o sesiune (cont real SAU anonim de la o vizita anterioara), se
+  // stabileste una anonima acum, silentios — userul nu vede niciun ecran de
+  // login. Emailul se cere abia la O5, ca profilul sa nu ramana nerecuperabil.
+  useEffect(() => {
+    (async () => {
+      const supabase = createSupabaseBrowser()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setIsAnonymous(!!user.is_anonymous)
+        return
+      }
+      const { data, error } = await supabase.auth.signInAnonymously()
+      if (!error) setIsAnonymous(true)
+      else console.error('[onboarding] anonymous sign-in failed:', error.message)
+    })()
   }, [])
 
   const [cityValue, setCityValue] = useState('')
@@ -255,10 +382,12 @@ export default function Onboarding() {
     setFormData(prev => ({ ...prev, time_of_birth: `${String(h24).padStart(2, '0')}:${minute}`, time_unknown: false }))
   }, [hour, minute, ampm, timeUnknown, use12h])
 
+  // O1 (calup arhitectura 30.07): atingerea unui steag schimba limba SI
+  // fraza de viziune, LIVE, pe acelasi ecran — nu mai avanseaza singura.
+  // "Continua" (mai jos, in randare) trece la O2.
   const pickLanguage = (code) => {
     changeLanguage(code)
     setMonth('')
-    setStep(1)
   }
 
   const handleCityInput = (e) => {
@@ -303,7 +432,9 @@ export default function Onboarding() {
     setStep(3)
   }
 
-  const handleGenerate = async () => {
+  // O5 (calup arhitectura 30.07): declansata dupa Momentul Apei (direct daca
+  // userul are deja email, sau dupa ce l-a lasat, daca era anonim).
+  const startGeneration = async () => {
     setLoading(true)
     // Punctul de plecare se pastreaza pentru Angajamentul z60 — in contul
     // userului (user_metadata, fara migrare de schema) + local ca plasa.
@@ -321,6 +452,36 @@ export default function Onboarding() {
     } catch (e) {
       console.warn('starting_point metadata save failed (non-fatal):', e?.message)
     }
+
+    // L4/0.1 (calup arhitectura 30.07): profilul costa €4 dupa primii 1.000
+    // gratuite. Daca /api/spots nu poate confirma o cifra reala, alegem
+    // explicit sa NU blocam un om nou dintr-o eroare tranzitorie — trece pe
+    // calea gratuita (decizie de business asumata aici, nu presupunere tacuta).
+    let requiresPayment = false
+    try {
+      const spotsRes = await fetch('/api/spots')
+      const spotsJson = await spotsRes.json()
+      if (typeof spotsJson.spots_left === 'number' && spotsJson.spots_left <= 0) requiresPayment = true
+    } catch (e) {}
+
+    if (requiresPayment) {
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formData: { ...formData, language: lang } })
+        })
+        const json = await res.json()
+        if (!json.url) throw new Error(json.error || 'checkout failed')
+        window.location.href = json.url
+        return
+      } catch (e) {
+        setLoading(false)
+        console.error('Checkout failed:', e.message)
+        return
+      }
+    }
+
     // Punctul 1 (audit 26.07, runda 2 — corectie dupa testul explicit al lui
     // Alex): sessionStorage supravietuia doar Strict-Mode-ului din dev — un
     // refresh real pe /generating il gasea deja gol (citit o singura data la
@@ -342,6 +503,27 @@ export default function Onboarding() {
     }
   }
 
+  // O5 — Momentul Apei: prima atingere dezvaluie (daca e cazul) cererea de
+  // email; pentru cineva deja cu cont real, porneste generarea direct.
+  const handleWaterTouch = () => {
+    if (waterTouched) return
+    setWaterTouched(true)
+    if (!isAnonymous) startGeneration()
+  }
+
+  const handleEmailSubmit = async () => {
+    const val = email.trim()
+    if (!val || !val.includes('@') || !val.includes('.')) { setEmailError(true); return }
+    setEmailError(false)
+    try {
+      const supabase = createSupabaseBrowser()
+      await supabase.auth.updateUser({ email: val })
+    } catch (e) {
+      console.warn('email link failed (non-fatal):', e?.message)
+    }
+    startGeneration()
+  }
+
   const months = t(lang, 'months')
   const missing = touched ? birthMissing() : null
 
@@ -355,34 +537,48 @@ export default function Onboarding() {
           </button>
         )}
 
-        {/* 0 — LIMBA (steaguri; decizie sect. 6/9) */}
+        {/* O1 — LIMBA + FRAZA DE VIZIUNE (calup arhitectura 30.07): un
+            singur ecran; atingerea unui steag schimba amandoua, LIVE. */}
         {step === 0 && (
-          <section className="ob-card ob-enter" key="s0">
+          <section className="ob-card ob-enter ob-center" key="s0">
             {noProfileYet && <p className="ob-hint" style={{ marginBottom: '16px' }}>{tx(lang, 'no_profile_warm')}</p>}
-            <h1 className="ob-title">{tx(lang, 'your_language')}</h1>
+            <p className="ob-appname">{APP_NAME}</p>
             <div className="ob-flags">
               {LANGUAGES.map(l => (
-                <button key={l.code} className="ob-flag" onClick={() => pickLanguage(l.code)}>
+                <button
+                  key={l.code}
+                  className={`ob-flag${lang === l.code ? ' ob-flag-on' : ''}`}
+                  onClick={() => pickLanguage(l.code)}
+                  aria-pressed={lang === l.code}
+                >
                   <Flag code={l.code} />
                   <span className="ob-flag-name">{l.label}</span>
                 </button>
               ))}
             </div>
+            <p className="ob-vision">{tx(lang, 'vision')}</p>
+            <button className="ob-cta" onClick={() => setStep(1)}>{tx(lang, 'continue')}</button>
           </section>
         )}
 
-        {/* 1 — FRAZA DE VIZIUNE */}
+        {/* O2 — DESPRE: 3 carduri scurte + pretul, pe fata */}
         {step === 1 && (
-          <section className="ob-card ob-enter ob-center" key="s1">
-            <p className="ob-vision">{tx(lang, 'vision')}</p>
+          <section className="ob-card ob-enter" key="s1">
+            <div className="ob-about-cards">
+              <p className="ob-about-card">{tx(lang, 'about_card1')}</p>
+              <p className="ob-about-card">{tx(lang, 'about_card2')}</p>
+              <p className="ob-about-card">{tx(lang, 'about_card3')}</p>
+            </div>
+            <p className="ob-about-price">{tx(lang, 'about_price')}</p>
             <button className="ob-cta" onClick={() => setStep(2)}>{tx(lang, 'continue')}</button>
           </section>
         )}
 
-        {/* 2 — DATELE NASTERII */}
+        {/* O3 — DATELE NASTERII */}
         {step === 2 && (
           <section className="ob-card ob-enter" key="s2">
             <h1 className="ob-title">{tx(lang, 'birth_title')}</h1>
+            <p className="ob-hint" style={{ textAlign: 'center', marginBottom: '14px' }}>{tx(lang, 'data_privacy_note')}</p>
 
             <div className="ob-field">
               <label className="ob-label">{t(lang, 'full_name')}</label>
@@ -495,17 +691,48 @@ export default function Onboarding() {
               <span className="ob-hint" style={{ marginTop: 0 }}>{tx(lang, 'consent')}</span>
             </label>
 
-            <button className="ob-cta" onClick={handleGenerate} disabled={loading || !consentChecked}
-                    style={{ opacity: (loading || !consentChecked) ? 0.7 : 1 }}>
-              {loading ? t(lang, 'generating_btn') : tx(lang, 'generate')}
+            <button className="ob-cta" onClick={() => setStep(4)} disabled={!consentChecked}
+                    style={{ opacity: !consentChecked ? 0.7 : 1 }}>
+              {tx(lang, 'continue')}
             </button>
+          </section>
+        )}
+
+        {/* O5 — MOMENTUL APEI: aproape gol, doar apa si fraza (o singura data
+            in toata aplicatia). O atingere -> (daca anonim) cerere email ->
+            porneste generarea. */}
+        {step === 4 && (
+          <section className="ob-card ob-enter ob-center ob-water" key="s4" onClick={handleWaterTouch}>
+            <p className="ob-vision ob-water-phrase">{tx(lang, 'water_phrase')}</p>
+            {waterTouched && isAnonymous && (
+              <div onClick={e => e.stopPropagation()} className="anim-fade-in">
+                <label className="ob-label">{tx(lang, 'email_label')}</label>
+                <input
+                  type="email"
+                  className="input-clean"
+                  value={email}
+                  placeholder={tx(lang, 'email_ph')}
+                  onChange={e => { setEmail(e.target.value); setEmailError(false) }}
+                  autoComplete="email"
+                />
+                {emailError && <p className="ob-missing">{tx(lang, 'email_invalid')}</p>}
+                <p className="ob-hint">{tx(lang, 'email_hint')}</p>
+                <button className="ob-cta" onClick={handleEmailSubmit} disabled={loading}
+                        style={{ opacity: loading ? 0.7 : 1 }}>
+                  {loading ? t(lang, 'generating_btn') : tx(lang, 'generate')}
+                </button>
+              </div>
+            )}
+            {waterTouched && !isAnonymous && (
+              <p className="ob-ready">{loading ? t(lang, 'generating_btn') : ''}</p>
+            )}
             <p className="ob-ready">{tx(lang, 'ready_note')}</p>
           </section>
         )}
 
         {/* orizontul pasilor — puncte de lumina, fara cifre */}
         <div className="ob-dots" aria-hidden="true">
-          {[0, 1, 2, 3].map(i => (
+          {[0, 1, 2, 3, 4].map(i => (
             <span key={i} className={`ob-dot${i === step ? ' on' : ''}`} />
           ))}
         </div>
@@ -587,7 +814,33 @@ export default function Onboarding() {
           text-align: left;
         }
         .ob-flag:hover { border-color: rgba(229, 169, 60, 0.5); }
+        .ob-flag-on { border-color: rgba(229, 169, 60, 0.7); box-shadow: 0 0 0 2px rgba(229, 169, 60, 0.18); }
         .ob-flag :global(svg) { flex-shrink: 0; }
+        .ob-appname {
+          margin: 0 0 18px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 19px;
+          font-weight: 600;
+          color: rgba(244, 240, 234, 0.8);
+        }
+        .ob-about-cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+        .ob-about-card {
+          font-size: 15px;
+          line-height: 1.6;
+          color: #f4f0ea;
+          padding: 14px 16px;
+          border-radius: 14px;
+          background: rgba(244, 240, 234, 0.05);
+          border: 1px solid rgba(244, 240, 234, 0.1);
+        }
+        .ob-about-price {
+          text-align: center;
+          font-size: 13px;
+          color: rgba(244, 240, 234, 0.6);
+          margin: 0 0 6px;
+        }
+        .ob-water { cursor: pointer; min-height: 260px; display: flex; flex-direction: column; justify-content: center; }
+        .ob-water-phrase { font-size: 22px; }
         .ob-field { margin-bottom: 18px; }
         .ob-cityfield { position: relative; }
         .ob-label {
