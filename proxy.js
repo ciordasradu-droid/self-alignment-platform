@@ -93,7 +93,12 @@ export async function proxy(request) {
   // aplicatie (doar ca query param pe redirectul de succes Stripe), deci
   // orice abonat activ fara try_free era trimis inapoi la /subscribe la
   // fiecare vizita. Bug real, gasit prin investigarea unei alte probleme.
-  const needsSubscription = ['/dashboard', '/drumul'].some((p) => path === p || path.startsWith(p + '/'))
+  // 0.4 (calup arhitectura 30.07): comutator de testare cu acces complet —
+  // cat e pornit pe server, TOATE conturile trec de orice poarta de plata.
+  // Nimic din logica de mai jos nu se sterge, doar se ocoleste. Se stinge
+  // dintr-o singura miscare la lansare (variabila de mediu, nu client).
+  const fullAccess = process.env.FULL_ACCESS_MODE === 'true'
+  const needsSubscription = !fullAccess && ['/dashboard', '/drumul'].some((p) => path === p || path.startsWith(p + '/'))
   if (needsSubscription) {
     const tryFree = request.cookies.get('try_free')
     const { data: subRow } = await supabase

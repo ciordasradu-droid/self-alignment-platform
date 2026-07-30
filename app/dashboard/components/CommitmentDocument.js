@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react'
 import { createSupabaseBrowser } from '../../../lib/supabase/client'
+import { APP_NAME } from '../../../lib/appConfig'
 
 const LABELS = {
   en: {
@@ -313,7 +314,7 @@ export default function CommitmentDocument({ lang = 'en' }) {
     return (
       <div style={s.card}>
         <div style={s.printHeader} id="commitment-print">
-          <div style={s.printLogo}>Alignment</div>
+          <div style={s.printLogo}>{APP_NAME}</div>
           <h2 style={s.printTitle}>{t.title}</h2>
           <div style={s.printDivider} />
 

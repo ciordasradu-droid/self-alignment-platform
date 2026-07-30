@@ -9,6 +9,7 @@ import WaterSoundLoop from "./components/water/WaterSoundLoop";
 import InteractionLayer from "./components/water/InteractionLayer";
 import ServiceWorker from "./components/ServiceWorker";
 import DocumentTitle from "./components/DocumentTitle";
+import { APP_NAME } from "../lib/appConfig";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,14 +25,14 @@ export const metadata = {
   // <DocumentTitle/> (React 19 hoisting), care il gestioneaza reactiv, legat
   // de app_language, mai jos.
   description: "Astrologie, Human Design și numerologie, sintetizate într-un profil personal și un plan de aliniere.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   other: {
     google: "notranslate",
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Alignment",
+    title: APP_NAME,
   },
   icons: {
     icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],

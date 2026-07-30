@@ -11,13 +11,14 @@ import { useState, useEffect, Suspense } from 'react'
 import MorningAnchor from './components/MorningAnchor'
 import EveningMirror from './components/EveningMirror'
 import OneBreath from './components/OneBreath'
+import DailyInsight from './components/DailyInsight'
 import WaterLoader from '../components/water/WaterLoader'
 import RoomNav from '../components/RoomNav'
 import { useUser } from '../../lib/useUser'
 import { t } from '../../lib/translations'
 import { useLanguage } from '../../lib/language'
 import { getForcedRitual } from '../../lib/simRitual'
-import { getLogicalHour, clientTzOffset } from '../../lib/logicalDay'
+import { getRitualWindow, clientTzOffset } from '../../lib/logicalDay'
 
 const L = {
   en: { to_evening: 'Go to this evening', to_morning: 'Go to this morning', returning: 'What you wrote is still here.' },
@@ -73,16 +74,16 @@ function DashboardContent() {
 
   // Ritualul potrivit orei — Azi arată UN SINGUR ritual contextual (sect. 6,
   // D7 25.07: butonul de comutare a fost scos, contrazicea "un singur ritual").
-  // Punctul 1 (audit 27.07, runda 6): ziua se termina la 04:00, nu la miezul
-  // noptii (decizie inchisa, niciodata implementata) — orele 00:00-03:59
-  // apartin inca serii zilei precedente. logicalHour (lib/logicalDay.js,
-  // aceeasi functie ca in /api/dashboard si /api/ritual) muta pragurile
-  // existente (12/17) pe ziua logica in loc de ceasul brut.
+  // Punctul 0.3 (calup arhitectura 30.07): granița zilei e 03:33, iar
+  // fereastra dimineții se închide ferm la 15:33 — nu mai există fallback
+  // "dacă dimineața e deja făcută, arată seara" care lăsa ritualul de
+  // dimineață deschis oricât de târziu (bug reprodus de Alex la ~16:00).
+  // getRitualWindow (lib/logicalDay.js, aceeași sursă ca /api/dashboard și
+  // /api/ritual) e SINGURA decizie a ferestrei: 'morning' / 'midday' / 'evening'.
   const now = new Date()
-  const logicalHour = getLogicalHour(now.getTime(), now.getTimezoneOffset())
+  const naturalWindow = getRitualWindow(now.getTime(), now.getTimezoneOffset())
   const forcedRitual = getForcedRitual() // testare (secț. QA) — vezi lib/simRitual.js
-  const naturally = forcedRitual || (logicalHour < 12 ? 'morning' : logicalHour >= 17 ? 'evening' : (today.morning ? 'evening' : 'morning'))
-  const showing = naturally
+  const showing = forcedRitual || naturalWindow
 
   // Mod-noapte pe tot Azi de la ora serii (secț. 3/4) — indiferent care
   // ritual e afișat manual, ceasul decide atmosfera întregului ecran. Ramane
@@ -114,6 +115,11 @@ function DashboardContent() {
             accountDay={data?.day || 1}
             onComplete={refresh}
           />
+        ) : showing === 'midday' ? (
+          // 0.3 — fereastra de mijloc (15:33-ora serii): doar Gandul Zilei
+          // recitibil, fara ritual de scris. Ritualul de dimineata s-a
+          // inchis ferm la 15:33; cel de seara inca n-a inceput.
+          <DailyInsight />
         ) : (
           <EveningMirror
             lang={lang}
