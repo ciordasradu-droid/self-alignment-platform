@@ -11,8 +11,7 @@ import { useState, useEffect } from 'react'
 import DailyInsight from './DailyInsight'
 import BreathingSphere from './BreathingSphere'
 import { waterState } from '../../components/water/waterState'
-import { getEffectiveWeekday } from '../../../lib/simWeekday'
-import { clientTzOffset, getLogicalDay } from '../../../lib/logicalDay'
+import { clientTzOffset } from '../../../lib/logicalDay'
 
 const L = {
   en: { greet: 'Good morning', sleepQ: 'How did you sleep?', sleepPh: 'Write a word or two…', intentionQ: 'Yesterday you left this intention:', carry: 'Carry it forward', change: 'Change it', changePh: 'Write the new intention…', freshQ: 'What intention do you carry into today?', freshPh: 'Write it here…', start: 'Begin the day', wish: 'May your day be gentle', done: 'Your day has begun.', weekTag: 'The Week, Seen', weekQ1: 'What repeated this week, seen from the shore, not from the current?', weekQ2: 'A moment when you were close to yourself — what made it possible?', weekQ3: 'What you take with you into the coming week — one sentence.', weekPh1: 'What you noticed coming back…', weekPh2: 'The moment, and what supported it…', weekPh3: 'One sentence…' },
@@ -34,7 +33,6 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
   const [sleep, setSleep] = useState('')
   const [intentionMode, setIntentionMode] = useState(continuedIntention ? 'echo' : 'fresh') // echo | changing | fresh
   const [intention, setIntention] = useState('')
-  const [weekAnswers, setWeekAnswers] = useState({ continued: '', pattern: '', bring: '' })
   const [saving, setSaving] = useState(false)
   const [sent, setSent] = useState(done)
   // Sfera care respiră deschide ritualul (secț. B) — dacă ritualul e deja
@@ -42,12 +40,6 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
   const [breathDone, setBreathDone] = useState(done)
 
   const who = name ? `, ${name}` : ''
-
-  // Sâmbăta, din ziua 30, Gândul Zilei devine Privirea săptămânii (secț. 5).
-  // Înainte de ziua 30, sâmbăta e o zi ca oricare — nu există încă destul
-  // istoric pentru o privire reală înapoi.
-  const isSaturday = getEffectiveWeekday() === 6
-  const weekReviewActive = isSaturday && accountDay >= 30
 
   // apa se luminează la deschiderea ritualului — un singur gest atmosferic,
   // decuplat de răspunsul userului (nu mai există stare/valoare de mapat).
@@ -69,25 +61,6 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'morning', sleep: sleep.trim(), intention: finalIntention, tz: clientTzOffset() }),
       })
-      if (weekReviewActive) {
-        // Audit getLogicalDay (29.07): ancorat pe ziua LOGICA a userului
-        // (cutoff 04:00), nu pe ceasul brut al dispozitivului — altfel o
-        // revizuire facuta intre miezul noptii si 04:00 duminica se prindea
-        // gresit in saptamana noua, in loc sa incheie saptamana veche.
-        const todayLogical = getLogicalDay(Date.now(), clientTzOffset())
-        const anchor = new Date(`${todayLogical}T12:00:00Z`)
-        const weekStart = new Date(anchor)
-        weekStart.setUTCDate(anchor.getUTCDate() - anchor.getUTCDay())
-        await fetch('/api/weekly-review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            week_start: weekStart.toISOString().split('T')[0],
-            responses: weekAnswers,
-            score_avg: 0,
-          }),
-        })
-      }
     } catch (e) { /* prezența nu se pierde pentru o eroare de rețea */ }
     setSent(true)
     setSaving(false)
@@ -133,48 +106,10 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
         style={s.sleepInput}
       />
 
-      {/* pas 2 — Gândul Zilei, sau sâmbăta (z30+) Privirea săptămânii */}
+      {/* pas 2 — Gândul Zilei (Privirea săptămânii s-a mutat vineri seara,
+          calup arhitectura 30.07, A6 — vezi EveningMirror.js) */}
       <div style={s.step}>
-        {weekReviewActive ? (
-          <div style={s.weekBox}>
-            <p style={s.weekTag}>{lx(lang, 'weekTag')}</p>
-            <div style={s.weekQuestion}>
-              <p style={s.q}>{lx(lang, 'weekQ1')}</p>
-              <textarea
-                value={weekAnswers.continued}
-                onChange={(e) => setWeekAnswers(w => ({ ...w, continued: e.target.value }))}
-                placeholder={lx(lang, 'weekPh1')}
-                rows={2}
-                className="input-clean"
-                style={s.intentionArea}
-              />
-            </div>
-            <div style={s.weekQuestion}>
-              <p style={s.q}>{lx(lang, 'weekQ2')}</p>
-              <textarea
-                value={weekAnswers.pattern}
-                onChange={(e) => setWeekAnswers(w => ({ ...w, pattern: e.target.value }))}
-                placeholder={lx(lang, 'weekPh2')}
-                rows={2}
-                className="input-clean"
-                style={s.intentionArea}
-              />
-            </div>
-            <div style={s.weekQuestion}>
-              <p style={s.q}>{lx(lang, 'weekQ3')}</p>
-              <textarea
-                value={weekAnswers.bring}
-                onChange={(e) => setWeekAnswers(w => ({ ...w, bring: e.target.value }))}
-                placeholder={lx(lang, 'weekPh3')}
-                rows={2}
-                className="input-clean"
-                style={s.intentionArea}
-              />
-            </div>
-          </div>
-        ) : (
-          <DailyInsight embedded />
-        )}
+        <DailyInsight embedded />
       </div>
 
       {/* pas 3 — intenția: continuată din aseară (2 gesturi) sau scrisă liber

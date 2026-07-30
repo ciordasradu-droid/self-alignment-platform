@@ -4,7 +4,8 @@
 // (mic, viu) → harta unlock-urilor cu orizont vizibil → rândul de acces
 // (proba gratuită) → conținutul deblocat (Jurnal/Tipare/Angajament) →
 // Prezența ta (discret, jos). Revizuirea săptămânală nu mai e card separat
-// aici — trăiește în ritualul de dimineață de sâmbătă (z30+, secț. 5).
+// aici — trăiește în ritualul de seară de vineri (z30+, A6, calup
+// arhitectura 30.07 — mutat de pe dimineața de sâmbătă).
 
 import { useState, useEffect, Suspense } from 'react'
 import FreeJournal from '../dashboard/components/FreeJournal'
@@ -26,7 +27,7 @@ const ROADMAP = [
   { threshold: 3,  metric: 'days',    key: 'journal',    en: 'Free Journal',                     ro: 'Jurnal liber',                        en_d: 'a private space to write, any time — not only in the evening', ro_d: 'spațiu privat de scris, oricând, nu doar seara' },
   { threshold: 7,  metric: 'days',    key: 'plan',       en: 'Alignment Plan',                   ro: 'Plan de aliniere',                    en_d: 'your personalized roadmap, from your profile',       ro_d: 'foaia personalizată de parcurs, din profil' },
   { threshold: 7,  metric: 'entries', key: 'patterns',   en: 'Patterns',                         ro: 'Tipare',                               en_d: "the mirror of what you've written — what keeps returning", ro_d: 'oglinda a ce ai scris: ce revine' },
-  { threshold: 30, metric: 'days',    key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Saturday\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de sâmbătă' },
+  { threshold: 30, metric: 'days',    key: 'review',     en: 'The Week, Seen',                   ro: 'Privirea săptămânii',                 en_d: 'the weekly reflection, lives in Friday evening\'s ritual',  ro_d: 'reflecția săptămânală, trăiește în ritualul de vineri seara' },
   { threshold: 60, metric: 'days',    key: 'commitment', en: 'Commitment With Yourself',         ro: 'Angajamentul cu Tine',                en_d: 'a personal document — read again anytime',           ro_d: 'un document personal, recitit oricând' },
   // A8 (decizie închisă 23.07): Cercul iese din harta afișată până la masă
   // critică de useri; în loc, la ziua 90 (echivalent prezență), placeholder
