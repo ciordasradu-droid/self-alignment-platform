@@ -31,11 +31,12 @@ export function stageIndexForDay(day = 1) {
 const state = {
   day: 1,
   light: null,      // semnalul de moment (gestul de dimineata); null = lumina stadiului
-  dropPos: [0.5, 0.62],
+  bubblePos: [0.5, 0.62],
   ripples: [],      // { x, y, born } — max 8, in UV
-  // Picatura e APA USERULUI. Pe landing/login nu exista user, deci nu exista
-  // picatura — doar apa. Home o cere explicit.
-  showDrop: false,
+  // Bula e APA USERULUI (0.2, calup arhitectura 30.07 — inlocuieste lacrima).
+  // Pe landing/login nu exista user, deci nu exista bula — doar apa. Home o
+  // cere explicit.
+  showBubble: false,
 }
 const listeners = new Set()
 const notify = () => listeners.forEach(l => l())
@@ -45,8 +46,8 @@ export const waterState = {
   subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn) },
   setDay(d) { state.day = d; notify() },
   setLight(v) { state.light = v; notify() },
-  setDropPos(x, y) { state.dropPos = [x, y]; notify() },
-  setShowDrop(v) { state.showDrop = v; notify() },
+  setBubblePos(x, y) { state.bubblePos = [x, y]; notify() },
+  setShowBubble(v) { state.showBubble = v; notify() },
   // LEGEA 2 — orice atingere naste o unda. Max 8 simultan; se sting in ~1.5s.
   addRipple(x, y, clock) {
     state.ripples.push({ x, y, born: clock })

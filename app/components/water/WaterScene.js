@@ -7,7 +7,7 @@
 import { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { WATER_VERT, WATER_FRAG, DROP_VERT, DROP_FRAG } from './shaders'
+import { WATER_VERT, WATER_FRAG, BUBBLE_VERT, BUBBLE_FRAG } from './shaders'
 import { waterState, stageForDay, stageIndexForDay, STAGES } from './waterState'
 
 // Paleta impusa (brief sectiunea 2). Zero culori hardcodate in alta parte.
@@ -32,9 +32,9 @@ function WaterBackground({ overrides, motion }) {
     uWaveSpeed: { value: 1.0 },
     uOctaves:   { value: 4 },
     uMotion:    { value: motion },
-    uDropPos:   { value: new THREE.Vector2(0.5, 0.62) },
-    uDropLight: { value: 0 },
-    uHasDrop:   { value: 0 },
+    uBubblePos:   { value: new THREE.Vector2(0.5, 0.62) },
+    uBubbleLight: { value: 0 },
+    uHasBubble:   { value: 0 },
     uRipples:   { value: Array.from({ length: 8 }, () => new THREE.Vector3(0, 0, -99)) },
     uRippleCount: { value: 0 },
   }), [])
@@ -58,9 +58,9 @@ function WaterBackground({ overrides, motion }) {
     u.uWaveAmp.value   = overrides?.waveAmp ?? 0.35
     u.uWaveSpeed.value = overrides?.waveSpeed ?? 1.0
     u.uOctaves.value   = overrides?.octaves ?? perf.octaves
-    u.uDropLight.value = overrides?.light ?? Math.min(1, light)
-    u.uDropPos.value.set(s.dropPos[0], s.dropPos[1])
-    u.uHasDrop.value = (overrides ? true : s.showDrop) ? 1 : 0
+    u.uBubbleLight.value = overrides?.light ?? Math.min(1, light)
+    u.uBubblePos.value.set(s.bubblePos[0], s.bubblePos[1])
+    u.uHasBubble.value = (overrides ? true : s.showBubble) ? 1 : 0
 
     // undele active -> shader
     waterState.pruneRipples(t)
@@ -91,8 +91,26 @@ function WaterBackground({ overrides, motion }) {
   )
 }
 
-// ── PICATURA: sfera perlata suspendata deasupra apei.
-function WaterDrop({ overrides, motion }) {
+// Zgomot ieftin, dependency-free — trei sinusoide defazate pe axe diferite.
+// Nu e Perlin adevarat, dar la amplitudine mica pe o forma deja rotunda
+// citeste ca "respira", nu ca artefact — si costa aproape nimic per-vertex.
+function cheapNoise3(x, y, z, t) {
+  return (
+    Math.sin(x * 3.1 + t * 0.6) +
+    Math.sin(y * 3.7 - t * 0.5 + 1.7) +
+    Math.sin(z * 2.9 + t * 0.4 + 3.1)
+  ) / 3
+}
+
+// ── BULA: forma organica suspendata deasupra apei (0.2, calup arhitectura
+// 30.07 — inlocuieste picatura/lacrima). NICIODATA sfera perfecta: conturul
+// respira, deformat usor prin zgomot pe geometrie, amplitudine mica.
+// Se OPRESTE din respirat exact la stadiul Cristalul (z60) — cristalul nu
+// respira, e static — si la prefers-reduced-motion (motion=0).
+const BUBBLE_DETAIL = 3 // icosaedru, 642 varfuri — organic, ieftin pe mobil
+const BUBBLE_NOISE_AMP = 0.045 // amplitudine MICA (brief) — deformare, nu explozie
+
+function WaterBubble({ overrides, motion }) {
   const mesh = useRef()
   const { viewport } = useThree()
 
@@ -106,29 +124,57 @@ function WaterDrop({ overrides, motion }) {
     uMotion:{ value: motion },
   }), [])
 
+  // geometria de baza (nedeformata), clonata o singura data — in fiecare
+  // cadru scriem peste attributes.position.array pornind mereu de aici, nu
+  // alocam un Float32Array nou.
+  const { baseGeometry, basePositions } = useMemo(() => {
+    const g = new THREE.IcosahedronGeometry(1, BUBBLE_DETAIL)
+    const base = g.attributes.position.array.slice()
+    return { baseGeometry: g, basePositions: base }
+  }, [])
+
+  const frozenTime = useRef(0)
+
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime() * motion
     const s = waterState.get()
     const stage = stageForDay(s.day)
     const idx = stageIndexForDay(s.day)
     const light = s.light == null ? stage.light : (stage.light * 0.45 + (s.light / 100) * 0.85)
+    const stageNum = overrides?.stage ?? (idx + 1)
+    const isCrystalOrLater = stageNum >= 6 // Cristalul (z60) si Oceanul (z90)
 
     uniforms.uTime.value = clock.getElapsedTime()
     uniforms.uLight.value = overrides?.light ?? Math.min(1, light)
-    uniforms.uStage.value = overrides?.stage ?? (idx + 1)
+    uniforms.uStage.value = stageNum
 
     if (!mesh.current) return
     // apa userului apare doar unde exista un user (home / playground)
-    mesh.current.visible = overrides ? true : s.showDrop
+    mesh.current.visible = overrides ? true : s.showBubble
     if (!mesh.current.visible) return
 
-    // picatura ramane MICA; apa si lumina sunt cele care raspund
+    // respiratia organica: ingheata la Cristalul+ (nu doar la reduced-motion) —
+    // timpul de zgomot se opreste din avansat, forma ramane la ultima ei stare.
+    if (!isCrystalOrLater) frozenTime.current = t
+    const noiseT = frozenTime.current
+    const posAttr = mesh.current.geometry.attributes.position
+    const arr = posAttr.array
+    for (let i = 0; i < arr.length; i += 3) {
+      const bx = basePositions[i], by = basePositions[i + 1], bz = basePositions[i + 2]
+      const n = cheapNoise3(bx, by, bz, noiseT)
+      const d = 1 + n * BUBBLE_NOISE_AMP
+      arr[i] = bx * d; arr[i + 1] = by * d; arr[i + 2] = bz * d
+    }
+    posAttr.needsUpdate = true
+    mesh.current.geometry.computeVertexNormals()
+
+    // bula ramane MICA; apa si lumina sunt cele care raspund
     const size = (overrides?.size ?? stage.size)
     const scale = size * Math.min(viewport.width, viewport.height) * 0.085
     mesh.current.scale.setScalar(scale)
 
     // pluteste — suspendata, nu asezata
-    const [px, py] = s.dropPos
+    const [px, py] = s.bubblePos
     mesh.current.position.x = (px - 0.5) * viewport.width
     mesh.current.position.y = (py - 0.5) * viewport.height + Math.sin(t * 0.55) * 0.06
     mesh.current.rotation.y = t * (overrides?.spin ?? stage.spin)
@@ -137,10 +183,10 @@ function WaterDrop({ overrides, motion }) {
 
   return (
     <mesh ref={mesh}>
-      <sphereGeometry args={[1, 64, 64]} />
+      <primitive object={baseGeometry} attach="geometry" />
       <shaderMaterial
-        vertexShader={DROP_VERT}
-        fragmentShader={DROP_FRAG}
+        vertexShader={BUBBLE_VERT}
+        fragmentShader={BUBBLE_FRAG}
         uniforms={uniforms}
         transparent
         depthWrite={false}
@@ -197,7 +243,7 @@ export default function WaterScene({ overrides }) {
       style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
     >
       <WaterBackground overrides={overrides} motion={motion} />
-      <WaterDrop overrides={overrides} motion={motion} />
+      <WaterBubble overrides={overrides} motion={motion} />
       {motion ? <PerfGuard /> : null}
     </Canvas>
   )

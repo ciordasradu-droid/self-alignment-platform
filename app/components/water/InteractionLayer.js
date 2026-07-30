@@ -3,7 +3,7 @@
 // INTERACTION LAYER — jumătatea 2D a pasului 5 (fără video, fără three.js).
 // Ripple la orice atingere, global, peste toată aplicația (legea 2): inele
 // eliptice moi + glow, 300-450ms, prefers-reduced-motion → static (fără
-// mișcare, doar un semnal scurt). Lacrima 3D (three.js, interactivă) rămâne
+// mișcare, doar un semnal scurt). Bula 3D (three.js, interactivă) rămâne
 // izolată pe Azi, la pasul ei — asta e doar feedback-ul tactil universal.
 //
 // Refolosește waterState (deja avea addRipple/pruneRipples, gândit pentru

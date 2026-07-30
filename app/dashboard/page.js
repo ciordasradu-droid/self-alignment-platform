@@ -4,8 +4,8 @@
 // (dimineață/seară) + Gândul Zilei + One Breath discret. Fără scroll-depozit,
 // fără upsell, fără carduri străine — restul a plecat în Drumul/Tu.
 //
-// Lacrima 3D vie (interactiune, three.js) vine cu bloc 5 — pana atunci,
-// Azi arata apa globala (WaterVideoLayer), fara picatura interactiva.
+// Bula 3D vie (interactiune, three.js) vine cu bloc 5 — pana atunci,
+// Azi arata apa globala (WaterVideoLayer), fara bula interactiva.
 
 import { useState, useEffect, Suspense } from 'react'
 import MorningAnchor from './components/MorningAnchor'

@@ -71,7 +71,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
 
     // gestul: picătura 2D care cade + inele + strop — înlocuiește butonul
     // static de dinainte. Textul butonului rămâne interimar (TODO bloc 5,
-    // lacrima vie 3D), doar gestul de aici e cel real acum.
+    // bula vie 3D), doar gestul de aici e cel real acum.
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) { setClosingBreath(true); return }
     setRainStage('falling')
@@ -169,8 +169,8 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
               style={s.textarea}
             />
 
-            {/* TODO(bloc 5, lacrima vie): "Leave it in the water" e butonul
-                INTERIMAR — textul rămâne așa până vine lacrima 3D. Gestul
+            {/* TODO(bloc 5, bula vie): "Leave it in the water" e butonul
+                INTERIMAR — textul rămâne așa până vine bula 3D. Gestul
                 (picătura 2D + inele + strop) e cel real acum. */}
             <button onClick={save} disabled={saving} className="pill-btn" style={s.btn}>
               {saving ? lx(lang, 'saving') : lx(lang, 'save')}

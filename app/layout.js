@@ -1,6 +1,6 @@
 // Rădăcina aplicației. Arhitectura hibridă (v5, sect. 4): apa video e stratul
 // universal, montat o singură dată aici (portal in body). three.js a fost
-// scos de aici — ramane izolat, doar pe Azi, cand vine lacrima vie (bloc 5).
+// scos de aici — ramane izolat, doar pe Azi, cand vine bula vie (bloc 5).
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

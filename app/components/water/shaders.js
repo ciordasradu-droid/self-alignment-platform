@@ -66,9 +66,9 @@ uniform float uWaveSpeed;
 uniform int   uOctaves;
 uniform float uMotion;      // 0 = apa statica (prefers-reduced-motion)
 
-uniform vec2  uDropPos;     // pozitia picaturii in UV -> centrul inelelor
-uniform float uDropLight;   // lumina din picatura -> reflexia pe apa
-uniform float uHasDrop;    // 0 pe landing/login: acolo nu exista apa unui user
+uniform vec2  uBubblePos;   // pozitia bulei in UV -> centrul inelelor
+uniform float uBubbleLight; // lumina din bula -> reflexia pe apa
+uniform float uHasBubble;   // 0 pe landing/login: acolo nu exista apa unui user
 
 uniform vec3  uRipples[8];  // xy = centru UV, z = timpul nasterii
 uniform int   uRippleCount;
@@ -142,14 +142,14 @@ void main(){
   caustic *= smoothstep(1.05, 0.0, uv.y);
   col += uGold * caustic * uCaustics * 0.55;
 
-  // ── reflexia picaturii pe suprafata (lumina IN apa, nu obiect) ──
-  // Nu e un glow plutitor: e lumina picaturii care cade pe apa de sub ea.
-  float refl = smoothstep(0.30, 0.0, distance(p, uDropPos * asp));
-  col += uGold * refl * uDropLight * 0.34 * uHasDrop;
+  // ── reflexia bulei pe suprafata (lumina IN apa, nu obiect) ──
+  // Nu e un glow plutitor: e lumina bulei care cade pe apa de sub ea.
+  float refl = smoothstep(0.30, 0.0, distance(p, uBubblePos * asp));
+  col += uGold * refl * uBubbleLight * 0.34 * uHasBubble;
 
-  // ── inelele de sub picatura ──
-  float rings = restingRings(p, uDropPos * asp, t);
-  col += mix(vec3(0.62, 0.70, 0.88), uGold, uDropLight * 0.8) * rings * uHasDrop;
+  // ── inelele de sub bula ──
+  float rings = restingRings(p, uBubblePos * asp, t);
+  col += mix(vec3(0.62, 0.70, 0.88), uGold, uBubbleLight * 0.8) * rings * uHasBubble;
 
   // ── undele nascute din atingeri ──
   float touch = 0.0;
@@ -167,8 +167,12 @@ void main(){
 }
 `
 
-// ═══════════════ PICATURA — perlata, irizata, cu lumina in miez ═══════════════
-export const DROP_VERT = /* glsl */ `
+// ═══════════════ BULA — organică, irizată, cu lumina in miez ═══════════════
+// (0.2, calup arhitectura 30.07: inlocuieste lacrima/picatura. Geometria
+// primeste deformarea organica in JS, per-vertex, inainte sa ajunga aici —
+// vezi WaterBubble in WaterScene.js. Shaderul ramane responsabil doar de
+// lumina/culoare, nu de forma.)
+export const BUBBLE_VERT = /* glsl */ `
 varying vec3 vNormal;
 varying vec3 vView;
 varying vec2 vUv;
@@ -181,7 +185,7 @@ void main(){
 }
 `
 
-export const DROP_FRAG = /* glsl */ `
+export const BUBBLE_FRAG = /* glsl */ `
 precision highp float;
 varying vec3 vNormal;
 varying vec3 vView;
@@ -247,10 +251,12 @@ void main(){
   col += vec3(1.0) * spec * 1.1;
   col += uPearl * glow * 0.16;
 
-  // stadiul 6+: apa se organizeaza geometric (cristal), foarte discret
+  // stadiul 6 (Cristalul, 0.2): bula se organizeaza geometric si devine
+  // usor oglinda — luciul ascutit se intareste, fatetele cristalului apar.
   if (uStage >= 6.0) {
     float facet = abs(sin(N.x * 9.0) * sin(N.y * 9.0));
     col += uGold * pow(facet, 6.0) * 0.20;
+    col += vec3(1.0) * spec * 0.55;
   }
 
   // perla are corp: e aproape opaca, dar lasa apa sa se simta la margine
