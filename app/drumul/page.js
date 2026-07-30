@@ -8,7 +8,7 @@
 // arhitectura 30.07 — mutat de pe dimineața de sâmbătă).
 
 import { useState, useEffect, Suspense } from 'react'
-import FreeJournal from '../dashboard/components/FreeJournal'
+import Link from 'next/link'
 import PatternsInsight from '../dashboard/components/PatternsInsight'
 import CommitmentDocument from '../dashboard/components/CommitmentDocument'
 import EchoMoment from '../dashboard/components/EchoMoment'
@@ -39,6 +39,23 @@ const L = {
   en: { title: 'Your Path', subtitle: 'Everything here opens with presence. You can see the full map.', opens_days: 'Opens after {n} active days', unlocked: 'Open', access_line: 'Everything you write here stays yours. The subscription opens your Patterns mirror and your personalized daily thought.', access_link: 'See the plan →' },
   ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu prezența ta. Poți vedea harta completă.', opens_days: 'Se deschide după {n} zile active', unlocked: 'Deschis', access_line: 'Tot ce scrii aici rămâne al tău. Abonamentul deschide oglinda Tiparelor și gândul zilei personalizat.', access_link: 'Vezi planul →' },
 }
+
+// A5 (calup arhitectura 30.07): Jurnalul liber s-a unificat in Jurnalul-carte
+// (/dashboard/journal) — aici ramane doar un rand de acces catre el.
+const JOURNAL_LINK_L = {
+  en: { line: 'Your journal — everything you\'ve written, one page per day.', link: 'Open →' },
+  ro: { line: 'Jurnalul tău — tot ce ai scris, o pagină pe zi.', link: 'Deschide →' },
+  es: { line: 'Tu diario — todo lo que has escrito, una página por día.', link: 'Abrir →' },
+  fr: { line: 'Ton journal — tout ce que tu as écrit, une page par jour.', link: 'Ouvrir →' },
+  de: { line: 'Dein Tagebuch — alles, was du geschrieben hast, eine Seite pro Tag.', link: 'Öffnen →' },
+  it: { line: 'Il tuo diario — tutto ciò che hai scritto, una pagina al giorno.', link: 'Apri →' },
+  pt: { line: 'O teu diário — tudo o que escreveste, uma página por dia.', link: 'Abrir →' },
+  nl: { line: 'Jouw dagboek — alles wat je hebt geschreven, één pagina per dag.', link: 'Openen →' },
+  pl: { line: 'Twój dziennik — wszystko, co napisałeś, jedna strona dziennie.', link: 'Otwórz →' },
+  hu: { line: 'A naplód — minden, amit írtál, egy oldal naponta.', link: 'Megnyitás →' },
+  ru: { line: 'Твой дневник — всё, что ты написал, одна страница в день.', link: 'Открыть →' },
+}
+const jx = (lang, k) => (JOURNAL_LINK_L[lang] || JOURNAL_LINK_L.en)[k]
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
 // D6-fix (25.07): formulare naturala, nu ordinal clinic ("a 7-a") — trecuta
@@ -182,7 +199,16 @@ function DrumulContent() {
 
       <EchoMoment lang={lang} />
 
-      {isUnlocked(3, 'days', presence) && <FreeJournal lang={lang} />}
+      {isUnlocked(3, 'days', presence) && (
+        <div className="glass" style={{ padding: '20px 22px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px' }}>
+          <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'var(--text)', lineHeight: 1.5, margin: 0 }}>
+            {jx(lang, 'line')}
+          </p>
+          <Link href="/dashboard/journal" style={{ fontSize: '13px', color: 'var(--gold)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {jx(lang, 'link')}
+          </Link>
+        </div>
+      )}
       {isUnlocked(7, 'entries', presence) && <PatternsInsight lang={lang} />}
       {isUnlocked(60, 'days', presence) && <CommitmentDocument lang={lang} />}
 
