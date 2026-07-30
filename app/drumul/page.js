@@ -35,9 +35,21 @@ const ROADMAP = [
   { threshold: 90, metric: 'days',    key: 'renewal',    en: 'Renewing Your Commitment',          ro: 'Reînnoirea Angajamentului',           en_d: 'revisit what you wrote at day 60, and what comes next', ro_d: 'recitești ce ai scris la ziua 60, și ce urmează' },
 ]
 
+// CLARITATE (30.07, punctul 1): subtitlul vechi ("Totul aici se deschide cu
+// prezenta ta. Poti vedea harta completa.") nu spunea nimic despre CE e
+// drumul — a devenit intro-ul hartii unificate, ancorat in metafora apei.
 const L = {
-  en: { title: 'Your Path', subtitle: 'Everything here opens with presence. You can see the full map.', opens_days: 'Opens after {n} active days', unlocked: 'Open', access_line: 'Everything you write here stays yours. The subscription opens your Patterns mirror and your personalized daily thought.', access_link: 'See the plan →' },
-  ro: { title: 'Drumul Tău', subtitle: 'Totul aici se deschide cu prezența ta. Poți vedea harta completă.', opens_days: 'Se deschide după {n} zile active', unlocked: 'Deschis', access_line: 'Tot ce scrii aici rămâne al tău. Abonamentul deschide oglinda Tiparelor și gândul zilei personalizat.', access_link: 'Vezi planul →' },
+  en: { title: 'Your Path', subtitle: 'Your path through water: seven states, ninety days. Each one opens with your presence.', opens_days: 'Opens after {n} active days', unlocked: 'Open', access_line: 'Everything you write here stays yours. The subscription opens your Patterns mirror and your personalized daily thought.', access_link: 'See the plan →' },
+  ro: { title: 'Drumul Tău', subtitle: 'Drumul tău prin apă: șapte stări, nouăzeci de zile. Fiecare se deschide cu prezența ta.', opens_days: 'Se deschide după {n} zile active', unlocked: 'Deschis', access_line: 'Tot ce scrii aici rămâne al tău. Abonamentul deschide oglinda Tiparelor și gândul zilei personalizat.', access_link: 'Vezi planul →' },
+  es: { title: 'Tu Camino', subtitle: 'Tu camino a través del agua: siete estados, noventa días. Cada uno se abre con tu presencia.', opens_days: 'Se abre después de {n} días activos', unlocked: 'Abierto', access_line: 'Todo lo que escribes aquí sigue siendo tuyo. La suscripción abre tu espejo de Patrones y tu pensamiento diario personalizado.', access_link: 'Ver el plan →' },
+  fr: { title: 'Ton Chemin', subtitle: 'Ton chemin à travers l\'eau : sept états, quatre-vingt-dix jours. Chacun s\'ouvre avec ta présence.', opens_days: 'S\'ouvre après {n} jours actifs', unlocked: 'Ouvert', access_line: 'Tout ce que tu écris ici reste à toi. L\'abonnement ouvre ton miroir des Tendances et ta pensée du jour personnalisée.', access_link: 'Voir le plan →' },
+  de: { title: 'Dein Weg', subtitle: 'Dein Weg durchs Wasser: sieben Zustände, neunzig Tage. Jeder öffnet sich mit deiner Präsenz.', opens_days: 'Öffnet sich nach {n} aktiven Tagen', unlocked: 'Offen', access_line: 'Alles, was du hier schreibst, bleibt dein Eigentum. Das Abo öffnet deinen Muster-Spiegel und deinen persönlichen Tagesgedanken.', access_link: 'Plan ansehen →' },
+  it: { title: 'Il Tuo Cammino', subtitle: 'Il tuo cammino attraverso l\'acqua: sette stati, novanta giorni. Ognuno si apre con la tua presenza.', opens_days: 'Si apre dopo {n} giorni attivi', unlocked: 'Aperto', access_line: 'Tutto quello che scrivi qui resta tuo. L\'abbonamento apre il tuo specchio dei Modelli e il tuo pensiero del giorno personalizzato.', access_link: 'Vedi il piano →' },
+  pt: { title: 'O Teu Caminho', subtitle: 'O teu caminho através da água: sete estados, noventa dias. Cada um abre com a tua presença.', opens_days: 'Abre depois de {n} dias ativos', unlocked: 'Aberto', access_line: 'Tudo o que escreves aqui continua teu. A subscrição abre o teu espelho de Padrões e o teu pensamento do dia personalizado.', access_link: 'Ver o plano →' },
+  nl: { title: 'Jouw Weg', subtitle: 'Jouw weg door het water: zeven staten, negentig dagen. Elke opent met jouw aanwezigheid.', opens_days: 'Gaat open na {n} actieve dagen', unlocked: 'Open', access_line: 'Alles wat je hier schrijft blijft van jou. Het abonnement opent je Patronenspiegel en je persoonlijke dagelijkse gedachte.', access_link: 'Bekijk het plan →' },
+  pl: { title: 'Twoja Droga', subtitle: 'Twoja droga przez wodę: siedem stanów, dziewięćdziesiąt dni. Każdy otwiera się z twoją obecnością.', opens_days: 'Otwiera się po {n} aktywnych dniach', unlocked: 'Otwarte', access_line: 'Wszystko, co tu piszesz, zostaje twoje. Subskrypcja otwiera twoje Lustro Wzorców i twoją spersonalizowaną myśl dnia.', access_link: 'Zobacz plan →' },
+  hu: { title: 'Az Utad', subtitle: 'Utad a vízen át: hét állapot, kilencven nap. Mindegyik a jelenléteddel nyílik meg.', opens_days: '{n} aktív nap után nyílik meg', unlocked: 'Nyitva', access_line: 'Minden, amit itt írsz, a tiéd marad. Az előfizetés megnyitja a Minták tükrét és a személyre szabott napi gondolatodat.', access_link: 'Terv megtekintése →' },
+  ru: { title: 'Твой Путь', subtitle: 'Твой путь через воду: семь состояний, девяносто дней. Каждое открывается твоим присутствием.', opens_days: 'Открывается после {n} активных дней', unlocked: 'Открыто', access_line: 'Всё, что ты пишешь здесь, остаётся твоим. Подписка открывает твоё зеркало Закономерностей и твою персональную мысль дня.', access_link: 'Смотреть план →' },
 }
 
 // A5 (calup arhitectura 30.07): Jurnalul liber s-a unificat in Jurnalul-carte
@@ -58,71 +70,74 @@ const JOURNAL_LINK_L = {
 const jx = (lang, k) => (JOURNAL_LINK_L[lang] || JOURNAL_LINK_L.en)[k]
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
-// D1/D2 (calup arhitectura 30.07): harta celor 7 stadii — trecute stinse,
-// curent viu, viitoare abia ghicite + orizont ("se deschide in jurul zilei
-// {n}"). Celebrare o singura data la trecerea intr-un stadiu nou.
+// CLARITATE (30.07, punctul 2): sfera luminoasa (cerc perfect alb-galbui,
+// plutind deasupra apei) incalca decizia bulei organice (niciodata cerc
+// perfect) si steaua polara (elementul traieste IN apa, nu deasupra) — scoasa
+// complet de pe ecranul Drumul, fara inlocuitor provizoriu, pana la faza de
+// design. Celebrarea de mai jos ramane doar text + buton, fara grafica.
 const STAGE_MAP_L = {
-  en: { horizon: 'Opens around day {n}', celebrate_title: 'You\'ve reached a new stage.', celebrate_cta: 'Continue' },
-  ro: { horizon: 'Se deschide în jurul zilei {n}', celebrate_title: 'Ai ajuns la un stadiu nou.', celebrate_cta: 'Continuă' },
-  es: { horizon: 'Se abre alrededor del día {n}', celebrate_title: 'Has llegado a una nueva etapa.', celebrate_cta: 'Continuar' },
-  fr: { horizon: "S'ouvre autour du jour {n}", celebrate_title: 'Tu as atteint une nouvelle étape.', celebrate_cta: 'Continuer' },
-  de: { horizon: 'Öffnet sich um Tag {n}', celebrate_title: 'Du hast eine neue Stufe erreicht.', celebrate_cta: 'Weiter' },
-  it: { horizon: 'Si apre intorno al giorno {n}', celebrate_title: 'Hai raggiunto una nuova fase.', celebrate_cta: 'Continua' },
-  pt: { horizon: 'Abre por volta do dia {n}', celebrate_title: 'Chegaste a uma nova fase.', celebrate_cta: 'Continuar' },
-  nl: { horizon: 'Gaat open rond dag {n}', celebrate_title: 'Je hebt een nieuwe fase bereikt.', celebrate_cta: 'Verder' },
-  pl: { horizon: 'Otwiera się około dnia {n}', celebrate_title: 'Dotarłeś do nowego etapu.', celebrate_cta: 'Dalej' },
-  hu: { horizon: 'A(z) {n}. nap körül nyílik meg', celebrate_title: 'Elértél egy új szakaszt.', celebrate_cta: 'Tovább' },
-  ru: { horizon: 'Открывается около дня {n}', celebrate_title: 'Ты достиг нового этапа.', celebrate_cta: 'Далее' },
+  en: { day_exact: 'day {n}', day_approx: 'around day {n}', celebrate_title: 'You\'ve reached a new stage.', celebrate_cta: 'Continue' },
+  ro: { day_exact: 'ziua {n}', day_approx: 'în jurul zilei {n}', celebrate_title: 'Ai ajuns la un stadiu nou.', celebrate_cta: 'Continuă' },
+  es: { day_exact: 'día {n}', day_approx: 'alrededor del día {n}', celebrate_title: 'Has llegado a una nueva etapa.', celebrate_cta: 'Continuar' },
+  fr: { day_exact: 'jour {n}', day_approx: 'autour du jour {n}', celebrate_title: 'Tu as atteint une nouvelle étape.', celebrate_cta: 'Continuer' },
+  de: { day_exact: 'Tag {n}', day_approx: 'um Tag {n}', celebrate_title: 'Du hast eine neue Stufe erreicht.', celebrate_cta: 'Weiter' },
+  it: { day_exact: 'giorno {n}', day_approx: 'intorno al giorno {n}', celebrate_title: 'Hai raggiunto una nuova fase.', celebrate_cta: 'Continua' },
+  pt: { day_exact: 'dia {n}', day_approx: 'por volta do dia {n}', celebrate_title: 'Chegaste a uma nova fase.', celebrate_cta: 'Continuar' },
+  nl: { day_exact: 'dag {n}', day_approx: 'rond dag {n}', celebrate_title: 'Je hebt een nieuwe fase bereikt.', celebrate_cta: 'Verder' },
+  pl: { day_exact: 'dzień {n}', day_approx: 'około dnia {n}', celebrate_title: 'Dotarłeś do nowego etapu.', celebrate_cta: 'Dalej' },
+  hu: { day_exact: '{n}. nap', day_approx: 'a(z) {n}. nap körül', celebrate_title: 'Elértél egy új szakaszt.', celebrate_cta: 'Tovább' },
+  ru: { day_exact: 'день {n}', day_approx: 'около дня {n}', celebrate_title: 'Ты достиг нового этапа.', celebrate_cta: 'Далее' },
 }
 const sx = (lang, k) => (STAGE_MAP_L[lang] || STAGE_MAP_L.en)[k]
 const STAGE_SEEN_KEY = 'stage_map_last_seen'
 
-function StageBubble({ stage }) {
-  const glow = 0.25 + (stage.light || 0) * 0.6
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        width: '56px', height: '56px', margin: '0 auto 14px',
-        borderRadius: '48% 52% 45% 55% / 55% 45% 55% 45%',
-        background: 'radial-gradient(circle at 38% 32%, #fff 0%, var(--pearl) 45%, var(--gold) 100%)',
-        boxShadow: `0 0 ${18 + glow * 20}px rgba(229,169,60,${glow})`,
-        animation: 'stage-bubble-breathe 6s ease-in-out infinite',
-      }}
-    />
-  )
-}
+// CLARITATE (30.07, punctul 1): O SINGURA HARTA — inainte existau doua liste
+// separate (stadiile poetice fara nicio explicatie + "Drumul Tau" cu
+// deblocarile). STAGES si ROADMAP au exact 7 intrari fiecare, in aceeasi
+// ordine de prezenta (0/1, 3, 7, 7-scris, 30, 60, 90) — le imperechem
+// pozitional: fiecare rand = nume stadiu + ziua + ce se deschide + rostul.
+const JOURNEY = STAGES.map((stage, i) => ({ stage, unlock: ROADMAP[i] }))
 
-function StageMap({ lang, day }) {
+function JourneyMap({ lang, day, presence }) {
   const currentIdx = stageIndexForDay(day)
   return (
-    <div className="chapter" style={{ marginBottom: '18px' }}>
+    <div className="chapter">
       <div style={{ padding: '22px' }}>
-        <StageBubble stage={STAGES[currentIdx]} />
-        {STAGES.map((st, i) => {
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', color: '#f4f0ea', marginBottom: '4px' }}>
+          {lx(lang, 'title')}
+        </p>
+        <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.55)', lineHeight: 1.5, marginBottom: '20px' }}>
+          {lx(lang, 'subtitle')}
+        </p>
+        {JOURNEY.map(({ stage, unlock }, i) => {
           const isPast = i < currentIdx
           const isCurrent = i === currentIdx
           const isFuture = i > currentIdx
-          const isLast = i === STAGES.length - 1
+          const isLast = i === JOURNEY.length - 1
+          const unlocked = isUnlocked(unlock.threshold, unlock.metric, presence)
+          const dayText = (i <= 1 ? sx(lang, 'day_exact') : sx(lang, 'day_approx')).replace('{n}', stage.day)
           return (
-            <div key={st.key} style={{ display: 'flex', gap: '14px', minHeight: '44px' }}>
+            <div key={stage.key} style={{ display: 'flex', gap: '14px', minHeight: '54px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px', flexShrink: 0 }}>
                 <span style={{
                   width: isCurrent ? '12px' : '9px', height: isCurrent ? '12px' : '9px', borderRadius: '50%', flexShrink: 0,
-                  background: isCurrent ? '#e5a93c' : isPast ? 'rgba(229,169,60,0.4)' : 'rgba(244,240,234,0.15)',
+                  background: isCurrent ? '#e5a93c' : (isPast || unlocked) ? 'rgba(229,169,60,0.4)' : 'rgba(244,240,234,0.15)',
                   boxShadow: isCurrent ? '0 0 10px rgba(229,169,60,0.6)' : 'none',
                 }} />
-                {!isLast && <span style={{ width: '2px', flex: 1, marginTop: '4px', marginBottom: '4px', background: isPast || isCurrent ? 'rgba(229,169,60,0.3)' : 'rgba(244,240,234,0.08)' }} />}
+                {!isLast && <span style={{ width: '2px', flex: 1, marginTop: '4px', marginBottom: '4px', background: (isPast || isCurrent) ? 'rgba(229,169,60,0.3)' : 'rgba(244,240,234,0.08)' }} />}
               </div>
-              <div style={{ paddingBottom: '14px', opacity: isFuture ? 0.4 : isPast ? 0.6 : 1 }}>
-                <p style={{ fontSize: isCurrent ? '15px' : '13.5px', fontWeight: isCurrent ? 600 : 400, color: '#f4f0ea', fontFamily: 'Cormorant Garamond, serif' }}>
-                  {st[lang] || st.en}
+              <div style={{ paddingBottom: '18px', opacity: isFuture && !unlocked ? 0.55 : 1 }}>
+                <p style={{ fontSize: isCurrent ? '16px' : '14.5px', fontWeight: isCurrent ? 600 : 500, color: '#f4f0ea', fontFamily: 'Cormorant Garamond, serif', marginBottom: '2px' }}>
+                  {stage[lang] || stage.en}
+                  <span style={{ fontSize: '11px', fontWeight: 400, color: 'rgba(244,240,234,0.4)', fontStyle: 'italic', marginLeft: '8px' }}>
+                    {dayText}
+                  </span>
                 </p>
-                {isFuture && (
-                  <p style={{ fontSize: '11px', color: 'rgba(244,240,234,0.4)', fontStyle: 'italic', marginTop: '2px' }}>
-                    {sx(lang, 'horizon').replace('{n}', st.day)}
-                  </p>
-                )}
+                <p style={{ fontSize: '13.5px', color: '#f4f0ea', marginTop: '4px' }}>
+                  <strong style={{ fontWeight: 600 }}>{lang === 'ro' ? unlock.ro : unlock.en}</strong>
+                  {': '}
+                  <span style={{ color: 'rgba(244,240,234,0.65)' }}>{lang === 'ro' ? unlock.ro_d : unlock.en_d}</span>
+                </p>
               </div>
             </div>
           )
@@ -139,7 +154,6 @@ function StageCelebration({ lang, stage, onDismiss }) {
       className="anim-fade-in"
       style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(6,6,16,0.88)', backdropFilter: 'blur(8px)', cursor: 'pointer', padding: '24px', textAlign: 'center' }}
     >
-      <StageBubble stage={stage} />
       <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'rgba(244,240,234,0.7)', marginBottom: '8px' }}>
         {sx(lang, 'celebrate_title')}
       </p>
@@ -150,23 +164,6 @@ function StageCelebration({ lang, stage, onDismiss }) {
     </div>
   )
 }
-
-// D6-fix (25.07): formulare naturala, nu ordinal clinic ("a 7-a") — trecuta
-// prin Regula de Voce. Legata de threshold=7 (singurul unlock pe 'entries').
-const OPENS_ENTRIES_TEXT = {
-  en: "Opens after you've written seven times",
-  ro: 'Se deschide după ce scrii de șapte ori',
-  es: 'Se abre después de escribir siete veces',
-  fr: "S'ouvre après avoir écrit sept fois",
-  de: 'Öffnet sich, nachdem du siebenmal geschrieben hast',
-  it: 'Si apre dopo che hai scritto sette volte',
-  pt: 'Abre depois de escreveres sete vezes',
-  nl: 'Gaat open nadat je zeven keer hebt geschreven',
-  pl: 'Otwiera się, gdy napiszesz siedem razy',
-  hu: 'Miután hétszer írtál, megnyílik',
-  ru: 'Открывается после того, как ты напишешь семь раз',
-}
-const opensEntriesText = (lang) => OPENS_ENTRIES_TEXT[lang] || OPENS_ENTRIES_TEXT.en
 
 // TODO(texte de lucru): rand de acces pentru neabonati (proba gratuita, nu
 // abonament real), sub harta. Simplu, pana vine formularea finala.
@@ -201,54 +198,6 @@ function AccessLine({ lang }) {
 function isUnlocked(threshold, metric, presence) {
   const value = metric === 'entries' ? presence.writtenEntries : presence.activeDays
   return value >= threshold
-}
-
-function Roadmap({ lang, presence }) {
-  const t = L[lang] || L.en
-  return (
-    <div className="chapter">
-      <div style={{ padding: '22px' }}>
-        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', color: '#f4f0ea', marginBottom: '4px' }}>
-          {lx(lang, 'title')}
-        </p>
-        <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.55)', lineHeight: 1.5, marginBottom: '20px' }}>
-          {lx(lang, 'subtitle')}
-        </p>
-        <div>
-          {ROADMAP.map((r, i) => {
-            const unlocked = isUnlocked(r.threshold, r.metric, presence)
-            const isLast = i === ROADMAP.length - 1
-            const opensText = r.metric === 'entries' ? opensEntriesText(lang) : lx(lang, 'opens_days').replace('{n}', r.threshold)
-            return (
-              <div key={r.key} style={{ display: 'flex', gap: '14px', minHeight: '54px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px', flexShrink: 0 }}>
-                  <span style={{
-                    width: '10px', height: '10px', borderRadius: '50%', flexShrink: 0,
-                    background: unlocked ? '#e5a93c' : 'rgba(244,240,234,0.18)',
-                    boxShadow: unlocked ? '0 0 8px rgba(229,169,60,0.5)' : 'none',
-                  }} />
-                  {!isLast && <span style={{ width: '2px', flex: 1, marginTop: '4px', marginBottom: '4px', background: unlocked ? 'rgba(229,169,60,0.35)' : 'rgba(244,240,234,0.1)' }} />}
-                </div>
-                <div style={{ paddingBottom: '18px', opacity: unlocked ? 1 : 0.55 }}>
-                  <p style={{ fontSize: '15px', fontWeight: 600, color: '#f4f0ea', marginBottom: '3px' }}>
-                    {lang === 'ro' ? r.ro : r.en}
-                  </p>
-                  <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.6)', lineHeight: 1.5 }}>
-                    {lang === 'ro' ? r.ro_d : r.en_d}
-                  </p>
-                  {!unlocked && r.threshold > 0 && (
-                    <p style={{ fontSize: '11.5px', color: 'rgba(244,240,234,0.4)', marginTop: '4px', fontStyle: 'italic' }}>
-                      {opensText}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
 }
 
 function DrumulContent() {
@@ -303,9 +252,8 @@ function DrumulContent() {
         <StageCelebration lang={lang} stage={celebrating} onDismiss={() => setCelebrating(null)} />
       )}
 
-      <StageMap lang={lang} day={day} />
+      <JourneyMap lang={lang} day={day} presence={presence} />
 
-      <Roadmap lang={lang} presence={presence} />
       <AccessLine lang={lang} />
 
       <EchoMoment lang={lang} />
