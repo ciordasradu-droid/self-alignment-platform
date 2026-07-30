@@ -143,6 +143,39 @@ function Lenses({ profile, lang }) {
   )
 }
 
+// T1 (calup arhitectura 30.07) — la finalul profilului, DE FIECARE DATA
+// (nu doar prima citire), optiunile Vocea Pragului de inceput de drum:
+// nu e o oferta de pret (aceea traieste doar pe Drumul, sect. D6), doar
+// o invitatie calma catre camerele unde ritualul chiar se intampla.
+const CLOSE_L = {
+  en: { line: 'You have read who you are. The rest writes itself, day by day.', today: 'Go to Today', path: 'See your Path' },
+  ro: { line: 'Ai citit cine ești. Restul se scrie singur, zi de zi.', today: 'Mergi la Azi', path: 'Vezi Drumul tău' },
+  es: { line: 'Has leído quién eres. El resto se escribe solo, día a día.', today: 'Ir a Hoy', path: 'Ver tu Camino' },
+  fr: { line: 'Tu as lu qui tu es. Le reste s\'écrit tout seul, jour après jour.', today: 'Aller à Aujourd\'hui', path: 'Voir ton Chemin' },
+  de: { line: 'Du hast gelesen, wer du bist. Der Rest schreibt sich von selbst, Tag für Tag.', today: 'Zu Heute gehen', path: 'Deinen Weg ansehen' },
+  it: { line: 'Hai letto chi sei. Il resto si scrive da solo, giorno dopo giorno.', today: 'Vai a Oggi', path: 'Vedi il tuo Cammino' },
+  pt: { line: 'Leste quem és. O resto escreve-se sozinho, dia após dia.', today: 'Ir para Hoje', path: 'Ver o teu Caminho' },
+  nl: { line: 'Je hebt gelezen wie je bent. De rest schrijft zichzelf, dag na dag.', today: 'Ga naar Vandaag', path: 'Bekijk je Weg' },
+  pl: { line: 'Przeczytałeś, kim jesteś. Reszta pisze się sama, dzień po dniu.', today: 'Przejdź do Dziś', path: 'Zobacz swoją Drogę' },
+  hu: { line: 'Elolvastad, ki vagy. A többi magától íródik, napról napra.', today: 'Ugrás a Mára', path: 'Az Utad megtekintése' },
+  ru: { line: 'Ты прочитал, кто ты есть. Остальное пишется само, день за днём.', today: 'Перейти к Сегодня', path: 'Смотреть твой Путь' },
+}
+const clx = (lang, k) => (CLOSE_L[lang] || CLOSE_L.en)[k]
+
+function JourneyStart({ lang }) {
+  return (
+    <div className="chapter" style={{ padding: '28px 24px', textAlign: 'center', marginTop: '8px' }}>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', color: '#f4f0ea', lineHeight: 1.6, marginBottom: '20px' }}>
+        {clx(lang, 'line')}
+      </p>
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <a href="/dashboard" className="pill-btn">{clx(lang, 'today')}</a>
+        <a href="/drumul" style={{ display: 'inline-flex', alignItems: 'center', padding: '13px 24px', minHeight: '44px', fontSize: '14px', borderRadius: '999px', border: '1px solid rgba(244,240,234,0.2)', color: 'rgba(244,240,234,0.85)', textDecoration: 'none' }}>{clx(lang, 'path')}</a>
+      </div>
+    </div>
+  )
+}
+
 function CompatCard({ lang }) {
   return (
     <a href="/compatibility" className="chapter" style={{
@@ -633,6 +666,8 @@ function ProfileContent() {
           ? <V4Sections sections={sections} lang={lang} s={s} storageKey={chapterKey} />
           : <LegacySections sections={sections} swot={swot} lang={lang} />
         }
+
+        <JourneyStart lang={appLang} />
 
       </main>
 

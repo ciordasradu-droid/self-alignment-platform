@@ -12,6 +12,7 @@ import { createPortal } from 'react-dom'
 import Flag from './Flag'
 import { useLanguage, LANGUAGES } from '../../lib/language'
 import { useSoundPref } from '../../lib/soundPref'
+import { useUser } from '../../lib/useUser'
 import { createSupabaseBrowser } from '../../lib/supabase/client'
 
 // Eticheta comutatorului de sunet (sect. E, 25.07 noapte) — separată de
@@ -24,16 +25,23 @@ const SOUND_LABEL = {
 const L = {
   en: {
     title: 'Settings', language: 'Language', subscription: 'Subscription', logout: 'Log out', close: 'Close',
-    export_data: 'Export my data', exporting: 'Preparing...',
-    delete_account: 'Delete my account', delete_confirm: 'This permanently deletes your profile, check-ins, and everything else. This cannot be undone.',
-    delete_yes: 'Yes, delete everything', delete_cancel: 'Cancel', deleting: 'Deleting...',
+    privacy: 'Your Privacy',
+    recovery_label: 'Add a recovery email', recovery_hint: 'So you never lose access to this account.', recovery_ph: 'you@example.com', recovery_save: 'Save', recovery_saving: 'Saving...', recovery_sent: 'Check your email to confirm it.', recovery_invalid: 'Enter a valid email.',
   },
   ro: {
     title: 'Setări', language: 'Limbă', subscription: 'Abonament', logout: 'Ieși din cont', close: 'Închide',
-    export_data: 'Exportă-mi datele', exporting: 'Se pregătește...',
-    delete_account: 'Șterge-mi contul', delete_confirm: 'Asta șterge definitiv profilul, check-in-urile și tot restul. Nu se poate anula.',
-    delete_yes: 'Da, șterge tot', delete_cancel: 'Anulează', deleting: 'Se șterge...',
+    privacy: 'Intimitatea Ta',
+    recovery_label: 'Adaugă un email de recuperare', recovery_hint: 'Ca să nu pierzi niciodată accesul la acest cont.', recovery_ph: 'tu@exemplu.com', recovery_save: 'Salvează', recovery_saving: 'Se salvează...', recovery_sent: 'Verifică-ți emailul ca să-l confirmi.', recovery_invalid: 'Introdu un email valid.',
   },
+  es: { title: 'Ajustes', language: 'Idioma', subscription: 'Suscripción', logout: 'Cerrar sesión', close: 'Cerrar', privacy: 'Tu Privacidad', recovery_label: 'Añade un email de recuperación', recovery_hint: 'Para que nunca pierdas el acceso a esta cuenta.', recovery_ph: 'tu@ejemplo.com', recovery_save: 'Guardar', recovery_saving: 'Guardando...', recovery_sent: 'Revisa tu email para confirmarlo.', recovery_invalid: 'Introduce un email válido.' },
+  fr: { title: 'Paramètres', language: 'Langue', subscription: 'Abonnement', logout: 'Se déconnecter', close: 'Fermer', privacy: 'Ta Vie Privée', recovery_label: 'Ajouter un email de récupération', recovery_hint: "Pour ne jamais perdre l'accès à ce compte.", recovery_ph: 'toi@exemple.com', recovery_save: 'Enregistrer', recovery_saving: 'Enregistrement...', recovery_sent: 'Vérifie ton email pour confirmer.', recovery_invalid: 'Entre un email valide.' },
+  de: { title: 'Einstellungen', language: 'Sprache', subscription: 'Abonnement', logout: 'Abmelden', close: 'Schließen', privacy: 'Deine Privatsphäre', recovery_label: 'Wiederherstellungs-E-Mail hinzufügen', recovery_hint: 'Damit du nie den Zugriff auf dieses Konto verlierst.', recovery_ph: 'du@beispiel.com', recovery_save: 'Speichern', recovery_saving: 'Wird gespeichert...', recovery_sent: 'Prüfe deine E-Mail zur Bestätigung.', recovery_invalid: 'Gib eine gültige E-Mail ein.' },
+  it: { title: 'Impostazioni', language: 'Lingua', subscription: 'Abbonamento', logout: 'Esci', close: 'Chiudi', privacy: 'La Tua Privacy', recovery_label: 'Aggiungi un\'email di recupero', recovery_hint: "Così non perdi mai l'accesso a questo account.", recovery_ph: 'tu@esempio.com', recovery_save: 'Salva', recovery_saving: 'Salvataggio...', recovery_sent: 'Controlla la tua email per confermare.', recovery_invalid: 'Inserisci un\'email valida.' },
+  pt: { title: 'Definições', language: 'Idioma', subscription: 'Subscrição', logout: 'Sair', close: 'Fechar', privacy: 'A Tua Privacidade', recovery_label: 'Adiciona um email de recuperação', recovery_hint: 'Para nunca perderes o acesso a esta conta.', recovery_ph: 'tu@exemplo.com', recovery_save: 'Guardar', recovery_saving: 'A guardar...', recovery_sent: 'Verifica o teu email para confirmar.', recovery_invalid: 'Introduz um email válido.' },
+  nl: { title: 'Instellingen', language: 'Taal', subscription: 'Abonnement', logout: 'Uitloggen', close: 'Sluiten', privacy: 'Jouw Privacy', recovery_label: 'Voeg een herstel-e-mail toe', recovery_hint: 'Zodat je nooit toegang tot dit account verliest.', recovery_ph: 'jij@voorbeeld.com', recovery_save: 'Opslaan', recovery_saving: 'Opslaan...', recovery_sent: 'Controleer je e-mail om te bevestigen.', recovery_invalid: 'Voer een geldig e-mailadres in.' },
+  pl: { title: 'Ustawienia', language: 'Język', subscription: 'Subskrypcja', logout: 'Wyloguj się', close: 'Zamknij', privacy: 'Twoja Prywatność', recovery_label: 'Dodaj email odzyskiwania', recovery_hint: 'Żebyś nigdy nie stracił dostępu do tego konta.', recovery_ph: 'ty@przyklad.com', recovery_save: 'Zapisz', recovery_saving: 'Zapisywanie...', recovery_sent: 'Sprawdź email, aby potwierdzić.', recovery_invalid: 'Wpisz prawidłowy email.' },
+  hu: { title: 'Beállítások', language: 'Nyelv', subscription: 'Előfizetés', logout: 'Kijelentkezés', close: 'Bezárás', privacy: 'A Te Adatvédelmed', recovery_label: 'Helyreállítási email hozzáadása', recovery_hint: 'Hogy sose veszítsd el a hozzáférést ehhez a fiókhoz.', recovery_ph: 'te@pelda.com', recovery_save: 'Mentés', recovery_saving: 'Mentés...', recovery_sent: 'Nézd meg az emailed a megerősítéshez.', recovery_invalid: 'Adj meg egy érvényes emailt.' },
+  ru: { title: 'Настройки', language: 'Язык', subscription: 'Подписка', logout: 'Выйти', close: 'Закрыть', privacy: 'Твоя Приватность', recovery_label: 'Добавить email для восстановления', recovery_hint: 'Чтобы никогда не потерять доступ к этому аккаунту.', recovery_ph: 'ty@example.com', recovery_save: 'Сохранить', recovery_saving: 'Сохранение...', recovery_sent: 'Проверь почту для подтверждения.', recovery_invalid: 'Введи корректный email.' },
 }
 const lx = (lang, k) => (L[lang] || L.en)[k]
 
@@ -57,14 +65,19 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
   const [lang, changeLanguage] = useLanguage()
   const shown = pageLang || lang
   const [soundOn, setSoundOn] = useSoundPref()
+  const { user } = useUser()
   const [loggingOut, setLoggingOut] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [exporting, setExporting] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+  const [recoveryEmail, setRecoveryEmail] = useState('')
+  const [recoveryState, setRecoveryState] = useState('idle') // idle | saving | sent | invalid
   useEffect(() => setMounted(true), [])
 
   if (!open || !mounted) return null
+
+  // T5 (calup arhitectura 30.07) — conturi anonime existente (fara email)
+  // pot adauga acum un email de recuperare din Setari, nu doar la generare
+  // (O5 il cere deja pentru conturile noi). Acelasi updateUser() ca in O5.
+  const needsRecovery = !!user && user.is_anonymous && !user.email
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -80,34 +93,16 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
     window.location.href = '/'
   }
 
-  const handleExport = async () => {
-    setExporting(true)
+  const handleSaveRecovery = async () => {
+    const val = recoveryEmail.trim()
+    if (!val || !val.includes('@') || !val.includes('.')) { setRecoveryState('invalid'); return }
+    setRecoveryState('saving')
     try {
-      const res = await fetch('/api/account/export')
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'my-data.json'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-    } catch (e) {}
-    setExporting(false)
-  }
-
-  const handleDelete = async () => {
-    setDeleting(true)
-    try {
-      await fetch('/api/account/delete', { method: 'POST' })
-      await createSupabaseBrowser().auth.signOut()
-    } catch (e) {}
-    // Aceeasi reparatie ca la logout (punctul 3) — contul nu mai exista,
-    // dar profilul ar ramane in browser fara asta.
-    try { localStorage.clear() } catch (e) {}
-    try { sessionStorage.clear() } catch (e) {}
-    window.location.href = '/'
+      await createSupabaseBrowser().auth.updateUser({ email: val })
+      setRecoveryState('sent')
+    } catch (e) {
+      setRecoveryState('invalid')
+    }
   }
 
   return createPortal(
@@ -145,35 +140,42 @@ export default function SettingsDrawer({ open, onClose, lang: pageLang }) {
             </span>
           </button>
 
-          <div style={{ height: '1px', background: 'rgba(244,240,234,0.1)', margin: '4px 0 20px' }} />
+          {needsRecovery && (
+            <>
+              <div style={{ height: '1px', background: 'rgba(244,240,234,0.1)', margin: '20px 0' }} />
+              <p style={ov.label}>{lx(shown, 'recovery_label')}</p>
+              {recoveryState === 'sent' ? (
+                <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.65)', lineHeight: 1.5 }}>{lx(shown, 'recovery_sent')}</p>
+              ) : (
+                <>
+                  <p style={{ fontSize: '12.5px', color: 'rgba(244,240,234,0.5)', marginBottom: '10px' }}>{lx(shown, 'recovery_hint')}</p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="email"
+                      value={recoveryEmail}
+                      onChange={(e) => { setRecoveryEmail(e.target.value); setRecoveryState('idle') }}
+                      placeholder={lx(shown, 'recovery_ph')}
+                      style={ov.recoveryInput}
+                    />
+                    <button onClick={handleSaveRecovery} disabled={recoveryState === 'saving'} style={{ ...ov.recoveryBtn, opacity: recoveryState === 'saving' ? 0.6 : 1 }}>
+                      {recoveryState === 'saving' ? lx(shown, 'recovery_saving') : lx(shown, 'recovery_save')}
+                    </button>
+                  </div>
+                  {recoveryState === 'invalid' && (
+                    <p style={{ fontSize: '12px', color: 'rgba(224,138,138,0.85)', marginTop: '6px' }}>{lx(shown, 'recovery_invalid')}</p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          <div style={{ height: '1px', background: 'rgba(244,240,234,0.1)', margin: '20px 0' }} />
 
           <a href="/subscribe" style={ov.linkRow}>{lx(shown, 'subscription')}</a>
+          <a href="/profile/privacy" style={ov.linkRow}>{lx(shown, 'privacy')}</a>
           <button onClick={handleLogout} disabled={loggingOut} style={{ ...ov.linkRow, opacity: loggingOut ? 0.6 : 1 }}>
             {lx(shown, 'logout')}
           </button>
-          <button onClick={handleExport} disabled={exporting} style={{ ...ov.linkRow, opacity: exporting ? 0.6 : 1 }}>
-            {exporting ? lx(shown, 'exporting') : lx(shown, 'export_data')}
-          </button>
-
-          {!confirmingDelete ? (
-            <button onClick={() => setConfirmingDelete(true)} style={{ ...ov.linkRow, color: 'rgba(224,138,138,0.85)' }}>
-              {lx(shown, 'delete_account')}
-            </button>
-          ) : (
-            <div style={{ padding: '14px 4px', borderTop: '1px solid rgba(244,240,234,0.08)' }}>
-              <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.65)', marginBottom: '12px', lineHeight: 1.5 }}>
-                {lx(shown, 'delete_confirm')}
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => setConfirmingDelete(false)} disabled={deleting} style={ov.cancelBtn}>
-                  {lx(shown, 'delete_cancel')}
-                </button>
-                <button onClick={handleDelete} disabled={deleting} style={{ ...ov.dangerBtn, opacity: deleting ? 0.6 : 1 }}>
-                  {deleting ? lx(shown, 'deleting') : lx(shown, 'delete_yes')}
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* sect. H2 (addendum 26.07): marcaj discret de build — ca sa se
               stie mereu prin ce geam se uita cineva inainte de un verdict
@@ -204,6 +206,6 @@ const ov = {
   soundKnob: { position: 'absolute', top: '2px', left: '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#f4f0ea', transition: 'transform 200ms ease' },
   buildMark: { textAlign: 'center', fontSize: '11px', color: 'rgba(244,240,234,0.3)', letterSpacing: '0.3px', marginTop: '18px', fontFamily: 'monospace' },
   linkRow: { display: 'block', width: '100%', textAlign: 'left', padding: '14px 4px', background: 'none', border: 'none', borderTop: '1px solid rgba(244,240,234,0.08)', color: 'rgba(244,240,234,0.85)', fontSize: '15px', cursor: 'pointer', minHeight: '44px', textDecoration: 'none' },
-  cancelBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(244,240,234,0.18)', background: 'transparent', color: 'rgba(244,240,234,0.85)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
-  dangerBtn: { flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid rgba(224,138,138,0.4)', background: 'rgba(224,138,138,0.12)', color: 'rgba(244,240,234,0.95)', fontSize: '14px', cursor: 'pointer', minHeight: '44px' },
+  recoveryInput: { flex: 1, minWidth: 0, padding: '11px 14px', minHeight: '44px', borderRadius: '10px', border: '1px solid rgba(244,240,234,0.18)', background: 'rgba(7,6,14,0.4)', color: '#f4f0ea', fontSize: '14px' },
+  recoveryBtn: { padding: '11px 18px', minHeight: '44px', flexShrink: 0, borderRadius: '10px', border: '1px solid rgba(229,169,60,0.3)', background: 'transparent', color: '#f0d9b0', fontSize: '14px', cursor: 'pointer' },
 }

@@ -4,6 +4,7 @@
 // Refolosește exact tiparul din interpret/route.js.
 
 import { NextResponse, after } from 'next/server'
+import Stripe from 'stripe'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
@@ -11,6 +12,8 @@ import { checkRateLimit } from '../../../lib/rateLimit'
 import { buildCompatibilityPrompt } from '../../../lib/prompts/compatibility'
 import { calculateFullProfile } from '../../../lib/calculations/index'
 import { jsonrepair } from 'jsonrepair'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export const maxDuration = 300
 
@@ -55,10 +58,49 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { type = 'life', language = 'en', personA, personB } = body
+    const { type = 'life', language = 'en', personA, personB, paid_session_id } = body
 
     if (!personA || !personB) {
       return NextResponse.json({ error: 'both persons required' }, { status: 400 })
+    }
+
+    // T3 (calup arhitectura 30.07) — poarta de plata, complet lipsa pana acum.
+    // FULL_ACCESS_MODE ocoleste tot (0.4, comutator de testare). In afara ei:
+    // trebuie profil propriu existent SI o plata de €8 consumata aici.
+    if (process.env.FULL_ACCESS_MODE !== 'true') {
+      const { data: ownProfile } = await supabaseAdmin
+        .from('interpreted_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+
+      if (!ownProfile) {
+        return NextResponse.json({ error: 'no_profile' }, { status: 403 })
+      }
+
+      if (!paid_session_id) {
+        return NextResponse.json({ error: 'payment_required', checkout_required: true }, { status: 402 })
+      }
+
+      let session
+      try {
+        session = await stripe.checkout.sessions.retrieve(paid_session_id)
+      } catch (e) {
+        return NextResponse.json({ error: 'invalid payment session' }, { status: 402 })
+      }
+      if (session.payment_status !== 'paid' || session.metadata?.kind !== 'compatibility' || session.metadata?.user_id !== user.id) {
+        return NextResponse.json({ error: 'payment not verified' }, { status: 402 })
+      }
+
+      // unique(stripe_session_id) e poarta anti-reluare — un rand existent
+      // deja inseamna ca aceasta sesiune a fost deja folosita pentru o generare.
+      const { error: payInsertErr } = await supabaseAdmin
+        .from('compatibility_payments')
+        .insert([{ user_id: user.id, stripe_session_id: paid_session_id }])
+      if (payInsertErr) {
+        return NextResponse.json({ error: 'payment already used' }, { status: 402 })
+      }
     }
 
     // calculează ambele hărți
