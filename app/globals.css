@@ -274,11 +274,34 @@ input:focus, textarea:focus, select:focus {
   100% { opacity: 0;   transform: translateY(10px); }
 }
 
-/* One Breath — inspiră 1.5s / expiră 1.5s, o singură undă */
-@keyframes breath-3s {
-  0%   { transform: scale(0.35); opacity: 0.30; }
-  50%  { transform: scale(1);    opacity: 0.85; }
-  100% { transform: scale(0.35); opacity: 0; }
+/* O Respirație = oftatul fiziologic (calup arhitectura 30.07, A4) — trei
+   faze pe bulă, fiecare cu propriul keyframe (nu o singură animație
+   continuă), ca sa porneasca mereu corect indiferent de momentul montării:
+   inspirație adâncă (~3.4s) -> a doua inspirație scurtă (~1s) -> expirație
+   lungă (~6.6s). Border-radius se mișcă puțin în fiecare fază — bula nu
+   stă niciodată pe un contur perfect (0.2). */
+@keyframes one-breath-inhale1 {
+  from { transform: scale(1);    border-radius: 48% 52% 45% 55% / 55% 45% 55% 45%; }
+  to   { transform: scale(1.32); border-radius: 44% 56% 52% 48% / 50% 50% 48% 52%; }
+}
+@keyframes one-breath-inhale2 {
+  from { transform: scale(1.32); border-radius: 44% 56% 52% 48% / 50% 50% 48% 52%; }
+  to   { transform: scale(1.46); border-radius: 55% 45% 48% 52% / 46% 54% 50% 50%; }
+}
+@keyframes one-breath-exhale {
+  from { transform: scale(1.46); border-radius: 55% 45% 48% 52% / 46% 54% 50% 50%; }
+  to   { transform: scale(0.92); border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+}
+.one-breath-inhale1 { animation: one-breath-inhale1 3.4s ease-in-out forwards; }
+.one-breath-inhale2 { animation: one-breath-inhale2 1s ease-in forwards; }
+.one-breath-exhale   { animation: one-breath-exhale 6.6s ease-out forwards; }
+@keyframes one-breath-ring-out {
+  0%   { transform: scale(0.5); opacity: 0.5; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.one-breath-ring { animation: one-breath-ring-out 1.8s var(--ease-out) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .one-breath-inhale1, .one-breath-inhale2, .one-breath-exhale, .one-breath-ring { animation: none; }
 }
 
 /* Sfera care respiră (Ritmul zilei, 25.07 noapte) — 4s dilatare / 6s
@@ -341,10 +364,6 @@ input:focus, textarea:focus, select:focus {
 .night-mode .water-loader i {
   animation-duration: 3.6s !important;
 }
-.night-mode .one-breath-ripple {
-  animation-duration: 4.2s !important;
-}
-
 /* ---------- LEGEA 3 — navigarea curge ---------- */
 .flow-in { animation: flow-in 520ms var(--ease-out) both; }
 @keyframes flow-in {
