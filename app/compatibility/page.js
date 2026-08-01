@@ -33,6 +33,8 @@ const L = {
     city_ph: 'Start typing the city...', generate: 'See the relationship profile — €8', next: 'Continue', redirecting: 'Redirecting to payment...',
     no_profile_text: 'You need your own profile first — compatibility reads from it.', no_profile_link: 'Get your profile',
     error_generic: 'Something went wrong. Try again.',
+    your_data_sub_edit: 'Your details, so we can read the relationship correctly.',
+    confirm_correct: 'Correct', confirm_edit: 'Edit',
   },
   ro: {
     tag: 'Compatibilitate', back: '← Înapoi',
@@ -47,6 +49,8 @@ const L = {
     city_ph: 'Începe să scrii orașul...', generate: 'Vezi profilul relației — €8', next: 'Continui', redirecting: 'Te trimitem la plată...',
     no_profile_text: 'Ai nevoie de propriul profil mai întâi — compatibilitatea citește din el.', no_profile_link: 'Ia-ți profilul',
     error_generic: 'Ceva n-a mers. Încearcă din nou.',
+    your_data_sub_edit: 'Datele tale, ca să putem citi relația corect.',
+    confirm_correct: 'Corect', confirm_edit: 'Modifică',
   },
   es: {
     tag: 'Compatibilidad', back: '← Atrás',
@@ -61,6 +65,8 @@ const L = {
     city_ph: 'Empieza a escribir la ciudad...', generate: 'Ver el perfil de la relación — 8 €', next: 'Continuar', redirecting: 'Te llevamos al pago...',
     no_profile_text: 'Primero necesitas tu propio perfil — la compatibilidad lee de él.', no_profile_link: 'Obtén tu perfil',
     error_generic: 'Algo falló. Inténtalo de nuevo.',
+    your_data_sub_edit: 'Tus datos, para poder leer la relación correctamente.',
+    confirm_correct: 'Correcto', confirm_edit: 'Editar',
   },
   fr: {
     tag: 'Compatibilité', back: '← Retour',
@@ -75,6 +81,8 @@ const L = {
     city_ph: 'Commence à taper la ville...', generate: 'Voir le profil de la relation — 8 €', next: 'Continuer', redirecting: 'Redirection vers le paiement...',
     no_profile_text: "Tu as besoin de ton propre profil d'abord — la compatibilité s'en inspire.", no_profile_link: 'Obtenir ton profil',
     error_generic: "Quelque chose s'est mal passé. Réessaie.",
+    your_data_sub_edit: 'Tes informations, pour que nous puissions lire la relation correctement.',
+    confirm_correct: 'Correct', confirm_edit: 'Modifier',
   },
   de: {
     tag: 'Kompatibilität', back: '← Zurück',
@@ -89,6 +97,8 @@ const L = {
     city_ph: 'Stadt eingeben...', generate: 'Beziehungsprofil ansehen — 8 €', next: 'Weiter', redirecting: 'Weiterleitung zur Zahlung...',
     no_profile_text: 'Du brauchst zuerst dein eigenes Profil — die Kompatibilität liest daraus.', no_profile_link: 'Profil holen',
     error_generic: 'Etwas ist schiefgelaufen. Versuch es noch einmal.',
+    your_data_sub_edit: 'Deine Angaben, damit wir die Beziehung richtig lesen können.',
+    confirm_correct: 'Richtig', confirm_edit: 'Bearbeiten',
   },
   it: {
     tag: 'Compatibilità', back: '← Indietro',
@@ -103,6 +113,8 @@ const L = {
     city_ph: 'Inizia a scrivere la città...', generate: 'Vedi il profilo della relazione — 8 €', next: 'Continua', redirecting: 'Reindirizzamento al pagamento...',
     no_profile_text: 'Prima ti serve il tuo profilo — la compatibilità legge da lì.', no_profile_link: 'Ottieni il tuo profilo',
     error_generic: 'Qualcosa è andato storto. Riprova.',
+    your_data_sub_edit: 'I tuoi dati, per poter leggere la relazione correttamente.',
+    confirm_correct: 'Corretto', confirm_edit: 'Modifica',
   },
   pt: {
     tag: 'Compatibilidade', back: '← Voltar',
@@ -117,6 +129,8 @@ const L = {
     city_ph: 'Começa a escrever a cidade...', generate: 'Ver o perfil da relação — 8 €', next: 'Continuar', redirecting: 'A redirecionar para o pagamento...',
     no_profile_text: 'Precisas primeiro do teu próprio perfil — a compatibilidade lê a partir dele.', no_profile_link: 'Obter o teu perfil',
     error_generic: 'Algo correu mal. Tenta outra vez.',
+    your_data_sub_edit: 'Os teus dados, para podermos ler a relação corretamente.',
+    confirm_correct: 'Correto', confirm_edit: 'Editar',
   },
   nl: {
     tag: 'Compatibiliteit', back: '← Terug',
@@ -131,6 +145,8 @@ const L = {
     city_ph: 'Begin de stad te typen...', generate: 'Bekijk het relatieprofiel — €8', next: 'Doorgaan', redirecting: 'Doorverwijzen naar betaling...',
     no_profile_text: 'Je hebt eerst je eigen profiel nodig — compatibiliteit leest daaruit.', no_profile_link: 'Haal je profiel',
     error_generic: 'Er ging iets mis. Probeer opnieuw.',
+    your_data_sub_edit: 'Jouw gegevens, zodat we de relatie correct kunnen lezen.',
+    confirm_correct: 'Klopt', confirm_edit: 'Wijzigen',
   },
   pl: {
     tag: 'Kompatybilność', back: '← Wstecz',
@@ -145,6 +161,8 @@ const L = {
     city_ph: 'Zacznij wpisywać miasto...', generate: 'Zobacz profil relacji — 8 €', next: 'Dalej', redirecting: 'Przekierowanie do płatności...',
     no_profile_text: 'Najpierw potrzebujesz własnego profilu — kompatybilność z niego czerpie.', no_profile_link: 'Zdobądź swój profil',
     error_generic: 'Coś poszło nie tak. Spróbuj ponownie.',
+    your_data_sub_edit: 'Twoje dane, abyśmy mogli poprawnie odczytać relację.',
+    confirm_correct: 'Poprawne', confirm_edit: 'Zmień',
   },
   hu: {
     tag: 'Kompatibilitás', back: '← Vissza',
@@ -159,6 +177,8 @@ const L = {
     city_ph: 'Kezdd el beírni a várost...', generate: 'Kapcsolati profil megtekintése — 8 €', next: 'Tovább', redirecting: 'Átirányítás a fizetéshez...',
     no_profile_text: 'Először a saját profilodra van szükséged — a kompatibilitás abból olvas.', no_profile_link: 'Szerezd meg a profilod',
     error_generic: 'Valami elromlott. Próbáld újra.',
+    your_data_sub_edit: 'A te adataid, hogy helyesen tudjuk olvasni a kapcsolatot.',
+    confirm_correct: 'Helyes', confirm_edit: 'Módosítás',
   },
   ru: {
     tag: 'Совместимость', back: '← Назад',
@@ -173,11 +193,22 @@ const L = {
     city_ph: 'Начни вводить город...', generate: 'Смотреть профиль отношений — 8 €', next: 'Продолжить', redirecting: 'Переход к оплате...',
     no_profile_text: 'Сначала нужен твой собственный профиль — совместимость читает из него.', no_profile_link: 'Получить профиль',
     error_generic: 'Что-то пошло не так. Попробуй ещё раз.',
+    your_data_sub_edit: 'Твои данные, чтобы мы могли правильно прочитать отношения.',
+    confirm_correct: 'Верно', confirm_edit: 'Изменить',
   },
 }
 function lx(lang, k){ return (L[lang]||L.en)[k] }
 
 const PENDING_KEY = 'compat_pending'
+
+function formatBirthDate(dob, lang) {
+  if (!dob) return ''
+  try {
+    return new Date(`${dob}T12:00:00Z`).toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' })
+  } catch (e) {
+    return dob
+  }
+}
 
 function PersonForm({ lang, value, onChange }) {
   const [day, setDay] = useState(value.day || '')
@@ -264,12 +295,22 @@ export default function CompatibilityPage() {
   const [error, setError] = useState('')
   const [resuming, setResuming] = useState(false)
 
+  // BUG (raport live, Alex): pasul 'me' arata mereu formularul GOL, chiar
+  // cand contul are deja profil — decizia era ca datele proprii sa vina
+  // precompletate SI confirmate ("Datele tale: ... — Corect / Modifica"),
+  // nu reintroduse. meMode decide ce se randeaza in pasul 'me':
+  // null = inca asteptam raspunsul /api/profile (nu randam nimic inca,
+  // ca sa nu clipeasca intai formularul gol si apoi confirmarea);
+  // 'confirm' = profil complet gasit, aratam confirmarea;
+  // 'form' = fara profil / date incomplete, fallback pe formularul editabil.
+  const [meMode, setMeMode] = useState(null)
+
   // precompletează A din profilul existent — de pe server, nu din
   // localStorage (punctul 1, audit 26.07: browserul e cache, serverul e
   // adevărul). Fără asta, câmpurile veneau goale chiar dacă profilul exista.
   useEffect(() => {
     fetch('/api/profile').then(r => r.ok ? r.json() : null).then(data => {
-      if (!data) return
+      if (!data) { setMeMode('form'); return }
       const patch = { prefilled: true }
       if (data.full_name) patch.full_name = data.full_name
       if (data.birth_date) {
@@ -284,7 +325,9 @@ export default function CompatibilityPage() {
       if (data.birth_lat != null) patch.lat = data.birth_lat
       if (data.birth_lng != null) patch.lng = data.birth_lng
       setPersonA(prev => ({ ...prev, ...patch }))
-    }).catch(() => {})
+      const hasFullOwnData = patch.full_name && patch.date_of_birth && patch.time_of_birth && patch.city
+      setMeMode(hasFullOwnData ? 'confirm' : 'form')
+    }).catch(() => setMeMode('form'))
   }, [])
 
   // Intoarcere de la Stripe (T3): plata s-a facut, reluam generarea exact
@@ -413,11 +456,32 @@ export default function CompatibilityPage() {
           <div className="anim-fade-in">
             <span className="tag tag-purple" style={{ marginBottom:'14px', display:'inline-block' }}>{lx(lang,'you')}</span>
             <h1 style={s.title}>{lx(lang,'your_data')}</h1>
-            <p style={s.sub}>{lx(lang,'your_data_sub')}</p>
-            <div style={{ marginTop:'24px' }}>
-              <PersonForm lang={lang} value={personA} onChange={setPersonA} />
-            </div>
-            <button onClick={()=>setStep('them')} disabled={!aReady} style={{ ...s.cta, opacity: aReady?1:0.4, cursor: aReady?'pointer':'not-allowed' }}>{lx(lang,'next')}</button>
+
+            {meMode === 'confirm' && (
+              <>
+                <p style={s.sub}>{lx(lang,'your_data_sub')}</p>
+                <div className="chapter" style={{ marginTop:'24px', padding:'20px 22px' }}>
+                  <p style={s.confirmRow}><strong>{lx(lang,'name')}:</strong> {personA.full_name}</p>
+                  <p style={s.confirmRow}><strong>{lx(lang,'date')}:</strong> {formatBirthDate(personA.date_of_birth, lang)}</p>
+                  <p style={s.confirmRow}><strong>{lx(lang,'time')}:</strong> {personA.time_of_birth}</p>
+                  <p style={s.confirmRow}><strong>{lx(lang,'city')}:</strong> {personA.city}</p>
+                </div>
+                <div style={{ display:'flex', gap:'10px', marginTop:'24px' }}>
+                  <button onClick={()=>setMeMode('form')} style={s.secondaryBtn}>{lx(lang,'confirm_edit')}</button>
+                  <button onClick={()=>setStep('them')} style={{ ...s.cta, marginTop:0, flex:1 }}>{lx(lang,'confirm_correct')}</button>
+                </div>
+              </>
+            )}
+
+            {meMode === 'form' && (
+              <>
+                <p style={s.sub}>{lx(lang,'your_data_sub_edit')}</p>
+                <div style={{ marginTop:'24px' }}>
+                  <PersonForm lang={lang} value={personA} onChange={setPersonA} />
+                </div>
+                <button onClick={()=>setStep('them')} disabled={!aReady} style={{ ...s.cta, opacity: aReady?1:0.4, cursor: aReady?'pointer':'not-allowed' }}>{lx(lang,'next')}</button>
+              </>
+            )}
           </div>
         )}
 
@@ -464,4 +528,6 @@ const s = {
   sug: { position:'absolute', top:'100%', left:0, right:0, background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'12px', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'240px', overflowY:'auto', marginTop:'4px' },
   sugItem: { padding:'12px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)', fontSize:'13px', color:'var(--text)', display:'flex', alignItems:'flex-start' },
   cta: { width:'100%', padding:'16px', marginTop:'28px', background:'var(--purple)', color:'#fff', border:'none', borderRadius:'12px', fontSize:'16px', fontWeight:'600', boxShadow:'0 4px 20px var(--gold-faint)' },
+  confirmRow: { fontSize:'15px', color:'var(--text)', lineHeight:'2', margin:0 },
+  secondaryBtn: { padding:'16px 20px', background:'transparent', color:'var(--text-muted)', border:'1.5px solid var(--border)', borderRadius:'12px', fontSize:'15px', fontWeight:'500', cursor:'pointer' },
 }
