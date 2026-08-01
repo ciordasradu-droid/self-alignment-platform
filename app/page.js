@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage, LANGUAGES } from '../lib/language'
 import { lt } from '../lib/landing'
-import { APP_NAME } from '../lib/appConfig'
+import { APP_NAME, appFullIdentity } from '../lib/appConfig'
 
 // ── Reveal: fades + slides up its children when scrolled into view ──
 function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' }) {
@@ -73,6 +73,10 @@ export default function Home() {
 
       {/* ── L1 — HERO, plutind pe apă ── */}
       <section style={s.hero}>
+        {/* IDENTITATE (raport 30.07): randul complet nume + descriptor +
+            tagline, cerut explicit verificabil pe landing — nu doar numele
+            gol din navbar de mai sus. */}
+        <p style={s.identityLine} className="anim-fade-in">{appFullIdentity(lang)}</p>
         <h1 style={s.heroTitle} className="anim-fade-in">
           {lt(lang, 'hero_title')}
         </h1>
@@ -187,6 +191,7 @@ const s = {
   // Hero — text plutind pe apă, fără casetă opacă. text-shadow ține citirea
   // lizibilă peste apa în mișcare (regula tipografiei: contrast, nu decor).
   hero: { position: 'relative', textAlign: 'center', padding: 'clamp(70px, 13vw, 130px) 0 clamp(50px, 9vw, 90px)' },
+  identityLine: { fontSize: '12.5px', letterSpacing: '0.3px', color: 'rgba(244,240,234,0.55)', textShadow: '0 1px 8px rgba(0,0,0,0.4)', marginBottom: '18px', padding: '0 20px' },
   heroTitle: {
     fontSize: 'clamp(38px, 7.5vw, 68px)', fontWeight: '600', color: '#fff', lineHeight: '1.1',
     marginBottom: '20px', letterSpacing: '-1px', fontFamily: 'Cormorant Garamond, serif',
