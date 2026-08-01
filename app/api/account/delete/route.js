@@ -13,7 +13,7 @@ const OWNED_TABLES = [
   'calculated_profiles', 'interpreted_profiles', 'checkins', 'streaks',
   'compatibility_profiles', 'daily_insights', 'weekly_reviews',
   'weekly_resets', 'patterns_insights', 'invites', 'subscriptions',
-  'rate_limits',
+  'rate_limits', 'invite_code_referrals',
 ]
 
 export async function POST() {

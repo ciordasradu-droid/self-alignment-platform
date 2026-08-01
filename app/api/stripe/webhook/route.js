@@ -41,9 +41,6 @@ export async function POST(request) {
               current_period_end: null,
               updated_at: new Date().toISOString()
             }], { onConflict: 'user_id' })
-
-          // Decrement first 1000 spots if applicable
-          await supabaseAdmin.rpc('decrement_spots')
         }
         break
       }

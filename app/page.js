@@ -51,14 +51,14 @@ function Reveal({ children, delay = 0, as: Tag = 'div', style, className = '' })
 export default function Home() {
   const [lang, changeLanguage] = useLanguage()
 
-  // L1 — contor viu, nu decorativ: daca /api/spots nu raspunde cu o cifra
-  // reala, randul intreg nu se afiseaza (aceeasi regula ca pe /subscribe).
-  const [spotsLeft, setSpotsLeft] = useState(null)
+  // GCAO A6 (01.08.2026) — fundatia afilierii prin coduri de influencer:
+  // ?ref=COD se persista in localStorage pana la inregistrare (citit in
+  // onboarding/page.js la finalul flow-ului). Fara reducere, doar atribuire.
   useEffect(() => {
-    fetch('/api/spots')
-      .then(r => r.json())
-      .then(d => { if (typeof d.spots_left === 'number') setSpotsLeft(d.spots_left) })
-      .catch(() => {})
+    try {
+      const ref = new URLSearchParams(window.location.search).get('ref')
+      if (ref) localStorage.setItem('invite_ref_code', ref.trim())
+    } catch (e) {}
   }, [])
 
   return (
@@ -88,11 +88,11 @@ export default function Home() {
             {lt(lang, 'hero_cta')} <span className="arrow" aria-hidden="true">→</span>
           </Link>
         </div>
-        {typeof spotsLeft === 'number' && (
-          <p style={s.heroSpots} className="anim-fade-in stagger-5">
-            {lt(lang, 'hero_spots_template').replace('{n}', spotsLeft)}
-          </p>
-        )}
+        {/* GCAO A4 (01.08.2026) — contorul viu "primii 1.000" ELIMINAT;
+            linia probei de 3 zile, statica, il inlocuieste (A5). */}
+        <p style={s.heroSpots} className="anim-fade-in stagger-5">
+          {lt(lang, 'hero_trial_line')}
+        </p>
         <Link href="/login" style={s.heroLogin}>{lt(lang, 'hero_login')}</Link>
       </section>
 

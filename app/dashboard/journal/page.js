@@ -40,7 +40,7 @@ export default function JournalPage() {
   const [showUnlockNote, setShowUnlockNote] = useState(false)
 
   const load = () => {
-    fetch(`/api/journal?tz=${clientTzOffset()}`)
+    fetch(`/api/journal?tz=${clientTzOffset()}&lang=${lang}`)
       .then(r => r.json())
       .then(d => { if (d.success) { setPages(d.pages); setActiveDays(d.activeDays) } setLoading(false) })
       .catch(() => setLoading(false))

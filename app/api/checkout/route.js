@@ -8,6 +8,14 @@ export async function POST(request) {
     const body = await request.json()
     const { formData } = body
 
+    // GCAO A4/A5 (01.08.2026): profilul costa €4 pentru toata lumea, fara
+    // exceptie (C.3, oferta "primii 1.000" eliminata). FULL_ACCESS_MODE
+    // (0.4, neatins ca mecanism — C.2) ramane singura poarta de test care
+    // ocoleste plata reala, la fel ca peste tot in aplicatie.
+    if (process.env.FULL_ACCESS_MODE === 'true') {
+      return NextResponse.json({ free: true })
+    }
+
     // Punctul 1 (audit 26.07, runda 2): datele de nastere NU mai trec prin
     // success_url — {CHECKOUT_SESSION_ID} e un token opac (Stripe il
     // completeaza automat la redirect), nu date personale. generating/page.js

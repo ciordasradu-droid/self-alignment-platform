@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { isWithinAutoTrial } from './lib/trial'
 
 // Pages that require a logged-in user. Everything else (landing, /login,
 // public share /r/[id], /subscribe, /api/*) stays open.
@@ -110,14 +111,20 @@ export async function proxy(request) {
   const needsSubscription = !fullAccess && ['/drumul'].some((p) => path === p || path.startsWith(p + '/'))
   if (needsSubscription) {
     const tryFree = request.cookies.get('try_free')
-    const { data: subRow } = await supabase
-      .from('subscriptions')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .maybeSingle()
-    if (!subRow && !tryFree) {
-      return NextResponse.redirect(new URL('/subscribe', request.url))
+    // GCAO A5 (01.08.2026) — proba automata de 3 zile de la inregistrare,
+    // fara card: se adauga ca a treia poarta de trecere, alaturi de
+    // abonament si de cookie-ul manual try_free (neschimbat, ramane
+    // permanent o data apasat — vezi api/try-free/route.js).
+    if (!tryFree && !isWithinAutoTrial(user.created_at)) {
+      const { data: subRow } = await supabase
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle()
+      if (!subRow) {
+        return NextResponse.redirect(new URL('/subscribe', request.url))
+      }
     }
   }
 

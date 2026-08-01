@@ -119,18 +119,64 @@ const TX = {
     hu: 'Egy 90 napos út, a saját tempódban.',
     ru: 'Путь длиной 90 дней, в твоём собственном ритме.',
   },
+  // GCAO A4 (01.08.2026) — oferta "gratuit pentru primii 1.000" ELIMINATA
+  // complet (C.3): profilul costa €4 pentru toata lumea, fara exceptie.
   about_price: {
-    en: '€4 once for the profile · free for the first 1,000',
-    ro: '€4 o dată pentru profil · gratuit pentru primii 1.000',
-    es: '€4 una vez por el perfil · gratis para los primeros 1.000',
-    fr: '4 € une fois pour le profil · gratuit pour les 1 000 premiers',
-    de: '4 € einmalig für das Profil · kostenlos für die ersten 1.000',
-    it: '4 € una volta per il profilo · gratis per i primi 1.000',
-    pt: '€4 uma vez pelo perfil · grátis para os primeiros 1.000',
-    nl: '€4 eenmalig voor het profiel · gratis voor de eerste 1.000',
-    pl: '4 € jednorazowo za profil · darmowy dla pierwszego 1000',
-    hu: '4 € egyszeri díj a profilért · ingyenes az első 1000 számára',
-    ru: '4 € единоразово за профиль · бесплатно для первой 1000',
+    en: '€4 once for the profile',
+    ro: '€4 o dată pentru profil',
+    es: '€4 una vez por el perfil',
+    fr: '4 € une fois pour le profil',
+    de: '4 € einmalig für das Profil',
+    it: '4 € una volta per il profilo',
+    pt: '€4 uma vez pelo perfil',
+    nl: '€4 eenmalig voor het profiel',
+    pl: '4 € jednorazowo za profil',
+    hu: '4 € egyszeri díj a profilért',
+    ru: '4 € единоразово за профиль',
+  },
+  // GCAO A3 (01.08.2026) — "fraza inghetului": Lally et al. 2010, o zi
+  // ratata nu rupe curba obiceiului, doar ratarile CONSECUTIVE o rup. Apare
+  // exact in doua locuri (aici, O2, si pe Drumul) — aceeasi fraza tradusa.
+  freeze_phrase: {
+    en: 'A missed day doesn\'t set you back. Your path freezes and waits for you.',
+    ro: 'O zi ratată nu te dă înapoi. Drumul tău îngheață și te așteaptă.',
+    es: 'Un día perdido no te hace retroceder. Tu camino se congela y te espera.',
+    fr: 'Un jour manqué ne te fait pas reculer. Ton chemin se fige et t\'attend.',
+    de: 'Ein verpasster Tag wirft dich nicht zurück. Dein Weg friert ein und wartet auf dich.',
+    it: 'Un giorno saltato non ti fa tornare indietro. Il tuo cammino si ferma e ti aspetta.',
+    pt: 'Um dia perdido não te faz recuar. O teu caminho congela e espera por ti.',
+    nl: 'Een gemiste dag zet je niet terug. Jouw weg bevriest en wacht op je.',
+    pl: 'Ominięty dzień cię nie cofa. Twoja droga zamarza i czeka na ciebie.',
+    hu: 'Egy kihagyott nap nem vet vissza. Az utad megfagy, és vár rád.',
+    ru: 'Пропущенный день не отбрасывает тебя назад. Твой путь замирает и ждёт тебя.',
+  },
+  // GCAO A6 (01.08.2026) — cod de invitatie optional, fara reducere, doar
+  // atribuire catre influencer pentru comisionul manual.
+  invite_code_toggle: {
+    en: 'Have an invite code?',
+    ro: 'Ai un cod de invitație?',
+    es: '¿Tienes un código de invitación?',
+    fr: "Tu as un code d'invitation ?",
+    de: 'Hast du einen Einladungscode?',
+    it: 'Hai un codice di invito?',
+    pt: 'Tens um código de convite?',
+    nl: 'Heb je een uitnodigingscode?',
+    pl: 'Masz kod zaproszenia?',
+    hu: 'Van meghívókódod?',
+    ru: 'Есть код приглашения?',
+  },
+  invite_code_ph: {
+    en: 'Enter code',
+    ro: 'Introdu codul',
+    es: 'Introduce el código',
+    fr: 'Entre le code',
+    de: 'Code eingeben',
+    it: 'Inserisci il codice',
+    pt: 'Introduz o código',
+    nl: 'Voer code in',
+    pl: 'Wpisz kod',
+    hu: 'Add meg a kódot',
+    ru: 'Введи код',
   },
   // O3 — incredere fata de datele nasterii.
   data_privacy_note: {
@@ -316,11 +362,21 @@ export default function Onboarding() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [waterTouched, setWaterTouched] = useState(false)
 
+  // GCAO A6 (01.08.2026) — cod de invitatie de influencer, optional. Fara
+  // reducere — doar atribuire pentru comisionul manual. Prefill din
+  // localStorage (?ref=COD persistat de pe landing) sau introdus manual aici.
+  const [inviteCode, setInviteCode] = useState('')
+  const [inviteCodeOpen, setInviteCodeOpen] = useState(false)
+
   useEffect(() => {
     try {
       if (new URLSearchParams(window.location.search).get('reason') === 'no_profile') {
         setNoProfileYet(true)
       }
+      const refFromUrl = new URLSearchParams(window.location.search).get('ref')
+      if (refFromUrl) localStorage.setItem('invite_ref_code', refFromUrl.trim())
+      const savedCode = localStorage.getItem('invite_ref_code')
+      if (savedCode) { setInviteCode(savedCode); setInviteCodeOpen(true) }
     } catch (e) {}
   }, [])
 
@@ -453,33 +509,45 @@ export default function Onboarding() {
       console.warn('starting_point metadata save failed (non-fatal):', e?.message)
     }
 
-    // L4/0.1 (calup arhitectura 30.07): profilul costa €4 dupa primii 1.000
-    // gratuite. Daca /api/spots nu poate confirma o cifra reala, alegem
-    // explicit sa NU blocam un om nou dintr-o eroare tranzitorie — trece pe
-    // calea gratuita (decizie de business asumata aici, nu presupunere tacuta).
-    let requiresPayment = false
-    try {
-      const spotsRes = await fetch('/api/spots')
-      const spotsJson = await spotsRes.json()
-      if (typeof spotsJson.spots_left === 'number' && spotsJson.spots_left <= 0) requiresPayment = true
-    } catch (e) {}
-
-    if (requiresPayment) {
+    // GCAO A6 (01.08.2026) — atribuirea codului de invitatie, daca exista.
+    // Fara reducere; nu blocheaza fluxul daca esueaza (best-effort).
+    if (inviteCode.trim()) {
       try {
-        const res = await fetch('/api/checkout', {
+        await fetch('/api/invite-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData: { ...formData, language: lang } })
+          body: JSON.stringify({ code: inviteCode.trim() }),
         })
-        const json = await res.json()
-        if (!json.url) throw new Error(json.error || 'checkout failed')
+        localStorage.removeItem('invite_ref_code')
+      } catch (e) {
+        console.warn('invite code redeem failed (non-fatal):', e?.message)
+      }
+    }
+
+    // GCAO A4 (01.08.2026): profilul costa €4 pentru toata lumea, fara
+    // exceptie — oferta "gratuit pentru primii 1.000" a fost eliminata
+    // (C.3). Singura poarta care ocoleste plata reala e FULL_ACCESS_MODE
+    // (0.4), verificata server-side in /api/checkout (nu client-side, ca
+    // sa ramana neatinsa ca mecanism — C.2).
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formData: { ...formData, language: lang } })
+      })
+      const json = await res.json()
+      if (json.free) {
+        // continua mai jos pe calea gratuita (FULL_ACCESS_MODE activ)
+      } else if (json.url) {
         window.location.href = json.url
         return
-      } catch (e) {
-        setLoading(false)
-        console.error('Checkout failed:', e.message)
-        return
+      } else {
+        throw new Error(json.error || 'checkout failed')
       }
+    } catch (e) {
+      setLoading(false)
+      console.error('Checkout failed:', e.message)
+      return
     }
 
     // Punctul 1 (audit 26.07, runda 2 — corectie dupa testul explicit al lui
@@ -570,6 +638,28 @@ export default function Onboarding() {
               <p className="ob-about-card">{tx(lang, 'about_card3')}</p>
             </div>
             <p className="ob-about-price">{tx(lang, 'about_price')}</p>
+            <p className="ob-hint" style={{ textAlign: 'center', marginTop: '14px' }}>{tx(lang, 'freeze_phrase')}</p>
+
+            {/* GCAO A6 — cod de invitatie optional, sarirea nu blocheaza nimic */}
+            {!inviteCodeOpen ? (
+              <button
+                type="button"
+                onClick={() => setInviteCodeOpen(true)}
+                style={{ display: 'block', margin: '14px auto 0', background: 'none', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', padding: '4px 0', minHeight: '44px' }}
+              >
+                {tx(lang, 'invite_code_toggle')}
+              </button>
+            ) : (
+              <input
+                type="text"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                placeholder={tx(lang, 'invite_code_ph')}
+                className="input-clean"
+                style={{ display: 'block', width: '100%', maxWidth: '260px', margin: '14px auto 0', textAlign: 'center', boxSizing: 'border-box' }}
+              />
+            )}
+
             <button className="ob-cta" onClick={() => setStep(2)}>{tx(lang, 'continue')}</button>
           </section>
         )}

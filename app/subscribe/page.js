@@ -17,10 +17,6 @@ export default function SubscribePage() {
   const [loading, setLoading] = useState(false)
   const [lang] = useLanguage()
 
-  // A3: contor viu, nu decorativ — daca /api/spots nu raspunde cu o cifra
-  // reala, caseta ofertei nu se livreaza deloc (regula dura, Vocea Pragului 5).
-  const [spotsLeft, setSpotsLeft] = useState(null)
-
   // A4: sursa reala de adevar (aceleasi endpoint-uri pe care se bazeaza si
   // restul aplicatiei — /api/subscription, /api/profile), NU localStorage.
   // Cat timp raspunsul nu a sosit, ambele blocuri conditionate stau ascunse
@@ -32,11 +28,6 @@ export default function SubscribePage() {
   const [tryStarted, setTryStarted] = useState(false)
 
   useEffect(() => {
-    fetch('/api/spots')
-      .then(r => r.json())
-      .then(d => { if (typeof d.spots_left === 'number') setSpotsLeft(d.spots_left) })
-      .catch(() => {})
-
     try {
       setTryStarted(/(?:^|;\s*)try_free=/.test(document.cookie))
     } catch (e) {}
@@ -113,11 +104,11 @@ export default function SubscribePage() {
           </div>
         ) : (
           <>
-            {typeof spotsLeft === 'number' && (
-              <div style={s.offerBanner}>
-                <p style={s.offerText}>{labels.offer_text.replace('{n}', spotsLeft)}</p>
-              </div>
-            )}
+            {/* GCAO A4/A5 (01.08.2026) — contorul viu "primii 1.000" ELIMINAT;
+                linia probei de 3 zile, statica, il inlocuieste in acelasi loc. */}
+            <div style={s.offerBanner}>
+              <p style={s.offerText}>{labels.trial_note}</p>
+            </div>
 
             <div style={s.toggle}>
               <button

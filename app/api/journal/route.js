@@ -10,6 +10,33 @@ import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { getLogicalDay } from '../../../lib/logicalDay'
 
+// GCAO A1 (01.08.2026) — planul dacă-atunci + obstacolul se afiseaza in
+// jurnal SUB ACEEASI eticheta "Intentia dimineatii" (nu o eticheta noua),
+// alaturate ca text simplu, fara termeni stiintifici. Doar cuvintele de
+// legatura sunt traduse aici (acelasi text ca MorningAnchor.js).
+const PLAN_WORDS = {
+  en: { if_: 'If', then_: 'then', obstacle: 'What might get in the way' },
+  ro: { if_: 'Dacă', then_: 'atunci', obstacle: 'Ce ar putea sta în cale' },
+  es: { if_: 'Si', then_: 'entonces', obstacle: 'Qué podría interponerse' },
+  fr: { if_: 'Si', then_: 'alors', obstacle: 'Ce qui pourrait se mettre en travers' },
+  de: { if_: 'Wenn', then_: 'dann', obstacle: 'Was im Weg stehen könnte' },
+  it: { if_: 'Se', then_: 'allora', obstacle: 'Cosa potrebbe ostacolare' },
+  pt: { if_: 'Se', then_: 'então', obstacle: 'O que pode atrapalhar' },
+  nl: { if_: 'Als', then_: 'dan', obstacle: 'Wat in de weg zou kunnen staan' },
+  pl: { if_: 'Jeśli', then_: 'to', obstacle: 'Co może stanąć na przeszkodzie' },
+  hu: { if_: 'Ha', then_: 'akkor', obstacle: 'Mi állhat az útjába' },
+  ru: { if_: 'Если', then_: 'то', obstacle: 'Что может помешать' },
+}
+
+function appendPlanText(intentionText, a, lang) {
+  const w = PLAN_WORDS[lang] || PLAN_WORDS.en
+  const lines = []
+  if (intentionText) lines.push(intentionText)
+  if (a.plan_if && a.plan_then) lines.push(`${w.if_} ${a.plan_if}, ${w.then_} ${a.plan_then}.`)
+  if (a.plan_obstacle) lines.push(`${w.obstacle}: ${a.plan_obstacle}`)
+  return lines.join('\n')
+}
+
 export async function GET(request) {
   try {
     const user = await getSessionUser()
@@ -17,6 +44,7 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const tz = Number(searchParams.get('tz')) || 0
+    const lang = searchParams.get('lang') || 'en'
 
     const { data: checkins, error } = await supabaseAdmin
       .from('checkins')
@@ -33,7 +61,8 @@ export async function GET(request) {
       const texts = []
       if (kind === 'morning') {
         if (a.sleep) texts.push({ label: 'sleep', text: a.sleep })
-        if (a.intention) texts.push({ label: 'morning_intention', text: a.intention })
+        const intentionCombined = appendPlanText(a.intention, a, lang)
+        if (intentionCombined) texts.push({ label: 'morning_intention', text: intentionCombined })
       } else if (kind === 'evening') {
         if (a.evening_journal) texts.push({ label: 'evening_journal', text: a.evening_journal })
         if (a.gratitude) texts.push({ label: 'gratitude', text: a.gratitude })

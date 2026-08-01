@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase/service'
 import { getSessionUser } from '../../../lib/supabase/server'
 import { getLogicalDay } from '../../../lib/logicalDay'
+import { isWithinAutoTrial } from '../../../lib/trial'
 
 export async function GET(request) {
   try {
@@ -22,8 +23,9 @@ export async function GET(request) {
     // A7 (calup arhitectura 30.07): Azi ramane accesibil pentru un cont doar
     // cu profil (fara abonament, fara proba), doar ca arata o stare
     // degradata (card calm, fara ritual) — vezi dashboard/page.js. Aceeasi
-    // regula ca poarta din proxy.js (subscriptions activ SAU cookie
-    // try_free), plus FULL_ACCESS_MODE (0.4).
+    // regula ca poarta din proxy.js (subscriptii activ SAU cookie
+    // try_free SAU proba automata de 3 zile — GCAO A5, 01.08.2026), plus
+    // FULL_ACCESS_MODE (0.4).
     let hasFullAccess = process.env.FULL_ACCESS_MODE === 'true'
     if (!hasFullAccess) {
       const tryFree = request.cookies.get('try_free')
@@ -33,7 +35,7 @@ export async function GET(request) {
         .eq('user_id', userId)
         .eq('status', 'active')
         .maybeSingle()
-      hasFullAccess = !!subRow || !!tryFree
+      hasFullAccess = !!subRow || !!tryFree || isWithinAutoTrial(user.created_at)
     }
 
     const { data: checkins, error: checkinError } = await supabaseAdmin
