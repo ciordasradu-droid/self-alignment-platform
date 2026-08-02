@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { getEffectiveWeekday } from '../../../lib/simWeekday'
 import { clientTzOffset, getLogicalDay } from '../../../lib/logicalDay'
 import BreathingSphere from './BreathingSphere'
+import { FEATURE_BREATH } from '../../../lib/appConfig'
 
 const L = {
   en: { greet: 'Good evening', journal: 'Leave your thoughts here', gratitude: 'What are you grateful for today?', gratitudePh: 'One specific thing from today — and why it mattered…', skip: 'Skip', intention: 'For tomorrow, I want to…', intentionWeek: 'For the coming week, I want to…', save: 'Leave it in the water', saving: '…', saved: 'You were present for yourself today.', goodnight: 'Sleep well.', loopQuestion: 'For today, you wanted: "{intention}". What happened with that?', weekTag: 'The Week, Seen', weekQ1: 'What repeated this week, seen from the shore, not from the current?', weekQ2: 'A moment when you were close to yourself — what made it possible?', weekQ3: 'What you take with you into the coming week — one sentence.', weekPh1: 'What you noticed coming back…', weekPh2: 'The moment, and what supported it…', weekPh3: 'One sentence…' },
@@ -99,12 +100,16 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
     // gestul: picătura 2D care cade + inele + strop — înlocuiește butonul
     // static de dinainte. Textul butonului rămâne interimar (TODO bloc 5,
     // bula vie 3D), doar gestul de aici e cel real acum.
+    // GCAO 02.08.2026 (regresie reparată): respirația de închidere cade sub
+    // FEATURE_BREATH (implicit false) — cat e oprita, gestul picăturii duce
+    // direct la finish(), fără sfera care respiră intermediară.
+    const closeRitual = () => (FEATURE_BREATH ? setClosingBreath(true) : finish())
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) { setClosingBreath(true); return }
+    if (reduced) { closeRitual(); return }
     setRainStage('falling')
     setTimeout(() => {
       setRainStage('splash')
-      setTimeout(() => setClosingBreath(true), 400)
+      setTimeout(closeRitual, 400)
     }, 380)
   }
 

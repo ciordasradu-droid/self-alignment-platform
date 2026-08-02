@@ -97,6 +97,7 @@ FORMAT (A9 — closed decision, do not deviate):
 - NO title. NO section heading of any kind.
 - FORBIDDEN inside the text: any system terminology — "gate", "channel", "Life Path", "house", "personal day/month/year" said as a label, or any translation of these words. Translate everything into the lived, concrete day instead (e.g. "today finishing something matters more than starting something new" — not "your Personal Day 4 means...").
 - FORBIDDEN: breathing instructions ("take a deep breath", "breathe in"), and any variant of "reflect on this" / "think about this" as filler — the question itself IS the reflection, it doesn't need to be introduced.
+- GCAO 02.08.2026 — GUARD (minimal, not a full tone rewrite — that stays for a dedicated prompt pass): this reads first thing in the morning. Do NOT open with a negative emotion (frustration, anger, fatigue, fear) and do NOT ask the person to scan for what is wrong. If the thought touches a real tension, approach it FROM the resource side — "what has been working", "what you want to grow" — never from the wound.
 - The anchor must come FROM the profile data above, translated into something concrete about THIS actual day — not a generic thought that could apply to anyone.
 - Never predict the future. Never tell them what to do — help them notice.
 - Plain language, ${languageName} only.

@@ -76,20 +76,120 @@ const lx = (lang, k) => (L[lang] || L.en)[k]
 // complet de pe ecranul Drumul, fara inlocuitor provizoriu, pana la faza de
 // design. Celebrarea de mai jos ramane doar text + buton, fara grafica.
 const STAGE_MAP_L = {
-  en: { day_exact: 'day {n}', day_approx: 'around day {n}', celebrate_title: 'You\'ve reached a new stage.', celebrate_cta: 'Continue' },
-  ro: { day_exact: 'ziua {n}', day_approx: 'în jurul zilei {n}', celebrate_title: 'Ai ajuns la un stadiu nou.', celebrate_cta: 'Continuă' },
-  es: { day_exact: 'día {n}', day_approx: 'alrededor del día {n}', celebrate_title: 'Has llegado a una nueva etapa.', celebrate_cta: 'Continuar' },
-  fr: { day_exact: 'jour {n}', day_approx: 'autour du jour {n}', celebrate_title: 'Tu as atteint une nouvelle étape.', celebrate_cta: 'Continuer' },
-  de: { day_exact: 'Tag {n}', day_approx: 'um Tag {n}', celebrate_title: 'Du hast eine neue Stufe erreicht.', celebrate_cta: 'Weiter' },
-  it: { day_exact: 'giorno {n}', day_approx: 'intorno al giorno {n}', celebrate_title: 'Hai raggiunto una nuova fase.', celebrate_cta: 'Continua' },
-  pt: { day_exact: 'dia {n}', day_approx: 'por volta do dia {n}', celebrate_title: 'Chegaste a uma nova fase.', celebrate_cta: 'Continuar' },
-  nl: { day_exact: 'dag {n}', day_approx: 'rond dag {n}', celebrate_title: 'Je hebt een nieuwe fase bereikt.', celebrate_cta: 'Verder' },
-  pl: { day_exact: 'dzień {n}', day_approx: 'około dnia {n}', celebrate_title: 'Dotarłeś do nowego etapu.', celebrate_cta: 'Dalej' },
-  hu: { day_exact: '{n}. nap', day_approx: 'a(z) {n}. nap körül', celebrate_title: 'Elértél egy új szakaszt.', celebrate_cta: 'Tovább' },
-  ru: { day_exact: 'день {n}', day_approx: 'около дня {n}', celebrate_title: 'Ты достиг нового этапа.', celebrate_cta: 'Далее' },
+  en: { day_exact: 'day {n}', day_approx: 'around day {n}', celebrate_title: 'Something new has opened.', celebrate_cta: 'Continue' },
+  ro: { day_exact: 'ziua {n}', day_approx: 'în jurul zilei {n}', celebrate_title: 'S-a deschis ceva nou.', celebrate_cta: 'Continuă' },
+  es: { day_exact: 'día {n}', day_approx: 'alrededor del día {n}', celebrate_title: 'Se ha abierto algo nuevo.', celebrate_cta: 'Continuar' },
+  fr: { day_exact: 'jour {n}', day_approx: 'autour du jour {n}', celebrate_title: 'Quelque chose de nouveau s\'est ouvert.', celebrate_cta: 'Continuer' },
+  de: { day_exact: 'Tag {n}', day_approx: 'um Tag {n}', celebrate_title: 'Etwas Neues hat sich geöffnet.', celebrate_cta: 'Weiter' },
+  it: { day_exact: 'giorno {n}', day_approx: 'intorno al giorno {n}', celebrate_title: 'Si è aperto qualcosa di nuovo.', celebrate_cta: 'Continua' },
+  pt: { day_exact: 'dia {n}', day_approx: 'por volta do dia {n}', celebrate_title: 'Abriu-se algo novo.', celebrate_cta: 'Continuar' },
+  nl: { day_exact: 'dag {n}', day_approx: 'rond dag {n}', celebrate_title: 'Er is iets nieuws geopend.', celebrate_cta: 'Verder' },
+  pl: { day_exact: 'dzień {n}', day_approx: 'około dnia {n}', celebrate_title: 'Otworzyło się coś nowego.', celebrate_cta: 'Dalej' },
+  hu: { day_exact: '{n}. nap', day_approx: 'a(z) {n}. nap körül', celebrate_title: 'Megnyílt valami új.', celebrate_cta: 'Tovább' },
+  ru: { day_exact: 'день {n}', day_approx: 'около дня {n}', celebrate_title: 'Открылось что-то новое.', celebrate_cta: 'Далее' },
 }
 const sx = (lang, k) => (STAGE_MAP_L[lang] || STAGE_MAP_L.en)[k]
 const STAGE_SEEN_KEY = 'stage_map_last_seen'
+
+// GCAO 02.08.2026 — ecranul de stadiu nou vorbeste pe beneficiu, nu pe numele
+// poetic (regula noua de copy: numele poetice traiesc doar pe harta Drumul,
+// unde au context; ecranele functionale spun direct ce s-a deschis si ce faci
+// cu el). Cheia = stage.key din STAGES (waterState.js), aceeasi ordine ca
+// ROADMAP mai sus.
+const STAGE_CELEBRATE_BODY = {
+  first_drop: {
+    en: 'Your rituals are open. You fall into rhythm with yourself, morning and evening.',
+    ro: 'Ritualurile s-au deschis. Intri în ritm cu tine, dimineața și seara.',
+    es: 'Tus rituales están abiertos. Entras en ritmo contigo, mañana y noche.',
+    fr: 'Tes rituels sont ouverts. Tu entres en rythme avec toi-même, matin et soir.',
+    de: 'Deine Rituale sind offen. Du kommst mit dir selbst in Rhythmus, morgens und abends.',
+    it: 'I tuoi rituali sono aperti. Entri in ritmo con te stesso, mattina e sera.',
+    pt: 'Os teus rituais estão abertos. Entras em ritmo contigo, de manhã e à noite.',
+    nl: 'Jouw rituelen zijn geopend. Je komt in ritme met jezelf, ochtend en avond.',
+    pl: 'Twoje rytuały są otwarte. Wchodzisz w rytm ze sobą, rano i wieczorem.',
+    hu: 'A rituáléid megnyíltak. Ritmusba kerülsz önmagaddal, reggel és este.',
+    ru: 'Твои ритуалы открыты. Ты входишь в ритм с собой, утром и вечером.',
+  },
+  the_deep: {
+    en: 'Free writing is open. You can write anytime, not just in the evening.',
+    ro: 'Jurnalul liber e deschis. Poți scrie oricând, nu doar seara.',
+    es: 'La escritura libre está abierta. Puedes escribir cuando quieras, no solo por la noche.',
+    fr: "L'écriture libre est ouverte. Tu peux écrire quand tu veux, pas seulement le soir.",
+    de: 'Freies Schreiben ist offen. Du kannst jederzeit schreiben, nicht nur abends.',
+    it: 'La scrittura libera è aperta. Puoi scrivere quando vuoi, non solo la sera.',
+    pt: 'A escrita livre está aberta. Podes escrever quando quiseres, não só à noite.',
+    nl: 'Vrij schrijven is geopend. Je kunt altijd schrijven, niet alleen \'s avonds.',
+    pl: 'Swobodne pisanie jest otwarte. Możesz pisać kiedy chcesz, nie tylko wieczorem.',
+    hu: 'A szabad írás megnyílt. Bármikor írhatsz, nem csak este.',
+    ru: 'Свободное письмо открыто. Ты можешь писать когда угодно, не только вечером.',
+  },
+  the_flow: {
+    en: 'Your alignment plan is ready. Concrete steps, from your profile.',
+    ro: 'Planul tău de aliniere e gata. Pași concreți, din profilul tău.',
+    es: 'Tu plan de alineación está listo. Pasos concretos, de tu perfil.',
+    fr: "Ton plan d'alignement est prêt. Des étapes concrètes, tirées de ton profil.",
+    de: 'Dein Alignment-Plan ist fertig. Konkrete Schritte, aus deinem Profil.',
+    it: 'Il tuo piano di allineamento è pronto. Passi concreti, dal tuo profilo.',
+    pt: 'O teu plano de alinhamento está pronto. Passos concretos, do teu perfil.',
+    nl: 'Jouw uitlijningsplan is klaar. Concrete stappen, uit jouw profiel.',
+    pl: 'Twój plan wyrównania jest gotowy. Konkretne kroki, z twojego profilu.',
+    hu: 'Az összhang-terved elkészült. Konkrét lépések, a profilodból.',
+    ru: 'Твой план выравнивания готов. Конкретные шаги, из твоего профиля.',
+  },
+  clear_water: {
+    en: 'Patterns has opened. See what keeps returning in what you write.',
+    ro: 'Tiparele s-au deschis. Vezi ce se repetă în ce scrii.',
+    es: 'Se han abierto los Patrones. Ve qué se repite en lo que escribes.',
+    fr: 'Les Tendances se sont ouvertes. Vois ce qui revient dans ce que tu écris.',
+    de: 'Die Muster haben sich geöffnet. Sieh, was sich in dem wiederholt, was du schreibst.',
+    it: 'I Modelli si sono aperti. Vedi cosa si ripete in ciò che scrivi.',
+    pt: 'Os Padrões abriram-se. Vê o que se repete no que escreves.',
+    nl: 'Patronen zijn geopend. Zie wat terugkeert in wat je schrijft.',
+    pl: 'Wzorce się otworzyły. Zobacz, co się powtarza w tym, co piszesz.',
+    hu: 'A Minták megnyíltak. Lásd, mi tér vissza abban, amit írsz.',
+    ru: 'Закономерности открылись. Смотри, что повторяется в том, что ты пишешь.',
+  },
+  the_tide: {
+    en: 'The Week, Seen is ready. Your weekly reflection, every Friday evening.',
+    ro: 'Privirea săptămânii e gata. Reflecția ta, în fiecare vineri seara.',
+    es: 'La Semana, Vista está lista. Tu reflexión semanal, cada viernes por la noche.',
+    fr: 'La Semaine, Vue est prête. Ta réflexion hebdomadaire, chaque vendredi soir.',
+    de: 'Die Woche, Gesehen ist bereit. Deine wöchentliche Reflexion, jeden Freitagabend.',
+    it: 'La Settimana, Vista è pronta. La tua riflessione settimanale, ogni venerdì sera.',
+    pt: 'A Semana, Vista está pronta. A tua reflexão semanal, todas as sextas à noite.',
+    nl: 'De Week, Gezien is klaar. Jouw wekelijkse reflectie, elke vrijdagavond.',
+    pl: 'Tydzień, Zobaczony jest gotowy. Twoja cotygodniowa refleksja, w każdy piątek wieczorem.',
+    hu: 'A Hét, Látva elkészült. Heti reflexiód, minden pénteken este.',
+    ru: 'Неделя, Увиденная готова. Твоё еженедельное размышление, каждый вечер пятницы.',
+  },
+  the_crystal: {
+    en: 'Your Commitment With Yourself is ready. A personal document, read again anytime.',
+    ro: 'Angajamentul cu Tine e gata. Un document personal, recitit oricând.',
+    es: 'Tu Compromiso Contigo Mismo está listo. Un documento personal, para releer cuando quieras.',
+    fr: 'Ton Engagement Envers Toi-Même est prêt. Un document personnel, à relire quand tu veux.',
+    de: 'Deine Verpflichtung dir selbst gegenüber ist fertig. Ein persönliches Dokument, jederzeit wieder lesbar.',
+    it: 'Il tuo Impegno Con Te Stesso è pronto. Un documento personale, da rileggere quando vuoi.',
+    pt: 'O teu Compromisso Contigo está pronto. Um documento pessoal, para reler quando quiseres.',
+    nl: 'Jouw Verbintenis Met Jezelf is klaar. Een persoonlijk document, altijd opnieuw te lezen.',
+    pl: 'Twoje Zobowiązanie Wobec Siebie jest gotowe. Osobisty dokument, do ponownego przeczytania kiedy chcesz.',
+    hu: 'Az Önmagaddal Kötött Elköteleződésed elkészült. Egy személyes dokumentum, bármikor újraolvasható.',
+    ru: 'Твоё Обязательство Перед Собой готово. Личный документ, который можно перечитать в любой момент.',
+  },
+  the_ocean: {
+    en: 'Renewing your commitment is ready. Revisit what you wrote at day 60, and what comes next.',
+    ro: 'Reînnoirea Angajamentului e gata. Recitești ce ai scris la ziua 60, și ce urmează.',
+    es: 'La renovación de tu compromiso está lista. Vuelve a leer lo que escribiste en el día 60, y lo que viene después.',
+    fr: 'Le renouvellement de ton engagement est prêt. Relis ce que tu as écrit au jour 60, et ce qui vient ensuite.',
+    de: 'Die Erneuerung deiner Verpflichtung ist bereit. Lies erneut, was du an Tag 60 geschrieben hast, und was als Nächstes kommt.',
+    it: 'Il rinnovo del tuo impegno è pronto. Rileggi cosa hai scritto al giorno 60, e cosa viene dopo.',
+    pt: 'A renovação do teu compromisso está pronta. Relê o que escreveste no dia 60, e o que vem a seguir.',
+    nl: 'De vernieuwing van jouw verbintenis is klaar. Lees opnieuw wat je op dag 60 schreef, en wat er hierna komt.',
+    pl: 'Odnowienie twojego zobowiązania jest gotowe. Przeczytaj ponownie, co napisałeś w 60. dniu, i co będzie dalej.',
+    hu: 'Az elköteleződésed megújítása elkészült. Olvasd újra, amit a 60. napon írtál, és ami ezután következik.',
+    ru: 'Обновление твоего обязательства готово. Перечитай, что ты написал(а) на 60-й день, и что будет дальше.',
+  },
+}
+const stageCelebrateBody = (lang, key) => (STAGE_CELEBRATE_BODY[key] || STAGE_CELEBRATE_BODY.first_drop)[lang] || (STAGE_CELEBRATE_BODY[key] || STAGE_CELEBRATE_BODY.first_drop).en
 
 // CLARITATE (30.07, punctul 1): O SINGURA HARTA — inainte existau doua liste
 // separate (stadiile poetice fara nicio explicatie + "Drumul Tau" cu
@@ -152,6 +252,9 @@ function JourneyMap({ lang, day, presence }) {
   )
 }
 
+// GCAO 02.08.2026 — pe beneficiu, fara numele poetic al stadiului (regula
+// noua de copy): titlul generic ramane acelasi la orice stadiu, textul de
+// dedesubt spune concret ce s-a deschis si ce faci cu el.
 function StageCelebration({ lang, stage, onDismiss }) {
   return (
     <div
@@ -159,11 +262,11 @@ function StageCelebration({ lang, stage, onDismiss }) {
       className="anim-fade-in"
       style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(6,6,16,0.88)', backdropFilter: 'blur(8px)', cursor: 'pointer', padding: '24px', textAlign: 'center' }}
     >
-      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'rgba(244,240,234,0.7)', marginBottom: '8px' }}>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: '#f4f0ea', marginBottom: '16px' }}>
         {sx(lang, 'celebrate_title')}
       </p>
-      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: '#f4f0ea', marginBottom: '28px' }}>
-        {stage[lang] || stage.en}
+      <p style={{ fontSize: '15px', color: 'rgba(244,240,234,0.75)', lineHeight: 1.6, maxWidth: '320px', marginBottom: '28px' }}>
+        {stageCelebrateBody(lang, stage.key)}
       </p>
       <button onClick={onDismiss} className="pill-btn">{sx(lang, 'celebrate_cta')}</button>
     </div>

@@ -21,6 +21,7 @@ import { t } from '../../lib/translations'
 import { useLanguage } from '../../lib/language'
 import { getForcedRitual } from '../../lib/simRitual'
 import { getRitualWindow, clientTzOffset } from '../../lib/logicalDay'
+import { FEATURE_BREATH } from '../../lib/appConfig'
 
 const L = {
   en: { to_evening: 'Go to this evening', to_morning: 'Go to this morning', returning: 'What you wrote is still here.', journal_link: 'Journal' },
@@ -147,8 +148,9 @@ function DashboardContent() {
             )}
           </div>
 
-          {/* zilele grele — fără vinovăție */}
-          {!today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
+          {/* zilele grele — fără vinovăție. GCAO 02.08.2026 (regresie
+              reparată): sub FEATURE_BREATH, implicit false/ascuns. */}
+          {FEATURE_BREATH && !today.one_breath && !today.evening && <OneBreath lang={lang} onComplete={refresh} />}
         </>
       )}
 
