@@ -46,7 +46,13 @@ export default function JournalPage() {
       .catch(() => setLoading(false))
   }
 
-  useEffect(load, [])
+  // Fix GCAO (02.08.2026): useLanguage() e 'en' pe primul render (citește
+  // localStorage abia in propriul useEffect); cu deps goale, load() ramanea
+  // blocat cu acel 'en' initial pentru totdeauna, chiar daca limba reala era
+  // alta — planul dacă-atunci din jurnal (A1) aparea cu conectori in engleza
+  // in orice alta limba. Se re-executa acum de fiecare data cand lang se
+  // stabilizeaza la valoarea reala.
+  useEffect(load, [lang])
 
   useEffect(() => {
     if (loading || activeDays < 3) return
