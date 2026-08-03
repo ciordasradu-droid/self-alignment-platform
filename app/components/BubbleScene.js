@@ -1,0 +1,270 @@
+'use client'
+
+// BULA ORGANICĂ — GCAO 03.08.2026. Shader portat 1:1 din
+// reference/bula_organica_FINAL.html (versiune semnată de Alex) — NU
+// modifica nicio constantă sau linie GLSL fără o nouă aprobare explicită.
+// Parametri înghețați (identici cu fișierul-referință): EXP=1.14, SHD=0.54,
+// CAU=1.50, TRN=1.00, SPEED=1.13. Contorul fps din referință NU intră aici.
+//
+// Diferențe FAȚĂ de referință — doar integrare, ZERO impact vizual:
+// - referința rula fullscreen, cu listenere de pointer pe window/viewport
+//   întreg; aici bula trăiește într-un container din pagină, deci
+//   dimensiunea vine din containerul propriu (ResizeObserver), nu din
+//   innerWidth/innerHeight, și listenerele de atingere sunt scoped pe
+//   canvas, nu pe window (altfel orice atingere din restul paginii Drumul
+//   ar perturba bula).
+// - adăugat: oprire completă a buclei (cancelAnimationFrame, nu doar sărirea
+//   desenului) când fila e ascunsă SAU componenta iese din viewport
+//   (IntersectionObserver), plus eliberarea explicită a contextului WebGL
+//   la demontare (WEBGL_lose_context).
+// - fallback dacă WebGL nu e disponibil: nu randează nimic (fundalul static
+//   existent al paginii rămâne vizibil), fără nicio eroare.
+
+import { useEffect, useRef } from 'react'
+
+const EXP = 1.14, SHD = 0.54, CAU = 1.50, TRN = 1.00, SPEED = 1.13
+
+const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'
+
+const FS = 'precision highp float;uniform float u_t;uniform vec2 u_res;uniform vec3 u_touch;' +
+  'const float u_exp=' + EXP.toFixed(2) + ';const float u_shd=' + SHD.toFixed(2) + ';' +
+  'const float u_cau=' + CAU.toFixed(2) + ';const float u_trn=' + TRN.toFixed(2) + ';' +
+  'float h(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}' +
+  'float sn(vec2 p){return sin(p.x)*sin(p.y);}' +
+  'float tn(vec2 p){float v=0.;' +
+  'v+=0.533*sn(p);p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(1.7,4.6);' +
+  'v+=0.267*sn(p);p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(8.3,2.8);' +
+  'v+=0.133*sn(p);' +
+  'return v*0.5+0.5;}' +
+  'float rg(vec2 p){return 1.-abs(2.*tn(p)-1.);}' +
+  'float web(vec2 p,float t,float po){' +
+  'vec2 w=vec2(tn(p*0.55+t*0.085),tn(p*0.55-t*0.07+7.0));' +
+  'p+=(w-0.5)*1.7;' +
+  'float a=rg(p*0.95+vec2(t*0.10,t*0.065));' +
+  'float b=rg(p*1.65-vec2(t*0.08,-t*0.10)+vec2(3.1,5.7));' +
+  'return pow(clamp(a*b,0.,1.),po);}' +
+  'const vec2 SUN=vec2(-0.10,0.92);' +
+  'float rays(vec2 uv,float t,float sc,float sp,float ph){' +
+  'vec2 dv=uv-SUN;float ds=length(dv);' +
+  'float a=atan(dv.x,-dv.y);' +
+  'float rr=tn(vec2(a*sc,a*sc*0.6)+vec2(t*sp+ph,-t*sp*0.6));' +
+  'rr=pow(smoothstep(0.40,1.,rr),2.4);' +
+  'float fade=exp(-ds*1.0)*smoothstep(2.0,0.30,ds);' +
+  'return rr*fade;}' +
+  'vec3 water(vec2 uv,float t,float py,float cg,float po){' +
+  'vec3 deep=vec3(0.040,0.070,0.135);' +
+  'vec3 shal=vec3(0.130,0.255,0.350);' +
+  'float vy=clamp(uv.y*0.5+0.5,0.,1.);' +
+  'float yy=mix(vy,py,0.5);' +
+  'vec3 col=mix(deep,shal,pow(yy,1.2));' +
+  'col+=vec3(0.09,0.14,0.18)*tn(uv*1.6+vec2(t*0.028,t*0.02))*0.42;' +
+  'float swell=0.90+0.10*sn(vec2(uv.x*1.3-t*0.075,uv.y*0.5+t*0.028)+3.0);' +
+  'col*=swell;' +
+  'vec2 sg=uv-SUN;float sd=dot(sg,sg);' +
+  'float win=exp(-sd*2.1)*(0.85+0.15*tn(uv*3.2+t*0.14));' +
+  'win*=0.90+0.10*tn(uv*9.0+vec2(t*0.30,-t*0.24));' +
+  'col+=vec3(0.83,0.91,0.97)*win*0.38;' +
+  'vec2 wuv=uv*vec2(2.0,2.9)+vec2(t*0.017,t*0.009);' +
+  'float patch=0.42+0.58*tn(uv*1.7+vec2(t*0.042,-t*0.033)+vec2(7.7,2.2));' +
+  'float sw=0.68+0.32*sin(t*0.16+uv.x*2.0+uv.y*2.8);' +
+  'float c=web(wuv,t,po)*sw*patch*(0.35+0.65*yy)*cg*u_cau;' +
+  'col+=vec3(0.57,0.71,0.86)*c*0.50;' +
+  'col+=vec3(0.85,0.91,0.97)*pow(c,3.)*0.28;' +
+  'return col;}' +
+  'void main(){' +
+  'vec2 uv=(gl_FragCoord.xy-.5*u_res)/min(u_res.x,u_res.y);uv.y+=0.03;float t=u_t+41.7;' +
+  'uv-=vec2(0.008*sin(t*0.26),0.010*sin(t*0.20+1.3));' +
+  'float py=gl_FragCoord.y/u_res.y;' +
+  'vec2 L=normalize(SUN);' +
+  'vec2 cs=uv/max(length(uv),0.001);' +
+  'float th=atan(uv.y,uv.x);' +
+  'float breath=1.+0.024*sin(t*0.45)+0.008*sin(t*0.83+1.7);' +
+  'float wob=tn(cs*2.0+t*0.10);' +
+  'float jelly=0.010*cos(2.*th-t*0.72)+0.006*cos(3.*th+t*0.55+1.2);' +
+  'float r=0.30*breath*(1.+0.055*(wob-0.5)+jelly);' +
+  'vec2 tp=u_touch.xy;float td=length(uv-tp);' +
+  'r+=0.030*u_touch.z*cos(td*17.-t*4.)*exp(-td*4.);' +
+  'float d=length(uv)-r;' +
+  'float inside=smoothstep(0.005,-0.005,d);' +
+  'vec3 col=water(uv,t,py,1.0,2.3);' +
+  'float lr=clamp(length(uv)/max(r,0.001),0.,1.);' +
+  'float nz=sqrt(max(1.-lr*lr,0.0));' +
+  'vec2 lensuv=-uv*mix(1.35,0.85,nz);' +
+  'lensuv+=vec2(t*0.011,-t*0.007);' +
+  'lensuv+=(0.006+0.014*(1.-nz))*vec2(tn(uv*5.+t*0.11)-0.5,tn(uv*5.-t*0.09+3.1)-0.5);' +
+  'float lpy=clamp(0.5-lensuv.y*0.45,0.,1.);' +
+  'vec3 thru=water(lensuv,t,1.-lpy,1.0,2.2)*1.06;' +
+  'vec3 flat_=water(uv*0.98,t,py,0.9,2.2);' +
+  'vec3 inCol=mix(flat_,thru,u_trn);' +
+  'float face=clamp(dot(cs,L)*0.5+0.5,0.,1.);' +
+  'float fres=pow(1.-nz,2.2);' +
+  'vec2 refluv=vec2(uv.x,abs(uv.y)+0.3)*1.4;' +
+  'vec3 sky=water(refluv+SUN*0.3,t,0.95,0.6,2.4)*1.25;' +
+  'inCol=mix(inCol,sky,fres*face*0.55*u_trn);' +
+  'inCol*=0.97+0.08*face;' +
+  'col=mix(col,inCol,inside);' +
+  'float topShade=mix(1.0,0.72+0.46*smoothstep(-1.0,1.0,uv.y/max(r,0.001)),u_shd*inside*0.7);' +
+  'col*=topShade;' +
+  'float sceneShade=mix(1.0,0.55+0.70*pow(py,1.1),u_shd);' +
+  'col*=sceneShade;' +
+  'float ev1=tn(cs*2.5+t*0.20);' +
+  'float ev2=tn(cs*5.5-t*0.14+vec2(4.4,1.1));' +
+  'float edgeVar=0.35+0.45*ev1+0.35*ev2*ev1;' +
+  'float rimI=(0.15+0.85*pow(face,1.5))*edgeVar;' +
+  'col+=vec3(0.96,0.94,0.89)*(exp(-abs(d)*22.)*0.33+exp(-abs(d)*60.)*0.17)*rimI;' +
+  'col+=vec3(0.95,0.88,0.70)*exp(-abs(d)*38.)*pow(face,2.5)*0.15*edgeVar;' +
+  'col+=vec3(0.44,0.54,0.74)*exp(-abs(d)*28.)*pow(1.-face,2.)*0.09;' +
+  'vec2 spc=uv-normalize(SUN)*r*0.60;' +
+  'vec2 tgt=vec2(-L.y,L.x);' +
+  'float su=dot(spc,tgt);float sv=dot(spc,L);' +
+  'float smear=exp(-(su*su*90.+sv*sv*420.));' +
+  'col+=vec3(1.0,0.99,0.95)*smear*inside*0.30;' +
+  'for(int i=0;i<4;i++){float fi=float(i);' +
+  'float sz=mix(12000.,30000.,h(vec2(fi,3.)));' +
+  'float bx=-0.45+fi*0.26+0.045*sin(t*0.28+fi*2.1);' +
+  'float by=mod(t*0.027*(0.5+0.5*h(vec2(fi,1.)))+fi*0.33,1.4)-0.70;' +
+  'float bd=length(uv-vec2(bx,by));' +
+  'float glint=0.012+0.13*rays(vec2(bx,by),t,5.6,0.08,3.7);' +
+  'col+=vec3(0.86,0.91,0.98)*glint*exp(-bd*bd*sz)*(1.-inside*0.9);}' +
+  'float pulse=0.88+0.12*sin(t*0.19+1.1);' +
+  'float rFar=rays(uv,t,3.2,0.05,0.0)*0.58;' +
+  'float rNear=rays(uv,t,5.6,0.085,3.7);' +
+  'float rThru=rays(lensuv,t,5.6,0.085,3.7);' +
+  'float rb=(rFar+mix(rNear,mix(rNear,rThru,u_trn),inside))*pulse;' +
+  'col+=vec3(0.81,0.90,0.98)*rb*0.38;' +
+  'col+=vec3(0.96,0.92,0.82)*rb*rb*0.20;' +
+  'float haze=smoothstep(0.42,0.0,py);' +
+  'col=mix(col,vec3(0.040,0.070,0.135),haze*(0.28+0.14*u_shd));' +
+  'col*=1.-0.16*dot(uv,uv);' +
+  'col*=u_exp;' +
+  'col=col*(1.0+0.7*col)/(1.0+col);' +
+  'col+=(h(gl_FragCoord.xy)-0.5)*0.0078;' +
+  'gl_FragColor=vec4(col,1.);}'
+
+export default function BubbleScene({ height = 280, className = '' }) {
+  const wrapRef = useRef(null)
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const cv = canvasRef.current
+    if (!wrap || !cv) return
+
+    const gl = cv.getContext('webgl', { antialias: false, alpha: false })
+    if (!gl) return // fallback: nu randam nimic, fundalul static ramane
+
+    function sh(t, s) {
+      const o = gl.createShader(t)
+      gl.shaderSource(o, s)
+      gl.compileShader(o)
+      return o
+    }
+    const pr = gl.createProgram()
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
+    gl.linkProgram(pr)
+    gl.useProgram(pr)
+    const buf = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+    const lp = gl.getAttribLocation(pr, 'p')
+    gl.enableVertexAttribArray(lp)
+    gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0)
+    const uT = gl.getUniformLocation(pr, 'u_t')
+    const uR = gl.getUniformLocation(pr, 'u_res')
+    const uTo = gl.getUniformLocation(pr, 'u_touch')
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
+
+    function resize() {
+      const rect = wrap.getBoundingClientRect()
+      cv.width = Math.max(1, Math.round(rect.width * dpr))
+      cv.height = Math.max(1, Math.round(rect.height * dpr))
+      gl.viewport(0, 0, cv.width, cv.height)
+    }
+    resize()
+    const ro = new ResizeObserver(resize)
+    ro.observe(wrap)
+
+    // atingerea ramane scoped pe canvas (integrare in pagina, nu fullscreen
+    // ca in referinta) — restul paginii Drumul nu trebuie sa perturbe bula.
+    let tx = 0, ty = 0, ts = 0
+    function setTouch(e) {
+      const rect = cv.getBoundingClientRect()
+      const x = (e.clientX - rect.left) * dpr
+      const y = (e.clientY - rect.top) * dpr
+      const m = Math.min(cv.width, cv.height)
+      tx = (x - cv.width * 0.5) / m
+      ty = (cv.height * 0.5 - y) / m + 0.03
+      ts = 1
+    }
+    function onDown(e) { setTouch(e) }
+    function onMove(e) { if (e.buttons || e.pointerType === 'touch') setTouch(e) }
+    cv.addEventListener('pointerdown', onDown)
+    cv.addEventListener('pointermove', onMove)
+
+    let simT = 0
+    let last = performance.now()
+    let rafId = 0
+    let running = false
+
+    function tick(now) {
+      const dt = (now - last) / 1000
+      last = now
+      simT += dt * SPEED
+      ts *= 0.965
+      gl.uniform1f(uT, simT)
+      gl.uniform2f(uR, cv.width, cv.height)
+      gl.uniform3f(uTo, tx, ty, ts)
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
+      rafId = requestAnimationFrame(tick)
+    }
+
+    function start() {
+      if (running) return
+      running = true
+      last = performance.now()
+      rafId = requestAnimationFrame(tick)
+    }
+    function stop() {
+      running = false
+      cancelAnimationFrame(rafId)
+    }
+
+    // opreste complet bucla (nu doar sare desenul) cand fila e ascunsa SAU
+    // componenta iese din viewport — zero consum in fundal.
+    let isHidden = document.hidden
+    let isIntersecting = true
+    function evaluate() {
+      if (!isHidden && isIntersecting) start()
+      else stop()
+    }
+    function onVis() { isHidden = document.hidden; evaluate() }
+    document.addEventListener('visibilitychange', onVis)
+
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting
+      evaluate()
+    }, { threshold: 0.01 })
+    io.observe(wrap)
+
+    evaluate()
+
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', onVis)
+      io.disconnect()
+      ro.disconnect()
+      cv.removeEventListener('pointerdown', onDown)
+      cv.removeEventListener('pointermove', onMove)
+      const lose = gl.getExtension('WEBGL_lose_context')
+      if (lose) lose.loseContext()
+    }
+  }, [])
+
+  return (
+    <div ref={wrapRef} className={className} style={{ width: '100%', height, touchAction: 'none' }} aria-hidden="true">
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+    </div>
+  )
+}

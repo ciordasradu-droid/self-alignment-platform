@@ -1,0 +1,5 @@
+# reference/bula_organica_FINAL.html e sursa vizuala LEGE pentru bula
+# organica (GCAO 03.08.2026, semnata de Alex) — pastrata byte-cu-byte,
+# fara nicio normalizare de linie (LF->CRLF) la checkout/commit, indiferent
+# de core.autocrlf al cuiva.
+reference/bula_organica_FINAL.html -text eol=lf
