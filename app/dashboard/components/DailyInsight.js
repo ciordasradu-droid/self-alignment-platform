@@ -1,9 +1,13 @@
 "use client"
 
-// Destinație: app/dashboard/components/DailyInsight.js  (ÎNLOCUIEȘTE COMPLET)
-// Singura schimbare: scos micro-textul confuz ("Ia trei respirații adânci.
-// Observă unde se așază asta în corpul tău") — formulare care cerea decodare.
-// Restul Gândului Zilei rămâne identic.
+// Destinație: app/dashboard/components/DailyInsight.js
+// GCAO 04.08.2026 — Design/UX, ecranul Azi dimineața: în mod embedded (pasul
+// din ritualul de dimineață), gandul zilei pierde caseta proprie (fundal,
+// bordură, blur), mandala decorativă, eticheta-pastilă cu shimmer și
+// animația typewriter cuvânt-cu-cuvânt — pluteste direct pe apă, ca tot
+// restul ritualului (constituția C.1, reguli 2 și 9: doar apa se mișcă).
+// Randarea STANDALONE (fereastra de mijloc, 15:33+, embedded=false) rămâne
+// NEATINSĂ — în afara scope-ului acestei runde.
 
 import { useState, useEffect } from "react"
 import { getDailyThought } from "../../../lib/dailyThoughts"
@@ -71,10 +75,26 @@ export default function DailyInsight({ embedded = false }) {
 
   const t = LABELS[lang] || LABELS.en
   const dateLocale = lang === "en" ? "en-US" : lang
+
+  if (embedded) {
+    return (
+      <div style={sEmbed.wrap} className="anim-fade-in">
+        <div style={sEmbed.header}>
+          <span style={sEmbed.tag}>{t.tag}</span>
+          <span style={sEmbed.date}>
+            {new Date().toLocaleDateString(dateLocale, { weekday: "long", month: "long", day: "numeric" })}
+          </span>
+        </div>
+        <p style={sEmbed.body}>{insight.body}</p>
+        <p style={sEmbed.question}>{"“"}{insight.question}{"”"}</p>
+      </div>
+    )
+  }
+
   const questionWords = (insight.question || "").split(/\s+/).filter(Boolean)
 
   return (
-    <div style={{ ...s.card, ...(embedded ? s.embeddedCard : null) }} className="anim-fade-in gradient-border-glow">
+    <div style={s.card} className="anim-fade-in gradient-border-glow">
       {/* Sacred geometry decoration */}
       <svg
         className="mandala-bg"
@@ -122,9 +142,20 @@ export default function DailyInsight({ embedded = false }) {
   )
 }
 
+// GCAO 04.08.2026 — versiune fără casetă, doar pentru pasul embedded din
+// ritualul de dimineață. Trei mărimi, ca tot restul ecranului Azi-dimineața:
+// 15px pentru corp/întrebare, 13px pentru eticheta/dată (meta).
+const sEmbed = {
+  wrap: { textAlign: 'left' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', flexWrap: 'wrap', gap: '6px' },
+  tag: { fontSize: '13px', fontWeight: '600', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px' },
+  date: { fontSize: '13px', color: 'var(--text-light)' },
+  body: { fontSize: '15px', color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '14px' },
+  question: { fontSize: '15px', color: 'var(--text)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 },
+}
+
 const s = {
   card: { position: "relative", overflow: "hidden", background: "var(--surface)", backdropFilter: "blur(16px) saturate(120%)", borderRadius: "var(--radius)", padding: "28px", marginBottom: "24px", border: "1px solid var(--border)" },
-  embeddedCard: { marginBottom: 0 },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" },
   tag: { fontSize: "12px", fontWeight: "700", color: "var(--purple)", textTransform: "uppercase", letterSpacing: "1px", background: "var(--gold-faint)", padding: "5px 12px", borderRadius: "20px", alignSelf: "flex-start" },
   date: { fontSize: "12px", color: "rgba(255,255,255,0.4)" },

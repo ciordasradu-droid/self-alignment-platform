@@ -83,8 +83,8 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
 
   if (sent) {
     return (
-      <div className="glass" style={s.card}>
-        <p style={s.wish}>{lx(lang, 'wish')}{who}.</p>
+      <div className="flow-in" style={s.wrap}>
+        <p style={s.greet}>{lx(lang, 'wish')}{who}.</p>
       </div>
     )
   }
@@ -109,11 +109,16 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
     )
   }
 
+  // GCAO 04.08.2026 — Design/UX, ecranul Azi dimineața (constituția C.1):
+  // caseta opacă (.glass) a dispărut — ritualul plutește direct pe apă,
+  // legibilitatea vine din text-shadow (setat o dată pe wrap, moștenit),
+  // nu dintr-un fundal. Ierarhia cerută: salut+somn → Gândul Zilei →
+  // intenție+Plan (un singur bloc vizual) → UN buton primar, jos.
   return (
-    <div className="glass flow-in" style={s.card}>
+    <div className="flow-in" style={s.wrap}>
       <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
 
-      {/* pas 1 — cum ai dormit: scris liber, un rând, fără stări preselectate */}
+      {/* bloc 1 — cum ai dormit: scris liber, un rând, fără stări preselectate */}
       <p style={s.q}>{lx(lang, 'sleepQ')}</p>
       <input
         type="text"
@@ -124,15 +129,14 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
         style={s.sleepInput}
       />
 
-      {/* pas 2 — Gândul Zilei (Privirea săptămânii s-a mutat vineri seara,
-          calup arhitectura 30.07, A6 — vezi EveningMirror.js) */}
-      <div style={s.step}>
+      {/* bloc 2 — Gândul Zilei, fără casetă proprie (embedded, vezi
+          DailyInsight.js) */}
+      <div style={s.block}>
         <DailyInsight embedded />
       </div>
 
-      {/* pas 3 — intenția: continuată din aseară (2 gesturi) sau scrisă liber
-          dacă e prima dimineață fără o seară în urmă */}
-      <div style={s.step}>
+      {/* bloc 3 — intenția + Planul (opțional, discret), UN singur bloc vizual */}
+      <div style={s.block}>
         {continuedIntention ? (
           intentionMode === 'changing' ? (
             <>
@@ -174,16 +178,14 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
             />
           </>
         )}
-      </div>
 
-      {/* GCAO A1 — pasul "Planul", opțional, ascuns până e deschis */}
-      <div style={s.step}>
+        {/* Planul — rămâne parte a aceluiași bloc (intenție+Plan), nu unul separat */}
         {!planOpen ? (
           <button type="button" onClick={() => setPlanOpen(true)} style={s.planToggle}>
             {lx(lang, 'planToggle')}
           </button>
         ) : (
-          <div className="flow-in">
+          <div className="flow-in" style={{ marginTop: '14px' }}>
             <p style={s.planIntro}>{lx(lang, 'planIntro')}</p>
             <p style={s.q}>{lx(lang, 'planIfLabel')}</p>
             <input type="text" value={planIf} onChange={(e) => setPlanIf(e.target.value)} placeholder={lx(lang, 'planIfPh')} className="input-clean" style={s.planInput} />
@@ -202,22 +204,23 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
   )
 }
 
+// GCAO 04.08.2026 — trei mărimi, două fonturi, pe tot ecranul Azi-dimineața:
+// 26px Cormorant Garamond (salut + urarea de închidere — singurele "momente
+// mari"); 15px DM Sans (tot conținutul funcțional: întrebări, corp, ecoul
+// intenției, butoanele); 13px DM Sans (indicii/meta: intro Plan, toggle).
 const s = {
   card: { padding: '30px 24px', marginBottom: '24px', textAlign: 'center' },
-  greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: 'var(--text)', marginBottom: '20px' },
-  q: { fontSize: '15px', color: 'var(--text-muted)', marginBottom: '14px' },
+  wrap: { padding: '8px 22px 28px', textAlign: 'center', textShadow: '0 1px 10px rgba(6,6,16,0.55)' },
+  greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: 'var(--text)', marginBottom: '18px' },
+  q: { fontSize: '15px', color: 'var(--text-muted)', marginBottom: '12px' },
   sleepInput: { width: '100%', textAlign: 'center', boxSizing: 'border-box' },
-  step: { marginTop: '24px', textAlign: 'left' },
-  echoText: { fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', color: 'var(--amber)', lineHeight: 1.5, marginBottom: '16px' },
+  block: { marginTop: '22px', textAlign: 'left' },
+  echoText: { fontSize: '15px', color: 'var(--text)', lineHeight: 1.6, marginBottom: '14px', fontStyle: 'italic' },
   gestureRow: { display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' },
-  gestureBtn: { padding: '11px 20px', fontSize: '14px', minHeight: '44px' },
-  intentionArea: { width: '100%', resize: 'none', fontFamily: 'Cormorant Garamond, serif', lineHeight: 1.6, boxSizing: 'border-box' },
-  planToggle: { display: 'inline-block', background: 'none', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', padding: '4px 0', minHeight: '44px' },
+  gestureBtn: { padding: '11px 20px', minHeight: '44px' },
+  intentionArea: { width: '100%', resize: 'none', fontFamily: 'DM Sans, sans-serif', fontSize: '15px', lineHeight: 1.6, boxSizing: 'border-box' },
+  planToggle: { display: 'inline-block', background: 'none', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', padding: '10px 0 4px', minHeight: '44px' },
   planIntro: { fontSize: '13px', color: 'var(--text-light)', lineHeight: 1.5, marginBottom: '14px' },
   planInput: { width: '100%', boxSizing: 'border-box' },
-  weekBox: { textAlign: 'left' },
-  weekTag: { fontSize: '12px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' },
-  weekQuestion: { marginBottom: '18px' },
-  btn: { width: '100%', marginTop: '26px' },
-  wish: { fontFamily: 'Cormorant Garamond, serif', fontSize: '19px', color: 'var(--amber)', marginTop: '10px' },
+  btn: { width: '100%', marginTop: '24px' },
 }
