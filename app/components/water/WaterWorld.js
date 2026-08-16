@@ -1,34 +1,54 @@
 'use client'
 
-// BULA ORGANICĂ — GCAO 03.08.2026. Shader portat 1:1 din
-// reference/bula_organica_FINAL.html (versiune semnată de Alex) — NU
-// modifica nicio constantă sau linie GLSL fără o nouă aprobare explicită.
-// Parametri înghețați (identici cu fișierul-referință): EXP=1.14, SHD=0.54,
-// CAU=1.50, TRN=1.00, SPEED=1.13. Contorul fps din referință NU intră aici.
+// GCAO 05.08.2026 — "Apa vie, zi și seară", fundația vizuală pentru toată
+// aplicația. Înlocuiește WaterVideoLayer (video) cu shader-ul viu, semnat de
+// Alex, portat 1:1 din reference/concluzia_apa_vie_zi_seara.html — care la
+// rândul lui e reference/bula_organica_FINAL.html (03.08.2026) cu o singură
+// schimbare confirmată programatic (vezi sesiunea): EXP/SHD/CAU devin
+// uniforms în loc de constante, ca să poată tranziționa între zi și seară.
+// Restul shaderului (de la `float h(vec2 p)` încolo) e caracter-cu-caracter
+// identic cu referința bulei — verificat cu un diff programatic, nu cu ochiul.
 //
-// Diferențe FAȚĂ de referință — doar integrare, ZERO impact vizual:
-// - referința rula fullscreen, cu listenere de pointer pe window/viewport
-//   întreg; aici bula trăiește într-un container din pagină, deci
-//   dimensiunea vine din containerul propriu (ResizeObserver), nu din
-//   innerWidth/innerHeight, și listenerele de atingere sunt scoped pe
-//   canvas, nu pe window (altfel orice atingere din restul paginii Drumul
-//   ar perturba bula).
-// - adăugat: oprire completă a buclei (cancelAnimationFrame, nu doar sărirea
-//   desenului) când fila e ascunsă SAU componenta iese din viewport
-//   (IntersectionObserver), plus eliberarea explicită a contextului WebGL
-//   la demontare (WEBGL_lose_context).
-// - fallback dacă WebGL nu e disponibil: nu randează nimic (fundalul static
-//   existent al paginii rămâne vizibil), fără nicio eroare.
+// UN SINGUR strat global (portal în document.body, ca fostul WaterVideoLayer)
+// — nu se remontează la navigare între ecrane, deci contextul WebGL
+// supraviețuiește tranzițiilor de rută (evită reinițializarea costisitoare).
+//
+// Diferențe FAȚĂ de referință — integrare, ZERO impact vizual asupra
+// shaderului semnat:
+// - u_bubble (uniform nou, singura adăugire la shader): 0/1, amestecă raza
+//   bulei spre o valoare puternic negativă când e 0, ca bula să dispară
+//   complet fără să existe DOI shadere (unul cu bulă, unul fără) — regula
+//   „nu dubla shaderul".
+// - mode ('day'/'night') vine din lib/waterMode.js (useWaterMode — granițele
+//   EXISTENTE 03:33/15:33, nu o logică nouă), bubble vine din ruta curentă
+//   (usePathname): activă doar pe /dashboard (Azi) și /drumul. Ambele pot fi
+//   suprascrise explicit prin props, pentru testare.
+// - fallback: prefers-reduced-motion SAU WebGL indisponibil → un gradient
+//   static (tonul apei adânci), fără canvas, fără animație — nimic nu crapă.
+// - oprire completă a buclei (cancelAnimationFrame, nu doar salt de desen)
+//   la fila ascunsă SAU la ieșirea din viewport (IntersectionObserver) —
+//   pentru un strat fullscreen practic mereu "vizibil", document.hidden e
+//   cazul real care contează, dar IntersectionObserver rămâne ca plasă.
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { usePathname } from 'next/navigation'
+import { useWaterMode } from '../../../lib/waterMode'
 
-const EXP = 1.14, SHD = 0.54, CAU = 1.50, TRN = 1.00, SPEED = 1.13
+const DAY = { e: 1.14, s: 0.54, c: 1.50 }
+const NIGHT = { e: 0.68, s: 0.88, c: 0.85 }
+const TRN = 1.00
+const SPEED = 1.13
+const LERP = 0.04
+const FRAME_BUDGET_MS = 25 // plafon ~40fps, exact ca în machetă
 
 const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'
 
+// Header cu uniforms (singura linie diferită față de bula_organica_FINAL.html)
+// + u_bubble, singura adăugire reală. Restul, identic caracter-cu-caracter.
 const FS = 'precision highp float;uniform float u_t;uniform vec2 u_res;uniform vec3 u_touch;' +
-  'const float u_exp=' + EXP.toFixed(2) + ';const float u_shd=' + SHD.toFixed(2) + ';' +
-  'const float u_cau=' + CAU.toFixed(2) + ';const float u_trn=' + TRN.toFixed(2) + ';' +
+  'uniform float u_exp;uniform float u_shd;uniform float u_cau;uniform float u_bubble;' +
+  'const float u_trn=' + TRN.toFixed(2) + ';' +
   'float h(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}' +
   'float sn(vec2 p){return sin(p.x)*sin(p.y);}' +
   'float tn(vec2 p){float v=0.;' +
@@ -82,6 +102,7 @@ const FS = 'precision highp float;uniform float u_t;uniform vec2 u_res;uniform v
   'float wob=tn(cs*2.0+t*0.10);' +
   'float jelly=0.010*cos(2.*th-t*0.72)+0.006*cos(3.*th+t*0.55+1.2);' +
   'float r=0.30*breath*(1.+0.055*(wob-0.5)+jelly);' +
+  'r=mix(-5.0,r,u_bubble);' +
   'vec2 tp=u_touch.xy;float td=length(uv-tp);' +
   'r+=0.030*u_touch.z*cos(td*17.-t*4.)*exp(-td*4.);' +
   'float d=length(uv)-r;' +
@@ -141,17 +162,49 @@ const FS = 'precision highp float;uniform float u_t;uniform vec2 u_res;uniform v
   'col+=(h(gl_FragCoord.xy)-0.5)*0.0078;' +
   'gl_FragColor=vec4(col,1.);}'
 
-export default function BubbleScene({ height = 280, className = '' }) {
+const BUBBLE_ROUTES = ['/dashboard', '/drumul']
+
+export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
+  const [mounted, setMounted] = useState(false)
+  const [autoMode] = useWaterMode()
+  const pathname = usePathname()
   const wrapRef = useRef(null)
   const canvasRef = useRef(null)
 
+  const mode = modeProp || autoMode
+  const bubble = bubbleProp !== undefined ? bubbleProp : BUBBLE_ROUTES.includes(pathname)
+
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [broken, setBroken] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
   useEffect(() => {
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+      const apply = () => setReducedMotion(mq.matches)
+      apply()
+      mq.addEventListener('change', apply)
+      return () => mq.removeEventListener('change', apply)
+    } catch (e) {}
+  }, [])
+
+  // ținta curentă (zi/seară) — citită live în bucla de desen printr-un ref,
+  // ca schimbarea de mode să nu ceară remontarea canvas-ului/contextului.
+  const targetRef = useRef(mode === 'night' ? NIGHT : DAY)
+  useEffect(() => { targetRef.current = mode === 'night' ? NIGHT : DAY }, [mode])
+
+  const bubbleRef = useRef(bubble ? 1 : 0)
+  useEffect(() => { bubbleRef.current = bubble ? 1 : 0 }, [bubble])
+
+  useEffect(() => {
+    if (!mounted || reducedMotion) return
     const wrap = wrapRef.current
     const cv = canvasRef.current
     if (!wrap || !cv) return
 
     const gl = cv.getContext('webgl', { antialias: false, alpha: false })
-    if (!gl) return // fallback: nu randam nimic, fundalul static ramane
+    if (!gl) { setBroken(true); return }
 
     function sh(t, s) {
       const o = gl.createShader(t)
@@ -163,6 +216,7 @@ export default function BubbleScene({ height = 280, className = '' }) {
     gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
     gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
     gl.linkProgram(pr)
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { setBroken(true); return }
     gl.useProgram(pr)
     const buf = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, buf)
@@ -173,26 +227,23 @@ export default function BubbleScene({ height = 280, className = '' }) {
     const uT = gl.getUniformLocation(pr, 'u_t')
     const uR = gl.getUniformLocation(pr, 'u_res')
     const uTo = gl.getUniformLocation(pr, 'u_touch')
+    const uE = gl.getUniformLocation(pr, 'u_exp')
+    const uS = gl.getUniformLocation(pr, 'u_shd')
+    const uC = gl.getUniformLocation(pr, 'u_cau')
+    const uB = gl.getUniformLocation(pr, 'u_bubble')
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
-
     function resize() {
-      const rect = wrap.getBoundingClientRect()
-      cv.width = Math.max(1, Math.round(rect.width * dpr))
-      cv.height = Math.max(1, Math.round(rect.height * dpr))
+      cv.width = Math.max(1, Math.round(window.innerWidth * dpr))
+      cv.height = Math.max(1, Math.round(window.innerHeight * dpr))
       gl.viewport(0, 0, cv.width, cv.height)
     }
     resize()
-    const ro = new ResizeObserver(resize)
-    ro.observe(wrap)
+    window.addEventListener('resize', resize)
 
-    // atingerea ramane scoped pe canvas (integrare in pagina, nu fullscreen
-    // ca in referinta) — restul paginii Drumul nu trebuie sa perturbe bula.
     let tx = 0, ty = 0, ts = 0
     function setTouch(e) {
-      const rect = cv.getBoundingClientRect()
-      const x = (e.clientX - rect.left) * dpr
-      const y = (e.clientY - rect.top) * dpr
+      const x = e.clientX * dpr, y = e.clientY * dpr
       const m = Math.min(cv.width, cv.height)
       tx = (x - cv.width * 0.5) / m
       ty = (cv.height * 0.5 - y) / m + 0.03
@@ -200,24 +251,36 @@ export default function BubbleScene({ height = 280, className = '' }) {
     }
     function onDown(e) { setTouch(e) }
     function onMove(e) { if (e.buttons || e.pointerType === 'touch') setTouch(e) }
-    cv.addEventListener('pointerdown', onDown)
-    cv.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointermove', onMove)
 
+    const cur = { e: DAY.e, s: DAY.s, c: DAY.c }
     let simT = 0
     let last = performance.now()
+    let lastDraw = 0
     let rafId = 0
     let running = false
 
     function tick(now) {
+      rafId = requestAnimationFrame(tick)
+      if (now - lastDraw < FRAME_BUDGET_MS) return // plafon ~40fps, ca in macheta
+      lastDraw = now
       const dt = (now - last) / 1000
       last = now
+      const tgt = targetRef.current
+      cur.e += (tgt.e - cur.e) * LERP
+      cur.s += (tgt.s - cur.s) * LERP
+      cur.c += (tgt.c - cur.c) * LERP
       simT += dt * SPEED
       ts *= 0.965
       gl.uniform1f(uT, simT)
       gl.uniform2f(uR, cv.width, cv.height)
       gl.uniform3f(uTo, tx, ty, ts)
+      gl.uniform1f(uE, cur.e)
+      gl.uniform1f(uS, cur.s)
+      gl.uniform1f(uC, cur.c)
+      gl.uniform1f(uB, bubbleRef.current)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
-      rafId = requestAnimationFrame(tick)
     }
 
     function start() {
@@ -231,8 +294,6 @@ export default function BubbleScene({ height = 280, className = '' }) {
       cancelAnimationFrame(rafId)
     }
 
-    // opreste complet bucla (nu doar sare desenul) cand fila e ascunsa SAU
-    // componenta iese din viewport — zero consum in fundal.
     let isHidden = document.hidden
     let isIntersecting = true
     function evaluate() {
@@ -254,17 +315,25 @@ export default function BubbleScene({ height = 280, className = '' }) {
       stop()
       document.removeEventListener('visibilitychange', onVis)
       io.disconnect()
-      ro.disconnect()
-      cv.removeEventListener('pointerdown', onDown)
-      cv.removeEventListener('pointermove', onMove)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointermove', onMove)
       const lose = gl.getExtension('WEBGL_lose_context')
       if (lose) lose.loseContext()
     }
-  }, [])
+  }, [mounted, reducedMotion])
 
-  return (
-    <div ref={wrapRef} className={className} style={{ width: '100%', height, touchAction: 'none' }} aria-hidden="true">
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+  if (!mounted) return null
+
+  const showStatic = reducedMotion || broken
+  const tone = mode === 'night' ? '#070b14' : '#0B1220'
+
+  const layer = (
+    <div ref={wrapRef} style={{ position: 'fixed', inset: 0, zIndex: -1, background: tone }} aria-hidden="true">
+      {!showStatic && (
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+      )}
     </div>
   )
+  return createPortal(layer, document.body)
 }

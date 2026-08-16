@@ -16,10 +16,8 @@ import Presence from '../components/Presence'
 import RoomNav from '../components/RoomNav'
 import WaterLoader from '../components/water/WaterLoader'
 import { stageForDay, stageIndexForDay, STAGES } from '../components/water/waterState'
-import BubbleScene from '../components/BubbleScene'
 import { useLanguage } from '../../lib/language'
 import { clientTzOffset } from '../../lib/logicalDay'
-import { FEATURE_BUBBLE } from '../../lib/appConfig'
 
 // A2 (decizie închisă 23.07): deblocările se leagă de PREZENȚĂ, nu de
 // calendar. metric: 'days' = zile active (cel puțin un ritual făcut),
@@ -211,11 +209,10 @@ function JourneyMap({ lang, day, presence }) {
         <p style={{ fontSize: '13px', color: 'rgba(244,240,234,0.55)', lineHeight: 1.5, marginBottom: '20px' }}>
           {lx(lang, 'subtitle')}
         </p>
-        {/* GCAO 03.08.2026 — bula organică (reference/bula_organica_FINAL.html),
-            prezența centrală deasupra celor 7 rânduri. FEATURE_BUBBLE, implicit
-            activă; daca WebGL nu e disponibil, BubbleScene nu randeaza nimic
-            (fundalul static ramane). */}
-        {FEATURE_BUBBLE && <BubbleScene height={280} className="drumul-bubble" />}
+        {/* GCAO 05.08.2026 — bula nu mai e un canvas local aici: traieste in
+            WaterWorld, stratul global (app/layout.js), activa automat pe
+            aceasta ruta (/drumul). Randul de mai jos porneste direct cu
+            harta celor 7 stadii. */}
         {JOURNEY.map(({ stage, unlock }, i) => {
           const isPast = i < currentIdx
           const isCurrent = i === currentIdx

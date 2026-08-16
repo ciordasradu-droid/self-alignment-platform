@@ -42,7 +42,6 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
   // închidere, după gestul de salvare, înainte de "Somn lin".
   const [closingBreath, setClosingBreath] = useState(false)
 
-  const who = name ? `, ${name}` : ''
   // Duminică seara, intenția devine pentru săptămâna care vine, nu pentru
   // ziua de mâine (secț. 5, weekend).
   const isSunday = getEffectiveWeekday() === 0
@@ -115,7 +114,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
 
   if (sent) {
     return (
-      <div className="glass ritual-night" style={{ ...s.card, ...(dimmed ? s.dimmed : null) }}>
+      <div className="water-float" style={dimmed ? s.dimmed : null}>
         <div style={s.mirror} aria-hidden="true"><span className="wd-ring" style={s.mirrorRing} /></div>
         <p style={s.saved}>{lx(lang, 'saved')}</p>
         <p style={s.goodnight}>{lx(lang, 'goodnight')}</p>
@@ -131,8 +130,11 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
     )
   }
 
+  // GCAO 05.08.2026 — "Apa vie, zi și seară": salutul s-a mutat în antetul
+  // comun de pe Azi (dashboard/page.js) — nu se mai repetă aici. Câmpurile
+  // stau pe foaia cu scrim (water-sheet), ca dimineața.
   return (
-    <div className="glass ritual-night flow-in" style={s.card}>
+    <div className="water-sheet flow-in" style={{ position: 'relative' }}>
       {rainStage !== 'idle' && (
         <div style={s.rainOverlay} aria-hidden="true">
           {rainStage === 'falling' && <span style={s.rainDrop} />}
@@ -144,9 +146,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
           )}
         </div>
       )}
-      <div style={rainStage !== 'idle' ? s.contentFading : null}>
-        <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
-
+      <div className="water-sheet-inner" style={rainStage !== 'idle' ? s.contentFading : null}>
         {/* Bucla intenției (25.07 noapte, sect. A): intenția semănată aseară
             se întoarce acum ca întrebare de OBSERVARE, nu de bilanț — fără
             bifă, fără scor, fără culoare de succes/eșec. Dacă nu există
@@ -170,7 +170,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
           onChange={(e) => setJournal(e.target.value)}
           onFocus={() => setJournalTouched(true)}
           rows={4}
-          className="input-clean journal-paper"
+          className="input-clean"
           style={s.textarea}
         />
 
@@ -187,7 +187,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
               onFocus={() => setGratitudeTouched(true)}
               placeholder={lx(lang, 'gratitudePh')}
               rows={2}
-              className="input-clean journal-paper"
+              className="input-clean"
               style={s.textarea}
             />
             {!gratitudeTouched && (
@@ -206,7 +206,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
               value={intention}
               onChange={(e) => setIntention(e.target.value)}
               rows={2}
-              className="input-clean journal-paper"
+              className="input-clean"
               style={s.textarea}
             />
 
@@ -221,7 +221,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
                   onChange={(e) => setWeekAnswers(w => ({ ...w, continued: e.target.value }))}
                   placeholder={lx(lang, 'weekPh1')}
                   rows={2}
-                  className="input-clean journal-paper"
+                  className="input-clean"
                   style={s.textarea}
                 />
                 <p style={s.label}>{lx(lang, 'weekQ2')}</p>
@@ -230,7 +230,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
                   onChange={(e) => setWeekAnswers(w => ({ ...w, pattern: e.target.value }))}
                   placeholder={lx(lang, 'weekPh2')}
                   rows={2}
-                  className="input-clean journal-paper"
+                  className="input-clean"
                   style={s.textarea}
                 />
                 <p style={s.label}>{lx(lang, 'weekQ3')}</p>
@@ -239,7 +239,7 @@ export default function EveningMirror({ lang = 'en', name = '', done = false, to
                   onChange={(e) => setWeekAnswers(w => ({ ...w, bring: e.target.value }))}
                   placeholder={lx(lang, 'weekPh3')}
                   rows={2}
-                  className="input-clean journal-paper"
+                  className="input-clean"
                   style={s.textarea}
                 />
               </div>
@@ -265,16 +265,18 @@ const s = {
   rainOverlay: { position: 'absolute', inset: 0, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', borderRadius: 'inherit' },
   rainDrop: { display: 'block', width: '10px', height: '14px', borderRadius: '50% 50% 50% 0', background: 'radial-gradient(circle at 35% 30%, #fff 0%, var(--pearl) 60%, var(--gold) 100%)', boxShadow: '0 0 10px var(--gold-soft)', animation: 'rain-fall 380ms var(--ease-out) forwards' },
   rainRing: { position: 'absolute', bottom: '18px', width: '90px', height: '30px', borderRadius: '50%', border: '1px solid var(--gold-soft)', boxShadow: '0 0 14px var(--gold-faint)', animation: 'rain-splash 380ms var(--ease-out) forwards' },
-  greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', color: 'var(--text)', marginBottom: '18px' },
-  loopQuestion: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text-light)', lineHeight: 1.6, marginBottom: '20px', fontStyle: 'normal' },
-  label: { fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', color: 'var(--text)', margin: '18px 0 10px' },
+  // GCAO 05.08.2026 — constituția v2: sans de sistem, corp minim 16px, max 3
+  // mărimi (16px conținut, 13px meta); serif (Georgia) rezervat pentru
+  // salut/Gândul Zilei — niciunul randat aici (salutul e în antetul comun).
+  loopQuestion: { fontSize: '16px', color: 'var(--text-light)', lineHeight: 1.6, marginBottom: '18px' },
+  label: { fontSize: '16px', color: 'rgba(242,239,233,.66)', margin: '16px 0 8px' },
   weekBox: { marginTop: '22px', paddingTop: '18px', borderTop: '1px solid var(--border)' },
-  weekTag: { fontSize: '12px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' },
-  textarea: { width: '100%', resize: 'none', fontFamily: 'Cormorant Garamond, serif', lineHeight: 1.7, boxSizing: 'border-box' },
+  weekTag: { fontSize: '13px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' },
+  textarea: { width: '100%', resize: 'none', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '16px', lineHeight: 1.6, boxSizing: 'border-box' },
   skipBtn: { display: 'inline-block', background: 'none', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', padding: '6px 0', minHeight: '44px' },
-  btn: { width: '100%', marginTop: '24px' },
+  btn: { width: '100%', height: '52px', marginTop: '16px' },
   mirror: { position: 'relative', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   mirrorRing: { width: '10px', height: '10px', borderRadius: '50%', border: '1px solid var(--gold-soft)', animation: 'wd-ring 2.4s var(--ease-out) infinite' },
-  saved: { fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', color: 'var(--text)', textAlign: 'center' },
-  goodnight: { fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', color: 'var(--text-light)', textAlign: 'center', marginTop: '6px' },
+  saved: { fontFamily: 'Georgia, serif', fontSize: '18px', color: 'var(--text)', textAlign: 'center' },
+  goodnight: { fontSize: '15px', color: 'var(--text-light)', textAlign: 'center', marginTop: '6px' },
 }

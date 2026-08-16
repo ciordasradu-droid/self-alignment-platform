@@ -214,6 +214,25 @@ input:focus, textarea:focus, select:focus {
   100% { transform: scale(1.6); opacity: 0; }
 }
 
+/* ---------- GCAO 05.08.2026 — "Apa vie, zi și seară": scrim = lege.
+   Text peste apa vie nu stă niciodată direct pe ea — fie pe foaia cu scrim
+   (jos, gradient, ca în machetă), fie cu text-shadow pentru momentele scurte
+   (salut, mesaje de închidere). ---------- */
+.water-sheet {
+  background: linear-gradient(to top, rgba(6,10,18,.88) 30%, rgba(6,10,18,.55) 70%, transparent);
+  padding: 26px 20px max(20px, env(safe-area-inset-bottom));
+  border-radius: 0;
+}
+.water-sheet-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+.water-float {
+  text-align: center;
+  text-shadow: 0 1px 10px rgba(6,10,18,.6);
+  padding: 8px 22px 28px;
+}
+
 /* ---------- LEGEA 5 — gheață topită (glassmorphism) ---------- */
 .glass {
   background: var(--surface);

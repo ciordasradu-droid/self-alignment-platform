@@ -5,11 +5,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import WaterVideoLayer from "./components/water/WaterVideoLayer";
+import WaterWorld from "./components/water/WaterWorld";
 import WaterSoundLoop from "./components/water/WaterSoundLoop";
 import InteractionLayer from "./components/water/InteractionLayer";
 import ServiceWorker from "./components/ServiceWorker";
 import DocumentTitle from "./components/DocumentTitle";
-import { APP_NAME } from "../lib/appConfig";
+import { APP_NAME, FEATURE_WATER_WORLD } from "../lib/appConfig";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,8 +73,13 @@ export default function RootLayout({ children }) {
           }}
         />
         <DocumentTitle />
-        {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia. */}
-        <WaterVideoLayer />
+        {/* LEGEA 1 — apa e sub tot. UN SINGUR strat, pentru toata aplicatia.
+            GCAO 05.08.2026 — "Apa vie, zi si seara": WaterWorld (shader viu,
+            zi/seara, bula pe Azi+Drumul) inlocuieste fundalul video cat
+            FEATURE_WATER_WORLD e activ (implicit). Comutator de oprire
+            dintr-o variabila — WaterVideoLayer ramane neatins ca fallback,
+            nu sters. */}
+        {FEATURE_WATER_WORLD ? <WaterWorld /> : <WaterVideoLayer />}
         {/* Sunetul apei (sect. E, 25.07 noapte) — oprit implicit, un singur
             loop global, langa stratul video. */}
         <WaterSoundLoop />

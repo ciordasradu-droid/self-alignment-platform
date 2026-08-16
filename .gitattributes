@@ -3,3 +3,4 @@
 # fara nicio normalizare de linie (LF->CRLF) la checkout/commit, indiferent
 # de core.autocrlf al cuiva.
 reference/bula_organica_FINAL.html -text eol=lf
+reference/concluzia_apa_vie_zi_seara.html -text eol=lf

@@ -140,18 +140,23 @@ export default function JournalPage() {
   )
 }
 
+// GCAO 05.08.2026 — "Apa vie": fundalul e acum shader-ul viu, nu un video
+// static — textul care plutea deja fără casetă (titlu, link, intrările
+// jurnalului) primește text-shadow, ca protecție de lizibilitate (regula
+// scrim), fără nicio restructurare de conținut/layout.
+const shadow = '0 1px 8px rgba(6,10,18,.6)'
 const s = {
-  back: { display: 'inline-block', marginBottom: '18px', fontSize: '14px', color: 'var(--text-light)' },
-  title: { fontFamily: 'Cormorant Garamond, serif', fontSize: '30px', fontWeight: '600', color: 'var(--text)', marginBottom: '18px' },
+  back: { display: 'inline-block', marginBottom: '18px', fontSize: '14px', color: 'var(--text-light)', textShadow: shadow },
+  title: { fontFamily: 'Cormorant Garamond, serif', fontSize: '30px', fontWeight: '600', color: 'var(--text)', marginBottom: '18px', textShadow: shadow },
   unlockNote: { fontFamily: 'Cormorant Garamond, serif', fontSize: '15px', fontStyle: 'italic', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '20px', padding: '14px 16px', borderRadius: '12px', background: 'var(--gold-faint)' },
   writeCard: { padding: '20px', marginBottom: '28px' },
   textarea: { width: '100%', resize: 'none', fontFamily: 'inherit', lineHeight: 1.7, boxSizing: 'border-box' },
   saveBtn: { marginTop: '14px', width: '100%' },
-  lockedHint: { fontSize: '13px', color: 'var(--text-light)', marginBottom: '28px' },
-  empty: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text-muted)', fontStyle: 'italic' },
+  lockedHint: { fontSize: '13px', color: 'var(--text-light)', marginBottom: '28px', textShadow: shadow },
+  empty: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text-muted)', fontStyle: 'italic', textShadow: shadow },
   page: { marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid var(--border)' },
-  pageDate: { fontSize: '12px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '14px' },
+  pageDate: { fontSize: '12px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '14px', textShadow: shadow },
   entry: { marginBottom: '14px' },
-  entryLabel: { fontSize: '12px', color: 'var(--gold)', marginBottom: '4px' },
-  entryText: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text)', lineHeight: 1.65 },
+  entryLabel: { fontSize: '12px', color: 'var(--gold)', marginBottom: '4px', textShadow: shadow },
+  entryText: { fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', color: 'var(--text)', lineHeight: 1.65, textShadow: shadow },
 }

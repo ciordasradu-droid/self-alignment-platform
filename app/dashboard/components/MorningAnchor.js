@@ -83,8 +83,8 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
 
   if (sent) {
     return (
-      <div className="flow-in" style={s.wrap}>
-        <p style={s.greet}>{lx(lang, 'wish')}{who}.</p>
+      <div className="flow-in water-float">
+        <p style={s.wish}>{lx(lang, 'wish')}{who}.</p>
       </div>
     )
   }
@@ -109,15 +109,14 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
     )
   }
 
-  // GCAO 04.08.2026 — Design/UX, ecranul Azi dimineața (constituția C.1):
-  // caseta opacă (.glass) a dispărut — ritualul plutește direct pe apă,
-  // legibilitatea vine din text-shadow (setat o dată pe wrap, moștenit),
-  // nu dintr-un fundal. Ierarhia cerută: salut+somn → Gândul Zilei →
-  // intenție+Plan (un singur bloc vizual) → UN buton primar, jos.
+  // GCAO 05.08.2026 — "Apa vie, zi și seară": salutul s-a mutat în antetul
+  // comun de pe Azi (dashboard/page.js, stânga-sus, lângă comutatorul ☾/☀) —
+  // nu se mai repetă aici. Câmpurile stau pe foaia cu scrim (water-sheet),
+  // jos, în zona degetului mare. Ierarhia rămâne: cum ai dormit → Gândul
+  // Zilei → intenție+Plan (un singur bloc vizual) → UN buton primar.
   return (
-    <div className="flow-in" style={s.wrap}>
-      <p style={s.greet}>{lx(lang, 'greet')}{who}</p>
-
+    <div className="flow-in water-sheet">
+      <div className="water-sheet-inner">
       {/* bloc 1 — cum ai dormit: scris liber, un rând, fără stări preselectate */}
       <p style={s.q}>{lx(lang, 'sleepQ')}</p>
       <input
@@ -200,27 +199,28 @@ export default function MorningAnchor({ lang = 'en', name = '', done = false, co
       <button onClick={save} disabled={saving} className="pill-btn" style={s.btn}>
         {lx(lang, 'start')}
       </button>
+      </div>
     </div>
   )
 }
 
-// GCAO 04.08.2026 — trei mărimi, două fonturi, pe tot ecranul Azi-dimineața:
-// 26px Cormorant Garamond (salut + urarea de închidere — singurele "momente
-// mari"); 15px DM Sans (tot conținutul funcțional: întrebări, corp, ecoul
-// intenției, butoanele); 13px DM Sans (indicii/meta: intro Plan, toggle).
+// GCAO 05.08.2026 — constituția v2: sans de sistem, corp minim 16px, maxim 3
+// mărimi vizibile (16px conținut funcțional, 13px indicii/meta); serif
+// (Georgia) rezervat DOAR pentru salut și Gândul Zilei — niciunul dintre ele
+// nu se mai randează aici (salutul e în antetul comun; Gândul Zilei își are
+// propriile stiluri, în DailyInsight.js).
 const s = {
   card: { padding: '30px 24px', marginBottom: '24px', textAlign: 'center' },
-  wrap: { padding: '8px 22px 28px', textAlign: 'center', textShadow: '0 1px 10px rgba(6,6,16,0.55)' },
-  greet: { fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', color: 'var(--text)', marginBottom: '18px' },
-  q: { fontSize: '15px', color: 'var(--text-muted)', marginBottom: '12px' },
-  sleepInput: { width: '100%', textAlign: 'center', boxSizing: 'border-box' },
-  block: { marginTop: '22px', textAlign: 'left' },
-  echoText: { fontSize: '15px', color: 'var(--text)', lineHeight: 1.6, marginBottom: '14px', fontStyle: 'italic' },
-  gestureRow: { display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' },
+  wish: { fontFamily: 'Georgia, serif', fontSize: '20px', color: 'var(--text)' },
+  q: { fontSize: '16px', color: 'rgba(242,239,233,.66)', marginBottom: '10px' },
+  sleepInput: { width: '100%', textAlign: 'left', boxSizing: 'border-box' },
+  block: { marginTop: '18px', textAlign: 'left' },
+  echoText: { fontSize: '16px', color: 'var(--text)', lineHeight: 1.6, marginBottom: '14px', fontStyle: 'italic' },
+  gestureRow: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
   gestureBtn: { padding: '11px 20px', minHeight: '44px' },
-  intentionArea: { width: '100%', resize: 'none', fontFamily: 'DM Sans, sans-serif', fontSize: '15px', lineHeight: 1.6, boxSizing: 'border-box' },
+  intentionArea: { width: '100%', resize: 'none', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '16px', lineHeight: 1.6, boxSizing: 'border-box' },
   planToggle: { display: 'inline-block', background: 'none', border: 'none', color: 'var(--text-light)', fontSize: '13px', cursor: 'pointer', padding: '10px 0 4px', minHeight: '44px' },
   planIntro: { fontSize: '13px', color: 'var(--text-light)', lineHeight: 1.5, marginBottom: '14px' },
   planInput: { width: '100%', boxSizing: 'border-box' },
-  btn: { width: '100%', marginTop: '24px' },
+  btn: { width: '100%', height: '52px', marginTop: '16px' },
 }

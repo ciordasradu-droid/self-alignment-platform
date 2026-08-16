@@ -681,9 +681,12 @@ const s = {
   wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px 24px', overflowX:'hidden' },
   center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px 24px', fontSize:'18px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
-  languageNotice: { fontSize:'13px', color:'var(--text-light)', fontStyle:'italic', marginTop:'-24px', marginBottom:'24px' },
-  title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif' },
-  subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px' },
+  // GCAO 05.08.2026 — "Apa vie": text-shadow de protecție (regula scrim) pe
+  // titlul/subtitlul care plutesc bare, deasupra apei vii — fără nicio
+  // restructurare de conținut.
+  languageNotice: { fontSize:'13px', color:'var(--text-light)', fontStyle:'italic', marginTop:'-24px', marginBottom:'24px', textShadow: '0 1px 8px rgba(6,10,18,.6)' },
+  title: { fontSize:'clamp(28px, 7vw, 42px)', fontWeight:'600', color:'var(--text)', fontFamily:'Cormorant Garamond, serif', textShadow: '0 1px 8px rgba(6,10,18,.6)' },
+  subtitle: { fontSize:'16px', color:'var(--text-muted)', marginTop:'6px', textShadow: '0 1px 8px rgba(6,10,18,.6)' },
   dlBtn: { padding:'10px 20px', background:'var(--surface)', border:'1.5px solid var(--border)', borderRadius:'10px', fontSize:'14px', fontWeight:'500', cursor:'pointer', color:'var(--text)' },
   personalYearCard: { background:'var(--surface)', backdropFilter:'blur(16px) saturate(120%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'28px', marginBottom:'20px', display:'flex', gap:'32px', alignItems:'flex-start', flexWrap:'wrap' },
   personalYearLeft: { display:'flex', alignItems:'center', gap:'16px', flexShrink:0 },

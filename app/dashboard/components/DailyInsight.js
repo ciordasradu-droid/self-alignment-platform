@@ -142,16 +142,18 @@ export default function DailyInsight({ embedded = false }) {
   )
 }
 
-// GCAO 04.08.2026 — versiune fără casetă, doar pentru pasul embedded din
-// ritualul de dimineață. Trei mărimi, ca tot restul ecranului Azi-dimineața:
-// 15px pentru corp/întrebare, 13px pentru eticheta/dată (meta).
+// GCAO 05.08.2026 — versiune fără casetă, doar pentru pasul embedded din
+// ritual (dimineață ȘI seară, prin DailyInsight embedded). Constituția v2:
+// serif (Georgia) rezervat pentru salut și Gândul Zilei — asta e Gândul
+// Zilei, deci corpul/întrebarea trec pe Georgia, 16px minim; eticheta/data
+// (meta) rămân sans, 13px.
 const sEmbed = {
   wrap: { textAlign: 'left' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', flexWrap: 'wrap', gap: '6px' },
   tag: { fontSize: '13px', fontWeight: '600', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px' },
   date: { fontSize: '13px', color: 'var(--text-light)' },
-  body: { fontSize: '15px', color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '14px' },
-  question: { fontSize: '15px', color: 'var(--text)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 },
+  body: { fontFamily: 'Georgia, serif', fontSize: '16px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '14px' },
+  question: { fontFamily: 'Georgia, serif', fontSize: '16px', color: 'var(--text)', lineHeight: 1.5, fontStyle: 'italic', margin: 0 },
 }
 
 const s = {
