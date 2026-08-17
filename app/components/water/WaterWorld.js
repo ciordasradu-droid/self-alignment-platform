@@ -197,38 +197,26 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
   const bubbleRef = useRef(bubble ? 1 : 0)
   useEffect(() => { bubbleRef.current = bubble ? 1 : 0 }, [bubble])
 
-  // REPARAȚIE URGENTĂ 06.08.2026 — log TEMPORAR: ce ramură se alege
-  // (normal / reduced-motion / broken), ca sa se vada exact ce se intampla
-  // pe un telefon real. De scos dupa ce Alex confirma.
-  useEffect(() => {
-    if (!mounted) return
-    console.log('[WaterWorld][temp] mounted, reducedMotion=' + reducedMotion + ' broken=' + broken + ' mode=' + mode + ' bubble=' + bubble)
-  }, [mounted, reducedMotion, broken, mode, bubble])
-
   useEffect(() => {
     if (!mounted || reducedMotion) return
     const wrap = wrapRef.current
     const cv = canvasRef.current
     if (!wrap || !cv) return
 
-    // REPARAȚIE URGENTĂ 06.08.2026 — Alex a raportat apa invizibilă pe
-    // telefon (fundalul violet vechi al body-ului, .glob-scss, arătând prin
-    // canvas). Orice eroare neprevăzută în setup-ul WebGL de mai jos
-    // (context/compilare/link/uniform) trecea neobservată — canvasul rămânea
-    // montat dar niciodată desenat, fără să cadă pe fallback-ul static.
-    // Acum ORICE eroare aici duce explicit la fallback (setBroken), nu la
-    // un canvas mut. console.log-urile de mai jos sunt TEMPORARE — de scos
-    // după ce Alex confirmă pe telefon.
+    // GCAO 06.08.2026 — reparație urgentă (apa invizibilă pe telefon):
+    // fundalul violet vechi al body-ului (LEGEA 1, întotdeauna acolo ca
+    // strat de bază) rămânea vizibil neobstrucționat de câte ori setup-ul
+    // WebGL de mai jos arunca o eroare neprevăzută — canvasul rămânea
+    // montat, dar niciodată desenat, fără să cadă pe fallback-ul static.
+    // Acum ORICE eroare aici duce explicit la fallback (setBroken).
     let gl
     try {
       gl = cv.getContext('webgl', { antialias: false, alpha: false })
-      if (!gl) { console.log('[WaterWorld][temp] webgl indisponibil'); setBroken(true); return }
+      if (!gl) { setBroken(true); return }
     } catch (e) {
-      console.log('[WaterWorld][temp] getContext a aruncat:', e?.message)
       setBroken(true)
       return
     }
-    console.log('[WaterWorld][temp] context WebGL creat OK')
 
     let pr, uT, uR, uTo, uE, uS, uC, uB
     try {
@@ -262,9 +250,7 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       uS = gl.getUniformLocation(pr, 'u_shd')
       uC = gl.getUniformLocation(pr, 'u_cau')
       uB = gl.getUniformLocation(pr, 'u_bubble')
-      console.log('[WaterWorld][temp] shader compilat + linkat OK')
     } catch (e) {
-      console.log('[WaterWorld][temp] setup shader a aruncat:', e?.message)
       setBroken(true)
       return
     }
@@ -298,7 +284,6 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
     let rafId = 0
     let running = false
 
-    let loggedFirstFrame = false
     function tick(now) {
       rafId = requestAnimationFrame(tick)
       if (now - lastDraw < FRAME_BUDGET_MS) return // plafon ~40fps, ca in macheta
@@ -319,7 +304,6 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       gl.uniform1f(uC, cur.c)
       gl.uniform1f(uB, bubbleRef.current)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
-      if (!loggedFirstFrame) { loggedFirstFrame = true; console.log('[WaterWorld][temp] primul cadru desenat') }
     }
 
     function start() {
@@ -327,23 +311,21 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       running = true
       last = performance.now()
       rafId = requestAnimationFrame(tick)
-      console.log('[WaterWorld][temp] start() apelat')
     }
     function stop() {
       running = false
       cancelAnimationFrame(rafId)
     }
 
-    // REPARAȚIE URGENTĂ 06.08.2026 — nu mai ținem un `isHidden` cache-uit o
-    // singură dată la montare (risc: dacă document.hidden citea gresit true
-    // chiar atunci și niciun eveniment visibilitychange nu mai vine dupa aia
-    // pe un browser mobil anume, bucla nu mai pornea NICIODATĂ). Citim
-    // document.hidden LIVE, de fiecare dată. Plus un re-verificare de
-    // siguranță la scurt timp după montare, in caz ca IntersectionObserver
-    // intarzie primul callback pe un device anume.
+    // GCAO 06.08.2026 — reparație urgentă: nu mai ținem un `isHidden`
+    // cache-uit o singură dată la montare (risc: dacă document.hidden citea
+    // greșit true chiar atunci și niciun eveniment visibilitychange nu mai
+    // vine după aia pe un browser mobil anume, bucla nu mai pornea
+    // NICIODATĂ). Citim document.hidden LIVE, de fiecare dată. Plus o
+    // reverificare de siguranță la scurt timp după montare, în caz că
+    // IntersectionObserver întârzie primul callback pe un device anume.
     let isIntersecting = true
     function evaluate() {
-      console.log('[WaterWorld][temp] evaluate() hidden=' + document.hidden + ' intersecting=' + isIntersecting)
       if (!document.hidden && isIntersecting) start()
       else stop()
     }
