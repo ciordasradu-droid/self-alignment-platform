@@ -197,40 +197,77 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
   const bubbleRef = useRef(bubble ? 1 : 0)
   useEffect(() => { bubbleRef.current = bubble ? 1 : 0 }, [bubble])
 
+  // REPARAȚIE URGENTĂ 06.08.2026 — log TEMPORAR: ce ramură se alege
+  // (normal / reduced-motion / broken), ca sa se vada exact ce se intampla
+  // pe un telefon real. De scos dupa ce Alex confirma.
+  useEffect(() => {
+    if (!mounted) return
+    console.log('[WaterWorld][temp] mounted, reducedMotion=' + reducedMotion + ' broken=' + broken + ' mode=' + mode + ' bubble=' + bubble)
+  }, [mounted, reducedMotion, broken, mode, bubble])
+
   useEffect(() => {
     if (!mounted || reducedMotion) return
     const wrap = wrapRef.current
     const cv = canvasRef.current
     if (!wrap || !cv) return
 
-    const gl = cv.getContext('webgl', { antialias: false, alpha: false })
-    if (!gl) { setBroken(true); return }
-
-    function sh(t, s) {
-      const o = gl.createShader(t)
-      gl.shaderSource(o, s)
-      gl.compileShader(o)
-      return o
+    // REPARAȚIE URGENTĂ 06.08.2026 — Alex a raportat apa invizibilă pe
+    // telefon (fundalul violet vechi al body-ului, .glob-scss, arătând prin
+    // canvas). Orice eroare neprevăzută în setup-ul WebGL de mai jos
+    // (context/compilare/link/uniform) trecea neobservată — canvasul rămânea
+    // montat dar niciodată desenat, fără să cadă pe fallback-ul static.
+    // Acum ORICE eroare aici duce explicit la fallback (setBroken), nu la
+    // un canvas mut. console.log-urile de mai jos sunt TEMPORARE — de scos
+    // după ce Alex confirmă pe telefon.
+    let gl
+    try {
+      gl = cv.getContext('webgl', { antialias: false, alpha: false })
+      if (!gl) { console.log('[WaterWorld][temp] webgl indisponibil'); setBroken(true); return }
+    } catch (e) {
+      console.log('[WaterWorld][temp] getContext a aruncat:', e?.message)
+      setBroken(true)
+      return
     }
-    const pr = gl.createProgram()
-    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
-    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
-    gl.linkProgram(pr)
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { setBroken(true); return }
-    gl.useProgram(pr)
-    const buf = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
-    const lp = gl.getAttribLocation(pr, 'p')
-    gl.enableVertexAttribArray(lp)
-    gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0)
-    const uT = gl.getUniformLocation(pr, 'u_t')
-    const uR = gl.getUniformLocation(pr, 'u_res')
-    const uTo = gl.getUniformLocation(pr, 'u_touch')
-    const uE = gl.getUniformLocation(pr, 'u_exp')
-    const uS = gl.getUniformLocation(pr, 'u_shd')
-    const uC = gl.getUniformLocation(pr, 'u_cau')
-    const uB = gl.getUniformLocation(pr, 'u_bubble')
+    console.log('[WaterWorld][temp] context WebGL creat OK')
+
+    let pr, uT, uR, uTo, uE, uS, uC, uB
+    try {
+      const sh = (t, s) => {
+        const o = gl.createShader(t)
+        gl.shaderSource(o, s)
+        gl.compileShader(o)
+        if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) {
+          throw new Error('compilare shader esuata: ' + gl.getShaderInfoLog(o))
+        }
+        return o
+      }
+      pr = gl.createProgram()
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
+      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
+      gl.linkProgram(pr)
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) {
+        throw new Error('link program esuat: ' + gl.getProgramInfoLog(pr))
+      }
+      gl.useProgram(pr)
+      const buf = gl.createBuffer()
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+      const lp = gl.getAttribLocation(pr, 'p')
+      gl.enableVertexAttribArray(lp)
+      gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0)
+      uT = gl.getUniformLocation(pr, 'u_t')
+      uR = gl.getUniformLocation(pr, 'u_res')
+      uTo = gl.getUniformLocation(pr, 'u_touch')
+      uE = gl.getUniformLocation(pr, 'u_exp')
+      uS = gl.getUniformLocation(pr, 'u_shd')
+      uC = gl.getUniformLocation(pr, 'u_cau')
+      uB = gl.getUniformLocation(pr, 'u_bubble')
+      console.log('[WaterWorld][temp] shader compilat + linkat OK')
+    } catch (e) {
+      console.log('[WaterWorld][temp] setup shader a aruncat:', e?.message)
+      setBroken(true)
+      return
+    }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
     function resize() {
@@ -261,6 +298,7 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
     let rafId = 0
     let running = false
 
+    let loggedFirstFrame = false
     function tick(now) {
       rafId = requestAnimationFrame(tick)
       if (now - lastDraw < FRAME_BUDGET_MS) return // plafon ~40fps, ca in macheta
@@ -281,6 +319,7 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       gl.uniform1f(uC, cur.c)
       gl.uniform1f(uB, bubbleRef.current)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
+      if (!loggedFirstFrame) { loggedFirstFrame = true; console.log('[WaterWorld][temp] primul cadru desenat') }
     }
 
     function start() {
@@ -288,19 +327,27 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       running = true
       last = performance.now()
       rafId = requestAnimationFrame(tick)
+      console.log('[WaterWorld][temp] start() apelat')
     }
     function stop() {
       running = false
       cancelAnimationFrame(rafId)
     }
 
-    let isHidden = document.hidden
+    // REPARAȚIE URGENTĂ 06.08.2026 — nu mai ținem un `isHidden` cache-uit o
+    // singură dată la montare (risc: dacă document.hidden citea gresit true
+    // chiar atunci și niciun eveniment visibilitychange nu mai vine dupa aia
+    // pe un browser mobil anume, bucla nu mai pornea NICIODATĂ). Citim
+    // document.hidden LIVE, de fiecare dată. Plus un re-verificare de
+    // siguranță la scurt timp după montare, in caz ca IntersectionObserver
+    // intarzie primul callback pe un device anume.
     let isIntersecting = true
     function evaluate() {
-      if (!isHidden && isIntersecting) start()
+      console.log('[WaterWorld][temp] evaluate() hidden=' + document.hidden + ' intersecting=' + isIntersecting)
+      if (!document.hidden && isIntersecting) start()
       else stop()
     }
-    function onVis() { isHidden = document.hidden; evaluate() }
+    function onVis() { evaluate() }
     document.addEventListener('visibilitychange', onVis)
 
     const io = new IntersectionObserver(([entry]) => {
@@ -310,9 +357,13 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
     io.observe(wrap)
 
     evaluate()
+    // plasă de siguranță: dacă IntersectionObserver întârzie primul
+    // callback pe un device anume, mai reîncercăm o dată, curând.
+    const safetyTimer = setTimeout(evaluate, 400)
 
     return () => {
       stop()
+      clearTimeout(safetyTimer)
       document.removeEventListener('visibilitychange', onVis)
       io.disconnect()
       window.removeEventListener('resize', resize)
@@ -328,8 +379,12 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
   const showStatic = reducedMotion || broken
   const tone = mode === 'night' ? '#070b14' : '#0B1220'
 
+  // REPARAȚIE URGENTĂ 06.08.2026 — z-index aliniat exact cu valoarea
+  // dovedită a fostului strat global (.watervideo, z-index:0), nu -1
+  // (necesar/netestat anterior). #app-surface (z-index:1) și .room-shell
+  // (z-index:2) rămân deasupra, neatinse.
   const layer = (
-    <div ref={wrapRef} style={{ position: 'fixed', inset: 0, zIndex: -1, background: tone }} aria-hidden="true">
+    <div ref={wrapRef} style={{ position: 'fixed', inset: 0, zIndex: 0, background: tone }} aria-hidden="true">
       {!showStatic && (
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
       )}
