@@ -19,6 +19,12 @@ const TIMEOUT_MESSAGES = {
   ro: 'Durează mai mult decât de obicei. Te rugăm să aștepți...'
 }
 
+// GCAO 06.08.2026 — reparatie P0: buton nou, cerut explicit, cu formularea
+// exacta ceruta ("Incearca din nou"/"Try again") — nu o rescriere a
+// textelor existente.
+const RETRY_LABEL = { en: 'Try again', ro: 'Încearcă din nou' }
+const STUCK_MESSAGE_DELAY_MS = 45000
+
 // Safe fetch for short request/response calls. Guards against HTML error pages.
 async function safeFetch(url, options, timeoutMs = 30000) {
   const controller = new AbortController()
@@ -79,7 +85,18 @@ function GeneratingContent() {
   const [lang, setLang] = useState('en')
   const [error, setError] = useState(null)
   const [revealedChapters, setRevealedChapters] = useState([])
+  // GCAO 06.08.2026 — reparatie P0: mesaj de asigurare daca un pas dureaza
+  // neobisnuit de mult, plus posibilitatea de a incerca din nou fara sa te
+  // intorci la onboarding (formData ramane in memorie).
+  const [stuck, setStuck] = useState(false)
   const startedRef = useRef(false)
+  const stuckTimerRef = useRef(null)
+
+  const resetStuckTimer = () => {
+    setStuck(false)
+    clearTimeout(stuckTimerRef.current)
+    stuckTimerRef.current = setTimeout(() => setStuck(true), STUCK_MESSAGE_DELAY_MS)
+  }
 
   useEffect(() => {
     // Punctul 3 (audit 26.07, runda 2, gasit in timpul testarii): React
@@ -99,47 +116,90 @@ function GeneratingContent() {
     const onboardingId = searchParams.get('id')
     const sessionId = searchParams.get('session_id')
 
-    const start = async () => {
-      let formData = null
-
+    const fetchFormData = async () => {
       if (sessionId) {
         try {
           const res = await fetch(`/api/checkout/session?session_id=${encodeURIComponent(sessionId)}`)
           const json = await res.json()
-          if (json.success) formData = json.formData
+          if (json.success) return json.formData
         } catch (e) {}
-        if (!formData) {
-          setError('Error reading your payment. Please go back and try again.')
-          return
-        }
+        return null
       } else if (onboardingId) {
         try {
           const res = await fetch(`/api/onboarding/session?id=${encodeURIComponent(onboardingId)}`)
           const json = await res.json()
-          if (json.success) formData = json.formData
+          if (json.success) return json.formData
         } catch (e) {}
-        if (!formData) {
-          setError('Error reading your data. Please go back and try again.')
-          return
-        }
-      } else {
+        return null
+      }
+      return undefined // niciun id — nu e o eroare de retea, doar lipsa datelor
+    }
+
+    const start = async () => {
+      const formData = await fetchFormData()
+
+      if (formData === undefined) {
         router.push('/onboarding')
+        return
+      }
+      if (!formData) {
+        setError(sessionId ? 'Error reading your payment. Please go back and try again.' : 'Error reading your data. Please go back and try again.')
         return
       }
 
       setLang(formData.language || 'en')
-
+      resetStuckTimer()
       generateProfile(formData)
     }
 
     start()
+
+    return () => clearTimeout(stuckTimerRef.current)
   }, [])
+
+  // GCAO 06.08.2026 — reparatie P0: reincearca generarea de la capat, fara
+  // sa te trimita inapoi la onboarding (aceleasi date, refetch-uite din nou
+  // ca sa functioneze si daca prima citire a datelor a esuat).
+  const retry = async () => {
+    const onboardingId = searchParams.get('id')
+    const sessionId = searchParams.get('session_id')
+    setError(null)
+    setStep(0)
+    setRevealedChapters([])
+
+    let formData = null
+    if (sessionId) {
+      try {
+        const res = await fetch(`/api/checkout/session?session_id=${encodeURIComponent(sessionId)}`)
+        const json = await res.json()
+        if (json.success) formData = json.formData
+      } catch (e) {}
+    } else if (onboardingId) {
+      try {
+        const res = await fetch(`/api/onboarding/session?id=${encodeURIComponent(onboardingId)}`)
+        const json = await res.json()
+        if (json.success) formData = json.formData
+      } catch (e) {}
+    }
+
+    if (!formData) {
+      setError(sessionId ? 'Error reading your payment. Please go back and try again.' : 'Error reading your data. Please go back and try again.')
+      return
+    }
+
+    resetStuckTimer()
+    generateProfile(formData)
+  }
 
   // Punctul 3 (audit 26.07, runda 2): mesajele de progres urmau un carusel pe
   // cronometru (un pas la 8s, cu % steps.length) — la peste 56s se relua de
   // la primul mesaj, dand impresia ca generarea a luat-o inapoi. Acum step-ul
   // avanseaza DOAR odata cu evenimente reale din pipeline si nu scade niciodata.
-  const advanceStep = (min) => setStep(current => Math.max(current, min))
+  const advanceStep = (min) => setStep(current => {
+    const next = Math.max(current, min)
+    if (next !== current) resetStuckTimer() // orice progres real amana mesajul de asigurare
+    return next
+  })
 
   const generateProfile = async (formData) => {
     try {
@@ -262,6 +322,7 @@ function GeneratingContent() {
       router.push('/profile')
 
     } catch (err) {
+      clearTimeout(stuckTimerRef.current)
       if (err.name === 'AbortError') {
         const language = formData.language || 'en'
         setError(TIMEOUT_MESSAGES[language] || TIMEOUT_MESSAGES.en)
@@ -293,6 +354,9 @@ function GeneratingContent() {
           }}>
             {error}
           </p>
+          <button onClick={retry} className="pill-btn" style={{ width: '100%', marginBottom: '14px' }}>
+            {RETRY_LABEL[lang] || RETRY_LABEL.en}
+          </button>
           <a href="/onboarding" style={{
             color: 'var(--purple)',
             fontWeight: 600,
@@ -336,6 +400,21 @@ function GeneratingContent() {
         }}>
           {t(lang, 'generating_subtitle')}
         </p>
+
+        {/* GCAO 06.08.2026 — reparatie P0: asigurare vizibila daca un pas
+            dureaza neobisnuit de mult (45s+), ca asteptarea sa nu para
+            moarta/inghetata — reuseste textul existent (TIMEOUT_MESSAGES). */}
+        {stuck && (
+          <p className="anim-fade-in" style={{
+            color:'var(--text-light)',
+            fontSize:'13px',
+            fontStyle:'italic',
+            marginTop:'14px',
+            lineHeight:1.6
+          }}>
+            {TIMEOUT_MESSAGES[lang] || TIMEOUT_MESSAGES.en}
+          </p>
+        )}
         <div style={{ marginTop:'32px', display:'flex', justifyContent:'center', gap:'8px' }} aria-hidden="true">
           {steps.map((_, i) => (
             <div key={i} style={{
