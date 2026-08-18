@@ -246,6 +246,38 @@ input:focus, textarea:focus, select:focus {
   backdrop-filter: blur(16px) saturate(120%);
 }
 
+/* ---------- P0 continuare (06.08.2026) — linia de apa a generarii ----------
+   Punctul 2a: umplere animata (nu puncte statice), cu un capat care sclipeste
+   usor cat timp inca mai creste — "miscarea e mesajul lucrez". */
+.gen-fill-track {
+  margin-top: 32px;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+  position: relative;
+}
+.gen-fill-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--purple) 0%, var(--gold) 100%);
+  transition: width 0.6s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+.gen-fill-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 24px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55));
+  animation: gen-fill-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes gen-fill-shimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+}
+
 /* ---------- LEGEA 4 — așteptarea e apă, nu spinner ---------- */
 .water-loader {
   position: relative;

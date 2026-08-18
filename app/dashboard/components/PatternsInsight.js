@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import WaterLoader from "../../components/water/WaterLoader"
 
 export default function PatternsInsight({ lang = "en" }) {
   const [patterns, setPatterns] = useState(null)
@@ -291,8 +292,7 @@ export default function PatternsInsight({ lang = "en" }) {
 
           {loading && (
             <div style={s.loadingBox}>
-              <div style={s.spinner} />
-              <p style={s.loadingText}>{t.loading}</p>
+              <WaterLoader label={t.loading} />
             </div>
           )}
 
@@ -367,8 +367,6 @@ const s = {
   body: { marginTop: "20px", paddingTop: "20px", borderTop: "1px solid var(--border)" },
   generateBtn: { width: "100%", padding: "14px", background: "var(--purple)", color: "#fff", border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: "500", cursor: "pointer", boxShadow: "0 4px 20px var(--gold-faint)" },
   loadingBox: { textAlign: "center", padding: "32px 0" },
-  spinner: { width: "32px", height: "32px", border: "3px solid var(--border)", borderTopColor: "var(--purple)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" },
-  loadingText: { fontSize: "14px", color: "var(--text-muted)" },
   errorText: { fontSize: "14px", color: "var(--text-muted)", textAlign: "center", padding: "20px 0", lineHeight: "1.6" },
   patternsWrap: { },
   patternCard: { background: "var(--bg)", borderRadius: "10px", padding: "20px", marginBottom: "14px" },
