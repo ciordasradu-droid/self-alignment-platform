@@ -184,7 +184,11 @@ export default function Home() {
 const s = {
   wrap: { maxWidth: '1040px', margin: '0 auto', padding: '0 24px' },
 
-  nav: { position: 'sticky', top: 0, zIndex: 100 },
+  // REPARAȚIE P0 06.08.2026 — nav-ul sticky nu avea niciun fundal, deci
+  // odată lipit sus la scroll, "Aquanima" se suprapunea peste orice titlu
+  // ajungea dedesubt (raportat: peste "The prices, upfront"). Fundal scrim,
+  // consecvent cu restul aplicației (.water-sheet), nu o casetă nouă.
+  nav: { position: 'sticky', top: 0, zIndex: 100, background: 'rgba(11,18,32,0.72)', backdropFilter: 'blur(12px)' },
   navInner: { maxWidth: '1040px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', height: '64px' },
   logo: { fontSize: '19px', fontWeight: '600', fontFamily: 'Cormorant Garamond, serif', letterSpacing: '0.5px', color: 'var(--text)', textShadow: '0 1px 12px rgba(0,0,0,0.4)' },
 

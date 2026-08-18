@@ -58,7 +58,7 @@ export default function SubscribePage() {
     const res = await fetch('/api/stripe/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan, lang })
     })
     const data = await res.json()
     if (data.url) {

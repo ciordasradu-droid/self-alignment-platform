@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSessionUser } from '../../../../lib/supabase/server'
+import { toStripeLocale } from '../../../../lib/stripeLocale'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -16,6 +17,9 @@ export async function POST(request) {
   try {
     const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+    let lang
+    try { lang = (await request.json())?.lang } catch (e) {}
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -28,6 +32,8 @@ export async function POST(request) {
         quantity: 1,
       }],
       mode: 'payment',
+      // REPARATIE P0 06.08.2026 — vezi api/checkout/route.js, acelasi bug.
+      locale: toStripeLocale(lang),
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/compatibility?paid_session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/compatibility`,
       metadata: {

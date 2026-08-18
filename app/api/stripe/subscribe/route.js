@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSessionUser } from '../../../../lib/supabase/server'
+import { toStripeLocale } from '../../../../lib/stripeLocale'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -10,7 +11,7 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { plan } = body
+    const { plan, lang } = body
 
     const priceId = plan === 'annual'
       ? process.env.STRIPE_ANNUAL_PRICE_ID
@@ -20,6 +21,8 @@ export async function POST(request) {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
+      // REPARATIE P0 06.08.2026 — vezi api/checkout/route.js, acelasi bug.
+      locale: toStripeLocale(lang),
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscribed=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscribe`,
       currency: 'eur',

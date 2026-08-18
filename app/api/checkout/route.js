@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { toStripeLocale } from '../../../lib/stripeLocale'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -30,6 +31,9 @@ export async function POST(request) {
         }
       ],
       mode: 'payment',
+      // REPARATIE P0 06.08.2026 — Stripe cadea pe engleza indiferent de
+      // limba aleasa in aplicatie; locale explicit, din limba formularului.
+      locale: toStripeLocale(formData.language),
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/generating?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
       metadata: {

@@ -377,7 +377,11 @@ export default function CompatibilityPage() {
 
       if (data.checkout_required) {
         try { sessionStorage.setItem(PENDING_KEY, JSON.stringify({ type: theType, personA: pA, personB: pB })) } catch (e) {}
-        const checkoutRes = await fetch('/api/compatibility/checkout', { method: 'POST' })
+        const checkoutRes = await fetch('/api/compatibility/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lang }),
+        })
         const checkoutData = await checkoutRes.json()
         if (checkoutData.url) { window.location.href = checkoutData.url; return }
         setError(lx(lang, 'error_generic'))

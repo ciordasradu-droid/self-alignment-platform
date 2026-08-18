@@ -218,48 +218,79 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       return
     }
 
+    // GCAO 06.08.2026 — reparație P0 (apa rămâne întunecată la revenirea
+    // în filă): un browser de telefon poate revoca contextul WebGL cât
+    // fila stă ascunsă (presiune de memorie) — evenimentul e
+    // `webglcontextlost`. După el, ORICE apel gl.* devine un no-op tăcut
+    // (nu aruncă), deci bucla „rula" dar nu mai desena nimic — canvas-ul
+    // rămânea pe ultimul cadru sau negru. `webglcontextrestored` anunță
+    // când browserul realocă un context nou pe ACELAȘI element canvas —
+    // dar programul/buffer-ul/uniformele vechi sunt pierdute și trebuie
+    // create din nou. initGL() e reutilizabilă exact pentru asta: rulează
+    // o dată la montare, și din nou la fiecare restaurare.
     let pr, uT, uR, uTo, uE, uS, uC, uB
-    try {
-      const sh = (t, s) => {
-        const o = gl.createShader(t)
-        gl.shaderSource(o, s)
-        gl.compileShader(o)
-        if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) {
-          throw new Error('compilare shader esuata: ' + gl.getShaderInfoLog(o))
+    let glReady = false
+
+    function initGL() {
+      glReady = false
+      try {
+        const sh = (t, s) => {
+          const o = gl.createShader(t)
+          gl.shaderSource(o, s)
+          gl.compileShader(o)
+          if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) {
+            throw new Error('compilare shader esuata: ' + gl.getShaderInfoLog(o))
+          }
+          return o
         }
-        return o
+        pr = gl.createProgram()
+        gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
+        gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
+        gl.linkProgram(pr)
+        if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) {
+          throw new Error('link program esuat: ' + gl.getProgramInfoLog(pr))
+        }
+        gl.useProgram(pr)
+        const buf = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+        const lp = gl.getAttribLocation(pr, 'p')
+        gl.enableVertexAttribArray(lp)
+        gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0)
+        uT = gl.getUniformLocation(pr, 'u_t')
+        uR = gl.getUniformLocation(pr, 'u_res')
+        uTo = gl.getUniformLocation(pr, 'u_touch')
+        uE = gl.getUniformLocation(pr, 'u_exp')
+        uS = gl.getUniformLocation(pr, 'u_shd')
+        uC = gl.getUniformLocation(pr, 'u_cau')
+        uB = gl.getUniformLocation(pr, 'u_bubble')
+        glReady = true
+        setBroken(false)
+      } catch (e) {
+        setBroken(true)
       }
-      pr = gl.createProgram()
-      gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS))
-      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS))
-      gl.linkProgram(pr)
-      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) {
-        throw new Error('link program esuat: ' + gl.getProgramInfoLog(pr))
-      }
-      gl.useProgram(pr)
-      const buf = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
-      const lp = gl.getAttribLocation(pr, 'p')
-      gl.enableVertexAttribArray(lp)
-      gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0)
-      uT = gl.getUniformLocation(pr, 'u_t')
-      uR = gl.getUniformLocation(pr, 'u_res')
-      uTo = gl.getUniformLocation(pr, 'u_touch')
-      uE = gl.getUniformLocation(pr, 'u_exp')
-      uS = gl.getUniformLocation(pr, 'u_shd')
-      uC = gl.getUniformLocation(pr, 'u_cau')
-      uB = gl.getUniformLocation(pr, 'u_bubble')
-    } catch (e) {
-      setBroken(true)
-      return
     }
+
+    initGL()
+    if (!glReady) return
+
+    function onContextLost(e) {
+      e.preventDefault() // obligatoriu — altfel browserul nu mai încearcă să restaureze
+      glReady = false
+      stop()
+    }
+    function onContextRestored() {
+      initGL()
+      if (glReady) evaluate()
+    }
+    cv.addEventListener('webglcontextlost', onContextLost, false)
+    cv.addEventListener('webglcontextrestored', onContextRestored, false)
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
     function resize() {
       cv.width = Math.max(1, Math.round(window.innerWidth * dpr))
       cv.height = Math.max(1, Math.round(window.innerHeight * dpr))
-      gl.viewport(0, 0, cv.width, cv.height)
+      if (glReady) gl.viewport(0, 0, cv.width, cv.height)
     }
     resize()
     window.addEventListener('resize', resize)
@@ -286,6 +317,7 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
 
     function tick(now) {
       rafId = requestAnimationFrame(tick)
+      if (!glReady) return // context pierdut intre timp — onContextLost va opri bucla oricum
       if (now - lastDraw < FRAME_BUDGET_MS) return // plafon ~40fps, ca in macheta
       lastDraw = now
       const dt = (now - last) / 1000
@@ -326,7 +358,7 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
     // IntersectionObserver întârzie primul callback pe un device anume.
     let isIntersecting = true
     function evaluate() {
-      if (!document.hidden && isIntersecting) start()
+      if (!document.hidden && isIntersecting && glReady) start()
       else stop()
     }
     function onVis() { evaluate() }
@@ -351,8 +383,12 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
       window.removeEventListener('resize', resize)
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
-      const lose = gl.getExtension('WEBGL_lose_context')
-      if (lose) lose.loseContext()
+      cv.removeEventListener('webglcontextlost', onContextLost, false)
+      cv.removeEventListener('webglcontextrestored', onContextRestored, false)
+      if (glReady) {
+        const lose = gl.getExtension('WEBGL_lose_context')
+        if (lose) lose.loseContext()
+      }
     }
   }, [mounted, reducedMotion])
 
