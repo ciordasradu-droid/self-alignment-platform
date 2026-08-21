@@ -794,6 +794,14 @@ export default function Onboarding() {
         {step === 4 && (
           <section className="ob-card ob-enter ob-center ob-water" key="s4" onClick={handleWaterTouch}>
             <p className="ob-vision ob-water-phrase">{tx(lang, 'water_phrase')}</p>
+            {/* P0 (20.08.2026) — dead-end confirmat de Alex live: fara acest
+                buton, ecranul era doar text, fara nimic care sa arate a
+                atingere posibila. Atingerea ramane valabila oriunde pe card
+                (onClick de mai sus) — butonul e acelasi tx(lang,'continue')
+                deja folosit pe toate celelalte slide-uri, nu text nou. */}
+            {!waterTouched && (
+              <button className="ob-cta" onClick={handleWaterTouch}>{tx(lang, 'continue')}</button>
+            )}
             {waterTouched && isAnonymous && (
               <div onClick={e => e.stopPropagation()} className="anim-fade-in">
                 <label className="ob-label">{tx(lang, 'email_label')}</label>
@@ -861,6 +869,20 @@ export default function Onboarding() {
           border: 1px solid rgba(229, 169, 60, 0.15);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
+          /* P0 (20.08.2026) — textele de prezentare (fraze, hint-uri, carduri)
+             deveneau selectabile pe Android; o atingere puțin mai lungă (ex.
+             pe slide-ul apei, unde tot cardul e ținta de atingere) declanșa
+             panoul nativ de definiții în loc de acțiunea așteptată. Doar
+             copy-ul e neselectabil — inputurile de mai jos își recapătă
+             explicit selecția, ca să poți copia/lipi datele tale normal. */
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        .ob-card input,
+        .ob-card textarea,
+        .ob-card select {
+          -webkit-user-select: text;
+          user-select: text;
         }
         .ob-center { text-align: center; }
         .ob-enter { animation: ob-in 420ms cubic-bezier(0.22, 0.7, 0.35, 1) both; }

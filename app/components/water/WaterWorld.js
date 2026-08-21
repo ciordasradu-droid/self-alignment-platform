@@ -26,9 +26,11 @@
 // - fallback: prefers-reduced-motion SAU WebGL indisponibil → un gradient
 //   static (tonul apei adânci), fără canvas, fără animație — nimic nu crapă.
 // - oprire completă a buclei (cancelAnimationFrame, nu doar salt de desen)
-//   la fila ascunsă SAU la ieșirea din viewport (IntersectionObserver) —
-//   pentru un strat fullscreen practic mereu "vizibil", document.hidden e
-//   cazul real care contează, dar IntersectionObserver rămâne ca plasă.
+//   DOAR la fila ascunsă (document.hidden) — singurul semnal de încredere
+//   pentru un strat mereu `position:fixed; inset:0`. IntersectionObserver a
+//   fost scos din decizie (P0 20.08.2026: raporta tranzitoriu "invizibil" în
+//   timpul scroll-ului pe mobil și bucla nu mai repornea niciodată). Un
+//   watchdog periodic (1.5s) reevaluează oricum, ca plasă finală.
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -353,33 +355,35 @@ export default function WaterWorld({ mode: modeProp, bubble: bubbleProp }) {
     // cache-uit o singură dată la montare (risc: dacă document.hidden citea
     // greșit true chiar atunci și niciun eveniment visibilitychange nu mai
     // vine după aia pe un browser mobil anume, bucla nu mai pornea
-    // NICIODATĂ). Citim document.hidden LIVE, de fiecare dată. Plus o
-    // reverificare de siguranță la scurt timp după montare, în caz că
-    // IntersectionObserver întârzie primul callback pe un device anume.
-    let isIntersecting = true
+    // NICIODATĂ). Citim document.hidden LIVE, de fiecare dată.
+    //
+    // P0 (20.08.2026) — "apa moare la scroll agresiv, fără revenire": stratul
+    // e mereu `position:fixed; inset:0`, deci teoretic nu iese NICIODATĂ din
+    // viewport — dar IntersectionObserver, pe mobil, poate raporta tranzitoriu
+    // isIntersecting=false în timpul scroll-ului/bounce-ului (bara de adresă
+    // care se ascunde/arată schimbă viewportul vizual sub layout-ul fix, la
+    // fel ca bine-cunoscuta problemă `100vh` pe mobil). Alex a confirmat live:
+    // bucla se oprea și NU mai repornea niciodată — deci semnalul ăsta nu mai
+    // e de încredere ca sursă de adevăr pentru un strat fullscreen. Singurul
+    // motiv real să oprim desenul e fila ascunsă (document.hidden) — a fost
+    // scos complet din decizie, nu doar dezactivat, ca să nu mai rămână un
+    // semnal mort în cod. Watchdog periodic dedesubt e plasa finală: dacă
+    // orice alt eveniment e ratat/întârziat pe un device anume, bucla se
+    // repornește singură în maxim 1.5s cât timp pagina e vizibilă.
     function evaluate() {
-      if (!document.hidden && isIntersecting && glReady) start()
+      if (!document.hidden && glReady) start()
       else stop()
     }
     function onVis() { evaluate() }
     document.addEventListener('visibilitychange', onVis)
 
-    const io = new IntersectionObserver(([entry]) => {
-      isIntersecting = entry.isIntersecting
-      evaluate()
-    }, { threshold: 0.01 })
-    io.observe(wrap)
-
     evaluate()
-    // plasă de siguranță: dacă IntersectionObserver întârzie primul
-    // callback pe un device anume, mai reîncercăm o dată, curând.
-    const safetyTimer = setTimeout(evaluate, 400)
+    const watchdog = setInterval(evaluate, 1500)
 
     return () => {
       stop()
-      clearTimeout(safetyTimer)
+      clearInterval(watchdog)
       document.removeEventListener('visibilitychange', onVis)
-      io.disconnect()
       window.removeEventListener('resize', resize)
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
