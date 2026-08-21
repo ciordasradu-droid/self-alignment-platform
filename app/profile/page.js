@@ -678,7 +678,10 @@ function ProfileContent() {
 }
 
 const s = {
-  wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px 24px', overflowX:'hidden' },
+  // Finisaj (20.08.2026) — 24px jos nu tinea cont de RoomNav (fixed, jos) —
+  // titlul arhetipului si sectiunile intrau sub bara. 100px + safe-area,
+  // aceeasi valoare ca .room-shell/Jurnal.
+  wrap: { position:'relative', zIndex:2, maxWidth:'800px', margin:'0 auto', padding:'calc(40px + env(safe-area-inset-top)) 24px calc(100px + env(safe-area-inset-bottom))', overflowX:'hidden' },
   center: { position:'relative', zIndex:2, textAlign:'center', padding:'80px 20px 24px', fontSize:'18px' },
   header: { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'40px', flexWrap:'wrap', gap:'16px' },
   // GCAO 05.08.2026 — "Apa vie": text-shadow de protecție (regula scrim) pe

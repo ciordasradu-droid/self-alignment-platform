@@ -1475,7 +1475,12 @@ input:focus, textarea:focus, select:focus {
   min-height: 100dvh;
   max-width: 640px;
   margin: 0 auto;
-  padding: calc(24px + env(safe-area-inset-top)) 20px 24px;
+  /* Finisaj (20.08.2026) — 24px jos nu tinea cont deloc de bara de jos
+     (RoomNav, fixed) — continutul intra sub ea (vazut pe Azi/Drumul).
+     100px acopera bara + marja, la fel ca valoarea deja folosita pe
+     Jurnal; safe-area-inset-bottom adaugat, ca sa acopere si telefoanele
+     cu bara de gesturi jos. */
+  padding: calc(24px + env(safe-area-inset-top)) 20px calc(100px + env(safe-area-inset-bottom));
 }
 .room-nav {
   position: fixed;

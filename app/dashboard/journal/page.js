@@ -93,7 +93,7 @@ export default function JournalPage() {
   }
 
   return (
-    <main className="room-shell" style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 20px 100px' }}>
+    <main className="room-shell" style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 20px calc(100px + env(safe-area-inset-bottom))' }}>
       <Link href="/dashboard" style={s.back}>{lx(lang, 'back')}</Link>
       <h1 style={s.title}>{lx(lang, 'title')}</h1>
 

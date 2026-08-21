@@ -436,7 +436,9 @@ function GeneratingContent() {
   return (
     <>
       <main style={{ maxWidth:'480px', margin:'120px auto', padding:'0 20px', textAlign:'center' }}>
-        <div style={{ marginBottom:'24px' }}><WaterLoader /></div>
+        {/* Finisaj (20.08.2026) — ornamentul de inele+picatura (WaterLoader)
+            scos: apa globala din fundal + linia de umplere + etapele bifate
+            sunt deja semnul de viata, nu mai are nevoie de un al doilea. */}
         <h1 style={{
           fontSize:'26px',
           fontWeight:600,
@@ -488,8 +490,12 @@ function GeneratingContent() {
         </div>
 
         {/* Punctul 2b: etapele mari devin pasi bifati, refolosind exact
-            liniile deja traduse din generating_steps (fara text nou). */}
-        <div style={{ marginTop:'18px', textAlign:'left', display:'inline-block' }}>
+            liniile deja traduse din generating_steps (fara text nou).
+            Finisaj (20.08.2026) — `display:inline-block` lasa acest bloc si
+            cel de capitole de mai jos sa se aseze unul langa altul (doua
+            coloane) pe unele viewporturi, in loc sa curga sub el. O singura
+            coloana, mereu: block + latime plina. */}
+        <div style={{ marginTop:'18px', width:'100%', textAlign:'left' }}>
           {MACRO_STAGE_ANCHORS.map((anchor) => {
             if (stepIndex < anchor) return null
             const done = stepIndex > anchor
@@ -505,9 +511,10 @@ function GeneratingContent() {
           })}
         </div>
 
-        {/* B2 — capitolele apar pe masura ce sunt scrise, nu doar la final */}
+        {/* B2 — capitolele apar pe masura ce sunt scrise, nu doar la final.
+            Aceeasi reparatie: block + latime plina, nu inline-block. */}
         {revealedChapters.length > 0 && (
-          <div style={{ marginTop:'28px', textAlign:'left', display:'inline-block' }}>
+          <div style={{ marginTop:'28px', width:'100%', textAlign:'left' }}>
             {CHAPTER_ORDER.filter(k => revealedChapters.includes(k)).map(key => (
               <p key={key} className="anim-fade-in" style={{
                 fontSize:'14px', color:'var(--text-muted)', lineHeight:1.8,
